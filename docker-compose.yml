@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: my-garage-postgres
+    environment:
+      POSTGRES_DB: mygarage
+      POSTGRES_USER: mygarage
+      POSTGRES_PASSWORD: mygarage
+    ports:
+      - "5432:5432"
+    volumes:
+      - my-garage-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  my-garage-postgres-data:
