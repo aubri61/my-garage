@@ -22,7 +22,11 @@ function AuthFields({ mode }: { mode: "login" | "signup" }) {
   const [status, setStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const request = useRef<AbortController | null>(null);
-  useEffect(() => () => request.current?.abort(), []);
+  useEffect(() => () => {
+    request.current?.abort();
+    request.current = null;
+    setStatus(previous => previous === "pending" ? "idle" : previous);
+  }, []);
 
   function change(field: keyof SignupValues, value: string) {
     setValues(previous => ({ ...previous, [field]: value }));
@@ -30,7 +34,7 @@ function AuthFields({ mode }: { mode: "login" | "signup" }) {
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (status === "pending") return;
+    if (status === "pending" || request.current) return;
     const form = event.currentTarget;
     const validation = signup ? validateSignup(values) : validateLogin(values);
     setErrors(validation);
@@ -41,6 +45,7 @@ function AuthFields({ mode }: { mode: "login" | "signup" }) {
     setStatus("pending");
     try {
       const result = await (signup ? mockSignup(values, controller.signal) : mockLogin(values, controller.signal));
+      controller.signal.throwIfAborted();
       startMemberSession(result.displayName, signup);
       setValues({ name: "", email: "", password: "", passwordConfirmation: "" });
       setStatus("success");
@@ -48,6 +53,8 @@ function AuthFields({ mode }: { mode: "login" | "signup" }) {
     } catch (error) {
       if (controller.signal.aborted) return;
       setStatus("error"); setMessage(error instanceof Error ? error.message : "다시 시도해주세요.");
+    } finally {
+      if (request.current === controller) request.current = null;
     }
   }
 

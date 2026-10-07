@@ -85,7 +85,8 @@ test('ownership and certificate failures prevent completing the connection; succ
   assert.equal(vehicle.certificate, certificate);
   assert.equal(vehicle.connectionStatus, 'connected');
   assert.ok(new Date(certificate.expiresAt) > new Date(certificate.issuedAt));
-  assert.equal(certificate.isDemo, true);
+  assert.equal(vehicle.registrationStatus, "registered");
+  assert.equal("isDemo" in certificate, false);
 });
 
 test('leaving a workflow cancels pending mock work', async () => {
@@ -96,4 +97,54 @@ test('leaving a workflow cancels pending mock work', async () => {
   controller.abort();
   await assert.rejects(pending, { name: 'AbortError' });
   await assert.rejects(mockLatency(controller.signal), { name: 'AbortError' });
+});
+
+test('cancelled registration preserves drafts, releases pending and ignores stale completion', () => {
+  const { load } = loadDemoModules();
+  const { registrationReducer: reduce, initialRegistrationState, isRegistrationPending, connectionProgressFor } = load('features/vehicle-registration/reducer');
+  const { mockVehicles } = load('mocks/vehicles');
+  const { mockRegistrationFixtures, getMockVehicleWithCertificate } = load('mocks/vehicle-registration');
+  const candidate = { vehicle: mockVehicles[0], vin: mockRegistrationFixtures[0].vin };
+  let state = reduce(initialRegistrationState, { type: 'queryChanged', query: 'EV6-2026' });
+  state = reduce(state, { type: 'lookupStarted' });
+  state = reduce(state, { type: 'cancelled' });
+  assert.equal(isRegistrationPending(state), false);
+  assert.equal(state.query, 'EV6-2026');
+  assert.equal(reduce(state, { type: 'vehicleFound', candidate }), state);
+  state = reduce(state, { type: 'lookupStarted' });
+  state = reduce(state, { type: 'vehicleFound', candidate });
+  state = reduce(state, { type: 'vehicleConfirmed' });
+  state = reduce(state, { type: 'codeChanged', code: '123456' });
+  state = reduce(state, { type: 'ownershipStarted' });
+  state = reduce(state, { type: 'ownershipConfirmed' });
+  state = reduce(state, { type: 'identityCreated', identity: mockRegistrationFixtures[0].identity });
+  assert.deepEqual(connectionProgressFor(state), { identity: 'complete', certificate: 'running', connection: 'waiting' });
+  state = reduce(state, { type: 'cancelled' });
+  assert.equal(state.phase, 'ownership');
+  assert.equal(state.ownershipCode, '123456');
+  assert.equal(isRegistrationPending(state), false);
+  assert.equal(reduce(state, { type: 'connected', vehicle: getMockVehicleWithCertificate(candidate.vehicle) }), state);
+  state = reduce(state, { type: 'ownershipStarted' });
+  assert.equal(isRegistrationPending(state), true);
+});
+
+test('certificate failure cannot become complete and retry restores ownership with the same candidate', () => {
+  const { load } = loadDemoModules();
+  const { registrationReducer: reduce, initialRegistrationState, connectionProgressFor } = load('features/vehicle-registration/reducer');
+  const { mockVehicles } = load('mocks/vehicles');
+  const { mockRegistrationFixtures, getMockVehicleWithCertificate } = load('mocks/vehicle-registration');
+  const candidate = { vehicle: mockVehicles[0], vin: mockRegistrationFixtures[0].vin };
+  let state = reduce(initialRegistrationState, { type: 'lookupStarted' });
+  state = reduce(state, { type: 'vehicleFound', candidate });
+  state = reduce(state, { type: 'vehicleConfirmed' });
+  state = reduce(state, { type: 'ownershipStarted' });
+  state = reduce(state, { type: 'ownershipConfirmed' });
+  state = reduce(state, { type: 'identityCreated', identity: mockRegistrationFixtures[0].identity });
+  state = reduce(state, { type: 'failed', error: '발급 실패' });
+  assert.deepEqual(connectionProgressFor(state), { identity: 'complete', certificate: 'failed', connection: 'waiting' });
+  assert.equal(reduce(state, { type: 'connected', vehicle: getMockVehicleWithCertificate(candidate.vehicle) }), state);
+  state = reduce(state, { type: 'retryRequested' });
+  assert.equal(state.phase, 'ownership');
+  assert.equal(state.candidate, candidate);
+  assert.equal(state.status, 'idle');
 });

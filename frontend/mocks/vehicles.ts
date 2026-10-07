@@ -1,9 +1,10 @@
-import type { Vehicle } from "@/features/vehicle/types";
+import type { UnregisteredVehicle } from "@/features/vehicle/types";
 
 // Original AI-generated studio illustrations; replace image.src with licensed vehicle assets.
 export const mockVehicles = [
   {
     id: "kia-ev6",
+    registrationStatus: "unregistered",
     modelName: "Kia EV6",
     trim: "롱레인지 · 어스 · 사륜구동",
     image: {
@@ -24,6 +25,7 @@ export const mockVehicles = [
   },
   {
     id: "hyundai-ioniq5",
+    registrationStatus: "unregistered",
     modelName: "Hyundai IONIQ 5",
     trim: "롱레인지 · 프레스티지 · 사륜구동",
     image: {
@@ -44,6 +46,7 @@ export const mockVehicles = [
   },
   {
     id: "genesis-gv80",
+    registrationStatus: "unregistered",
     modelName: "Genesis GV80",
     trim: "가솔린 2.5 터보 · 사륜구동",
     image: {
@@ -60,4 +63,4 @@ export const mockVehicles = [
     doorStatus: "locked",
     climateStatus: "unknown",
   },
-] as const satisfies readonly Vehicle[];
+] as const satisfies readonly UnregisteredVehicle[];

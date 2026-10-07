@@ -15,11 +15,9 @@ type VehicleBase = {
   connectionStatus: ConnectionStatus;
   doorStatus: DoorStatus;
   climateStatus: ClimateStatus;
-  identity?: VehicleIdentity;
-  certificate?: VehicleCertificate;
 };
 
-export type Vehicle = VehicleBase & (
+type VehicleDetails = VehicleBase & (
   | {
       powertrain: "electric";
       batteryPercent: number | null;
@@ -35,5 +33,17 @@ export type VehicleCertificate = {
   issuedAt: string;
   expiresAt: string;
   status: "valid" | "expiring" | "expired";
-  isDemo: true;
 };
+
+// Registration is separate from the vehicle's online/offline connection status.
+export type UnregisteredVehicle = VehicleDetails & {
+  registrationStatus: "unregistered";
+  identity?: never;
+  certificate?: never;
+};
+export type RegisteredVehicle = VehicleDetails & {
+  registrationStatus: "registered";
+  identity: VehicleIdentity;
+  certificate: VehicleCertificate;
+};
+export type Vehicle = UnregisteredVehicle | RegisteredVehicle;

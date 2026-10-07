@@ -1,4 +1,4 @@
-import type { Vehicle, VehicleCertificate, VehicleIdentity } from "@/features/vehicle/types";
+import type { RegisteredVehicle, Vehicle, VehicleCertificate, VehicleIdentity } from "@/features/vehicle/types";
 import type { VehicleCandidate } from "@/features/vehicle-registration/types";
 import { mockVehicles } from "@/mocks/vehicles";
 import { mockLatency } from "@/mocks/latency";
@@ -9,9 +9,9 @@ type RegistrationFixture = {
 };
 const createdAt = "2026-10-08T09:00:00+09:00";
 export const mockRegistrationFixtures: readonly RegistrationFixture[] = [
-  { vehicleId: "kia-ev6", code: "EV6-2026", vin: "KNAC381AFM5000001", ownershipCode: "123456", identity: { id: "demo-identity-ev6", vin: "KNAC381AFM5000001", createdAt }, certificate: { serialNumber: "DEMO-EV6-001", issuedAt: createdAt, expiresAt: "2027-10-08T09:00:00+09:00", status: "valid", isDemo: true } },
-  { vehicleId: "hyundai-ioniq5", code: "IONIQ5-2026", vin: "KMHKR81BFNU000001", ownershipCode: "123456", identity: { id: "demo-identity-ioniq5", vin: "KMHKR81BFNU000001", createdAt }, certificate: { serialNumber: "DEMO-IONIQ5-001", issuedAt: createdAt, expiresAt: "2027-10-08T09:00:00+09:00", status: "valid", isDemo: true } },
-  { vehicleId: "genesis-gv80", code: "GV80-2026", vin: "KMUHB81B1NU000001", ownershipCode: "123456", identity: { id: "demo-identity-gv80", vin: "KMUHB81B1NU000001", createdAt }, certificate: { serialNumber: "DEMO-GV80-001", issuedAt: createdAt, expiresAt: "2027-10-08T09:00:00+09:00", status: "valid", isDemo: true } },
+  { vehicleId: "kia-ev6", code: "EV6-2026", vin: "KNAC381AFM5000001", ownershipCode: "123456", identity: { id: "demo-identity-ev6", vin: "KNAC381AFM5000001", createdAt }, certificate: { serialNumber: "DEMO-EV6-001", issuedAt: createdAt, expiresAt: "2027-10-08T09:00:00+09:00", status: "valid" } },
+  { vehicleId: "hyundai-ioniq5", code: "IONIQ5-2026", vin: "KMHKR81BFNU000001", ownershipCode: "123456", identity: { id: "demo-identity-ioniq5", vin: "KMHKR81BFNU000001", createdAt }, certificate: { serialNumber: "DEMO-IONIQ5-001", issuedAt: createdAt, expiresAt: "2027-10-08T09:00:00+09:00", status: "valid" } },
+  { vehicleId: "genesis-gv80", code: "GV80-2026", vin: "KMUHB81B1NU000001", ownershipCode: "123456", identity: { id: "demo-identity-gv80", vin: "KMUHB81B1NU000001", createdAt }, certificate: { serialNumber: "DEMO-GV80-001", issuedAt: createdAt, expiresAt: "2027-10-08T09:00:00+09:00", status: "valid" } },
 ];
 export const mockConnectionScenarios = [
   { value: "success", label: "정상 연결" }, { value: "certificate-error", label: "인증서 발급 실패 체험" },
@@ -23,9 +23,9 @@ function fixtureFor(vehicleId: string) {
   if (!fixture) throw new Error("데모 차량 정보를 찾을 수 없습니다.");
   return fixture;
 }
-export function getMockVehicleWithCertificate(vehicle: Vehicle, newlyConnected = false): Vehicle {
+export function getMockVehicleWithCertificate(vehicle: Vehicle, newlyConnected = false): RegisteredVehicle {
   const fixture = fixtureFor(vehicle.id);
-  return { ...vehicle, identity: fixture.identity, certificate: fixture.certificate, connectionStatus: newlyConnected ? "connected" : vehicle.connectionStatus };
+  return { ...vehicle, registrationStatus: "registered", identity: fixture.identity, certificate: fixture.certificate, connectionStatus: newlyConnected ? "connected" : vehicle.connectionStatus };
 }
 export async function lookupMockVehicle(query: string, registeredIds: readonly string[], signal: AbortSignal): Promise<VehicleCandidate> {
   await mockLatency(signal, 650);
@@ -52,7 +52,7 @@ export async function issueMockVehicleCertificate(identity: VehicleIdentity, sce
   if (!fixture) throw new Error("차량 식별정보를 확인할 수 없습니다.");
   return fixture.certificate;
 }
-export async function connectMockVehicle(candidate: VehicleCandidate, identity: VehicleIdentity, certificate: VehicleCertificate, signal: AbortSignal): Promise<Vehicle> {
+export async function connectMockVehicle(candidate: VehicleCandidate, identity: VehicleIdentity, certificate: VehicleCertificate, signal: AbortSignal): Promise<RegisteredVehicle> {
   await mockLatency(signal, 500);
   if (identity.vin !== candidate.vin) throw new Error("차량 식별정보가 일치하지 않습니다.");
   return { ...getMockVehicleWithCertificate(candidate.vehicle, true), identity, certificate };
