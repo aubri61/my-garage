@@ -17,7 +17,7 @@ export function SoftwareUpdateCard({ summary, vehicleName, available }: Software
   };
 
   return (
-    <section id="updates" className="primary-service update-service" aria-labelledby="updates-title">
+    <section className="primary-service update-service" aria-labelledby="updates-title">
       <div className="service-heading"><span className="service-icon"><ServiceIcon name="shield" /></span><div><p className="service-kicker">{vehicleName}</p><h2 id="updates-title">소프트웨어 업데이트</h2></div></div>
       <p className="service-description">설치 전 배포 주체와 파일 무결성, 디지털 서명을 확인합니다.</p>
       {summary ? (

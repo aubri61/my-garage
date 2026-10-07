@@ -1,14 +1,14 @@
 import type { Vehicle } from "@/features/vehicle/types";
 
-// These original local illustrations can be replaced by changing image.src.
+// Original AI-generated studio illustrations; replace image.src with licensed vehicle assets.
 export const mockVehicles = [
   {
     id: "kia-ev6",
     modelName: "Kia EV6",
     trim: "롱레인지 · 어스 · 사륜구동",
     image: {
-      src: "/images/vehicles/ev6-placeholder.svg",
-      alt: "Kia EV6 차량 이미지 대체용 일러스트",
+      src: "/images/vehicles/ev6-cutout.png",
+      alt: "Kia EV6 차종을 참고한 AI 생성 스튜디오 이미지",
     },
     powertrain: "electric",
     batteryPercent: 82,
@@ -27,8 +27,8 @@ export const mockVehicles = [
     modelName: "Hyundai IONIQ 5",
     trim: "롱레인지 · 프레스티지 · 사륜구동",
     image: {
-      src: "/images/vehicles/ioniq5-placeholder.svg",
-      alt: "Hyundai IONIQ 5 차량 이미지 대체용 일러스트",
+      src: "/images/vehicles/ioniq5-cutout.png",
+      alt: "Hyundai IONIQ 5 차종을 참고한 AI 생성 스튜디오 이미지",
     },
     powertrain: "electric",
     batteryPercent: 64,
@@ -47,8 +47,8 @@ export const mockVehicles = [
     modelName: "Genesis GV80",
     trim: "가솔린 2.5 터보 · 사륜구동",
     image: {
-      src: "/images/vehicles/gv80-placeholder.svg",
-      alt: "Genesis GV80 차량 이미지 대체용 일러스트",
+      src: "/images/vehicles/gv80-cutout.png",
+      alt: "Genesis GV80 차종을 참고한 AI 생성 스튜디오 이미지",
     },
     powertrain: "combustion",
     fuelPercent: 56,

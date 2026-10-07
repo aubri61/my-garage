@@ -1,5 +1,5 @@
 type ServiceIconProps = {
-  name: "vehicle" | "shield" | "charging" | "climate" | "lock";
+  name: "vehicle" | "shield" | "charging" | "climate" | "lock" | "heating";
   className?: string;
 };
 
@@ -11,6 +11,7 @@ export function ServiceIcon({ name, className }: ServiceIconProps) {
       {name === "charging" && <><path d="M4 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M2 21h15M18 4l3 3v10a2 2 0 0 1-4 0v-5h-2" /><path d="m10 6-3 4h4l-3 4" /></>}
       {name === "climate" && <><circle cx="12" cy="12" r="2" /><path d="M12 10c-4-6-9-2-6 1l4 1M14 12c6-4 2-9-1-6l-1 4M12 14c4 6 9 2 6-1l-4-1M10 12c-6 4-2 9 1 6l1-4" /></>}
       {name === "lock" && <><rect x="5" y="10" width="14" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" /></>}
+      {name === "heating" && <><path d="M6 21c-5-6 5-8 0-14M12 21c-5-6 5-8 0-14M18 21c-5-6 5-8 0-14" /></>}
     </svg>
   );
 }

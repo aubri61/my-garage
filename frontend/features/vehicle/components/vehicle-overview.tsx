@@ -8,9 +8,10 @@ type VehicleOverviewProps = {
   vehicles: readonly Vehicle[];
   selectedVehicle: Vehicle | undefined;
   onSelectVehicle: (vehicleId: string) => void;
+  onShowDetails: () => void;
 };
 
-export function VehicleOverview({ vehicles, selectedVehicle, onSelectVehicle }: VehicleOverviewProps) {
+export function VehicleOverview({ vehicles, selectedVehicle, onSelectVehicle, onShowDetails }: VehicleOverviewProps) {
   const pointerStart = useRef<{ x: number; y: number; id: number } | null>(null);
   const selectedIndex = vehicles.findIndex((vehicle) => vehicle.id === selectedVehicle?.id);
   const canSwitch = vehicles.length > 1;
@@ -42,7 +43,7 @@ export function VehicleOverview({ vehicles, selectedVehicle, onSelectVehicle }: 
                 if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) moveVehicle(dx < 0 ? 1 : -1);
               }}
             >
-              <VehicleCard vehicle={selectedVehicle} />
+              <VehicleCard vehicle={selectedVehicle} onShowDetails={onShowDetails} />
             </div>
             {canSwitch && <button className="carousel-arrow next" type="button" onClick={() => moveVehicle(1)} aria-label="다음 차량">→</button>}
           </div>

@@ -23,7 +23,7 @@ export function GarageDashboard({ data, serviceAvailability }: GarageDashboardPr
           serviceAvailability={serviceAvailability}
         />
         <ServiceIntroduction />
-        <p className="demo-notice">포트폴리오 데모 · 차량 상태는 예시 데이터이며, 차량 이미지는 대체 일러스트입니다. 실제 차량에 명령을 전송하지 않습니다.</p>
+        <p className="demo-notice">포트폴리오 데모 · 차량 상태는 예시 데이터이며, 차량 이미지는 차종을 참고한 AI 생성 이미지이며 실제 사양과 다를 수 있습니다. 실제 차량에 명령을 전송하지 않습니다.</p>
       </main>
       <footer className="app-footer">
         <div><span>My Garage</span><p>내 차량과 연결되는 일상</p><a href="#main-content">맨 위로 ↑</a></div>
