@@ -3,9 +3,12 @@ import type { GarageProfile } from "@/features/garage/types";
 export function GarageGreeting({ profile }: { profile: GarageProfile }) {
   return (
     <section className="garage-greeting" aria-labelledby="garage-title">
-      <p className="greeting">안녕하세요, {profile.displayName} 님</p>
-      <h1 id="garage-title">내 차들을 한 곳에서<br className="title-break" /> 안전하게 관리하세요.</h1>
-      <p className="greeting-description">차량 상태 확인부터 소프트웨어 업데이트,<br />전기차 충전 예약까지 My Garage에서 관리할 수 있습니다.</p>
+      <div>
+        <p className="eyebrow">나의 커넥티드 라이프</p>
+        <h1 id="garage-title">안녕하세요, {profile.displayName} 님</h1>
+        <p className="greeting-description">내 차량의 상태를 확인하고, 다음 여정을 준비하세요.</p>
+      </div>
+      <span className="demo-label">데모 차량</span>
     </section>
   );
 }

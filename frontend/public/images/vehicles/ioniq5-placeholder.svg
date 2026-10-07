@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" fill="none">
   <!-- Original schematic placeholder, not a photograph or exact model rendering. -->
-  <path d="M52 264h536" stroke="#273540"/>
-  <path d="M68 259v10M572 259v10" stroke="#40515e"/>
-  <ellipse cx="320" cy="248" rx="240" ry="8" fill="#090d10"/>
+  <path d="M52 264h536" stroke="#cbd7e5"/>
+  <path d="M68 259v10M572 259v10" stroke="#b3c4d8"/>
+  <ellipse cx="320" cy="248" rx="240" ry="8" fill="#d7e1ed"/>
   <path d="M80 203 94 164 189 147 253 100 391 100 466 147 550 173 558 229 82 229Z" fill="#bfc7cb" stroke="#cfdae0" stroke-opacity=".45" stroke-width="2"/>
   <path d="M204 145 264 109 385 109 438 145Z" fill="#14232e" stroke="#8299a7" stroke-width="2"/>
   <path d="M193 152 459 151 479 174M312 109v38" stroke="#d5e2e9" stroke-opacity=".5" stroke-width="2"/>

@@ -7,6 +7,11 @@ export type GarageProfile = { id: string; displayName: string };
 export type GarageDashboardData = {
   profile: GarageProfile;
   vehicles: readonly Vehicle[];
-  updates: UpdateSummary;
+  updatesByVehicleId: Readonly<Partial<Record<string, UpdateSummary>>>;
   charging: ChargingEligibility;
+};
+
+export type GarageServiceAvailability = {
+  updates: boolean;
+  charging: boolean;
 };
