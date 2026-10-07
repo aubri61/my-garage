@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
+import { ServiceIcon } from "@/components/ui/service-icon";
 import type { Vehicle } from "@/features/vehicle/types";
 import { VehicleCard } from "@/features/vehicle/components/vehicle-card";
 
@@ -64,7 +66,7 @@ export function VehicleOverview({ vehicles, selectedVehicle, onSelectVehicle, on
           <p className="sr-only" role="status">{selectedVehicle.modelName}, {selectedIndex + 1} / {vehicles.length} 차량 선택됨</p>
         </>
       ) : (
-        <div className="empty-garage"><h2>첫 차량을 연결해보세요.</h2><p>등록된 차량이 없습니다. 차량을 연결하면 상태와 서비스 정보를 확인할 수 있습니다.</p><button type="button" className="service-action" disabled aria-describedby="registration-note">차량 등록</button><p id="registration-note">차량 등록 기능 제공 예정</p></div>
+        <div className="empty-garage"><ServiceIcon name="vehicle" /><h2>등록된 차량이 없습니다.</h2><p>내 차량을 연결하고 차량 상태와 서비스를 한 곳에서 확인하세요.</p><Link href="/vehicles/register" className="service-action">차량 등록하기 <span aria-hidden="true">→</span></Link><p className="field-hint">연결 코드나 VIN으로 데모 차량을 등록할 수 있습니다.</p></div>
       )}
     </section>
   );

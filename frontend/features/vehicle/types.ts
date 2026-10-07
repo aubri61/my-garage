@@ -15,6 +15,8 @@ type VehicleBase = {
   connectionStatus: ConnectionStatus;
   doorStatus: DoorStatus;
   climateStatus: ClimateStatus;
+  identity?: VehicleIdentity;
+  certificate?: VehicleCertificate;
 };
 
 export type Vehicle = VehicleBase & (
@@ -26,3 +28,12 @@ export type Vehicle = VehicleBase & (
     }
   | { powertrain: "combustion"; fuelPercent: number | null }
 );
+
+export type VehicleIdentity = { id: string; vin: string; createdAt: string };
+export type VehicleCertificate = {
+  serialNumber: string;
+  issuedAt: string;
+  expiresAt: string;
+  status: "valid" | "expiring" | "expired";
+  isDemo: true;
+};

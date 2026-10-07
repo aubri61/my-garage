@@ -1,3 +1,4 @@
+import { VehicleCertificateDetails } from "@/features/vehicle/components/vehicle-certificate";
 import { ServiceIcon } from "@/components/ui/service-icon";
 import type { Vehicle } from "@/features/vehicle/types";
 
@@ -20,6 +21,7 @@ export function VehicleStatus({ vehicle }: { vehicle: Vehicle }) {
       </dl>
       <p className="sync-time">마지막 동기화 · {validSyncTime ? <time dateTime={vehicle.lastSyncedAt!}>{syncFormatter.format(syncTime)}</time> : "확인 불가"}</p>
       {vehicle.connectionStatus !== "connected" && <p className="connection-note">현재 상태는 차량이 다시 연결된 후 확인할 수 있습니다.</p>}
+      {vehicle.identity && vehicle.certificate && <VehicleCertificateDetails identity={vehicle.identity} certificate={vehicle.certificate} />}
     </section>
   );
 }

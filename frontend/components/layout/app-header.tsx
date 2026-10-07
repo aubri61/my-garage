@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { SessionActions } from "@/features/auth/components/session-actions";
 
-export function AppHeader({ displayName }: { displayName: string }) {
+export function AppHeader({ displayName, hasVehicles = true }: { displayName: string; hasVehicles?: boolean }) {
   return (
     <header className="app-header">
       <div className="header-inner">
@@ -12,14 +13,14 @@ export function AppHeader({ displayName }: { displayName: string }) {
           <span>My Garage</span>
         </Link>
         <nav aria-label="차고지 메뉴" className="header-nav">
-          <a href="#vehicles">내 차량</a>
-          <a href="#controls">원격 제어</a>
-          <a href="#updates">업데이트</a>
+          {hasVehicles && <><a href="/garage#vehicles">내 차량</a><a href="/garage#controls">원격 제어</a><a href="/garage#updates">업데이트</a></>}
+          <Link href="/vehicles/register">차량 등록</Link>
         </nav>
         <span className="header-profile">
           <span className="profile-avatar" aria-hidden="true">{displayName.charAt(0)}</span>
           {displayName} 님
         </span>
+        <SessionActions />
       </div>
     </header>
   );

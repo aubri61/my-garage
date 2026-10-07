@@ -242,3 +242,77 @@ h1 { margin: 0; font-size: 30px; line-height: 1.4; font-weight: 650; letter-spac
   .control-detail { font-size: 9px; }
   .vehicle-metrics dd { font-size: 29px; }
 }
+
+/* Account and vehicle onboarding share the same restrained service styling. */
+.account-header { display: flex; justify-content: space-between; align-items: center; min-height: 80px; max-width: 1248px; margin: auto; padding: 20px 40px; border-bottom: 1px solid var(--border); }
+.account-main { max-width: 440px; margin: 56px auto 80px; padding: 0 24px; }
+.account-wide { max-width: 700px; }
+.account-description { font-size: 14px; line-height: 1.8; color: var(--muted); margin: 12px 0 32px; word-break: keep-all; }
+.form-fields { border: 0; margin: 0; padding: 0; min-width: 0; }
+.form-field { margin-bottom: 22px; }
+.form-field label, .scenario-label { display: block; margin-bottom: 9px; font-size: 13px; font-weight: 600; }
+.form-field input, .form-fields select { width: 100%; min-height: 48px; border: 1px solid #bac9dc; background: #fff; border-radius: 4px; color: var(--foreground); padding: 12px 14px; font: inherit; font-size: 15px; }
+.form-field input[aria-invalid="true"] { border-color: #b43535; }
+.form-fields:disabled input, .form-fields:disabled select { background: #eef2f7; }
+.field-hint, .mock-disclosure { font-size: 12px; color: var(--muted); line-height: 1.8; word-break: keep-all; margin: 8px 0 0; }
+.field-error, .form-error { color: #a62424; font-size: 12px; line-height: 1.7; margin: 8px 0 0; }
+.form-error { border: 1px solid #edc8c8; background: #fff5f5; padding: 14px; margin: 16px 0; }
+.form-submit, .form-secondary { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; padding: 12px 16px; border: 1px solid var(--accent); border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; }
+.form-submit { background: var(--accent); color: #fff; margin-top: 24px; }
+.form-submit:hover:not(:disabled) { background: #103f8a; }
+.form-secondary { background: #fff; color: var(--accent); margin-top: 12px; }
+.form-submit:disabled, .form-secondary:disabled { background: #e9eef6; border-color: #c2d0e3; color: #5b6f8b; cursor: not-allowed; }
+.auth-alternate { font-size: 13px; text-align: center; color: var(--muted); margin: 24px 0; }
+.auth-alternate a { margin-left: 8px; color: var(--accent); font-weight: 600; }
+.mock-disclosure { border-top: 1px solid var(--border); padding-top: 18px; margin-top: 28px; }
+.registration-disclosure { border: 1px solid #c9daef; background: #edf3fb; padding: 16px; margin: 0 0 28px; }
+.flow-success { padding-top: 12px; }
+.flow-success > h2 { font-size: 24px; letter-spacing: -0.7px; margin: 18px 0 12px; }
+.flow-success > p { color: var(--muted); font-size: 14px; line-height: 1.8; }
+.success-mark { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; color: #19704e; background: #e8f4ee; font-size: 24px; }
+.header-logout { border: 0; padding: 10px 0; color: var(--muted); background: transparent; font-size: 12px; white-space: nowrap; cursor: pointer; }
+.header-inner { gap: 24px; }
+.empty-garage > svg { width: 150px; height: 100px; color: #a8b9ce; margin: 12px auto 32px; display: block; }
+.empty-garage .service-action { min-height: 48px; margin-top: 12px; }
+.persistence-notice { padding: 12px 24px; background: #fff4df; color: #775000; font-size: 12px; margin: 0; }
+.registration-phases ol { display: flex; flex-wrap: wrap; gap: 8px 18px; list-style: none; padding: 0 0 20px; border-bottom: 1px solid var(--border); margin: 0 0 28px; }
+.registration-phases li { color: var(--muted); font-size: 11px; }
+.registration-phases li[aria-current="step"] { color: var(--accent); font-weight: 700; }
+.flow-heading { font-size: 22px; margin: 0 0 18px; letter-spacing: -0.6px; }
+.demo-codes { border: 1px solid var(--border); padding: 16px; margin-top: 24px; background: #fff; border-radius: 4px; }
+.demo-codes summary { color: var(--accent); font-size: 13px; cursor: pointer; min-height: 28px; }
+.demo-codes p { font-size: 12px; color: var(--muted); line-height: 1.8; }
+.demo-codes button { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px; margin-top: 8px; border: 1px solid var(--border); border-radius: 4px; background: #f7f9fc; color: #234b7c; font-size: 13px; cursor: pointer; min-height: 44px; }
+.demo-codes button span { color: var(--muted); font-size: 11px; }
+.registration-vehicle { border: 1px solid var(--border); border-radius: 6px; background: #fff; padding: 24px; }
+.registration-vehicle img { width: min(100%, 360px); height: auto; display: block; margin: 0 auto 20px; }
+.registration-vehicle h2 { font-size: 24px; margin: 0 0 8px; }
+.registration-vehicle p { font-size: 13px; color: var(--muted); margin: 0; }
+.registration-vehicle dl { display: grid; grid-template-columns: 1fr 1.4fr; gap: 20px; padding-top: 20px; border-top: 1px solid var(--border); margin-top: 24px; }
+.registration-vehicle dt { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.registration-vehicle dd { margin: 0; font-size: 14px; }
+.vin-value { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.connection-progress { padding: 0; margin: 24px 0; list-style: none; }
+.connection-progress li { display: flex; align-items: center; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.step-number { flex-shrink: 0; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+.step-status { margin-left: auto; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.connection-progress li[data-status="running"] .step-number { background: var(--accent-soft); border-color: #b5cbea; color: var(--accent); }
+.connection-progress li[data-status="complete"] .step-number, .connection-progress li[data-status="complete"] .step-status { color: #19704e; }
+.connection-progress li[data-status="failed"] .step-number, .connection-progress li[data-status="failed"] .step-status { color: #a62424; }
+.certificate-details { margin-top: 26px; border-top: 1px solid var(--border); padding-top: 22px; text-align: left; }
+.certificate-details h3 { display: flex; align-items: center; gap: 10px; font-size: 15px; margin: 0 0 20px; }
+.certificate-details dd { overflow-wrap: anywhere; font-size: 13px; }
+.flow-back { display: block; text-align: center; font-size: 13px; color: var(--muted); margin-top: 28px; padding: 12px; }
+@media (max-width: 700px) {
+  .account-header { padding: 18px 20px; min-height: 72px; }
+  .account-main { margin-top: 36px; padding-inline: 20px; }
+  .header-inner { gap: 12px; }
+  .header-profile { margin-left: auto; }
+  .header-nav { gap: 20px; flex-wrap: wrap; }
+  .header-logout { font-size: 11px; }
+  .empty-garage { padding: 36px 20px; }
+  .empty-garage h2 { font-size: 22px; }
+  .registration-vehicle { padding: 20px; }
+  .registration-vehicle dl { grid-template-columns: 1fr; gap: 16px; }
+  .connection-progress li { gap: 10px; font-size: 13px; }
+}

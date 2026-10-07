@@ -13,7 +13,7 @@ export function GarageDashboard({ data, serviceAvailability }: GarageDashboardPr
   return (
     <>
       <a className="skip-link" href="#main-content">본문으로 바로가기</a>
-      <AppHeader displayName={data.profile.displayName} />
+      <AppHeader displayName={data.profile.displayName} hasVehicles={data.vehicles.length > 0} />
       <main id="main-content" className="garage-main" tabIndex={-1}>
         <GarageGreeting profile={data.profile} />
         <VehicleDashboard
