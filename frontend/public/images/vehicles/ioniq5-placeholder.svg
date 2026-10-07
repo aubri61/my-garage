@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" fill="none">
+  <!-- Original schematic placeholder, not a photograph or exact model rendering. -->
+  <path d="M52 264h536" stroke="#273540"/>
+  <path d="M68 259v10M572 259v10" stroke="#40515e"/>
+  <ellipse cx="320" cy="248" rx="240" ry="8" fill="#090d10"/>
+  <path d="M80 203 94 164 189 147 253 100 391 100 466 147 550 173 558 229 82 229Z" fill="#bfc7cb" stroke="#cfdae0" stroke-opacity=".45" stroke-width="2"/>
+  <path d="M204 145 264 109 385 109 438 145Z" fill="#14232e" stroke="#8299a7" stroke-width="2"/>
+  <path d="M193 152 459 151 479 174M312 109v38" stroke="#d5e2e9" stroke-opacity=".5" stroke-width="2"/>
+  <path d="M84 206h472M235 157v61M406 153v65" stroke="#23323c" stroke-opacity=".5" stroke-width="2"/>
+  <path d="M278 166h19M418 166h17" stroke="#d5e2e9" stroke-width="3" stroke-linecap="round"/>
+  <path d="M94 171h53v8H94M521 179h26v9h-26" stroke="#b2f0ff" stroke-width="4"/>
+  <path d="M87 225h467" stroke="#26333c" stroke-width="10"/>
+  <circle cx="173" cy="225" r="37" fill="#0a0e12" stroke="#48535d" stroke-width="2"/>
+  <circle cx="173" cy="225" r="26" fill="#23303a" stroke="#8b9aa5" stroke-width="3"/>
+  <path d="m173 202 0 46m-23-23h46m-39-16 32 32m-32 0 32-32" stroke="#94a5af" stroke-width="3"/>
+  <circle cx="173" cy="225" r="7" fill="#0e1820" stroke="#a5b6c1"/>
+  <circle cx="480" cy="225" r="37" fill="#0a0e12" stroke="#48535d" stroke-width="2"/>
+  <circle cx="480" cy="225" r="26" fill="#23303a" stroke="#8b9aa5" stroke-width="3"/>
+  <path d="m480 202 0 46m-23-23h46m-39-16 32 32m-32 0 32-32" stroke="#94a5af" stroke-width="3"/>
+  <circle cx="480" cy="225" r="7" fill="#0e1820" stroke="#a5b6c1"/>
+</svg>

@@ -1,26 +1,174 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0b0e11;
+  --foreground: #f0f3f5;
+  --surface: #12171c;
+  --border: #29323a;
+  --muted: #a1adb8;
+  --accent: #66d9f1;
+  color-scheme: dark;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; }
+button:disabled { cursor: not-allowed; }
+::selection { background: #214e60; color: #fff; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
+section[id] { scroll-margin-top: 28px; }
+.skip-link { position: absolute; top: 12px; left: 16px; z-index: 10; padding: 12px 18px; color: var(--background); background: var(--accent); transform: translateY(-180%); }
+.skip-link:focus { transform: translateY(0); }
+.app-header { border-bottom: 1px solid var(--border); }
+.header-inner { max-width: 1408px; min-height: 88px; padding: 0 48px; margin: auto; display: flex; align-items: center; gap: 48px; }
+.brand { display: inline-flex; align-items: center; gap: 12px; font-size: 23px; letter-spacing: -0.7px; font-weight: 700; white-space: nowrap; }
+.brand svg, .brand-dot { color: var(--accent); }
+.header-nav { display: flex; align-items: center; gap: 30px; margin-left: auto; font-size: 14px; color: #bac4cd; }
+.header-nav a { padding: 16px 0; }
+.header-nav a:hover { color: var(--accent); }
+.header-profile { display: flex; align-items: center; gap: 11px; font-size: 14px; white-space: nowrap; border-left: 1px solid var(--border); padding-left: 28px; }
+.profile-avatar { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid #40505d; border-radius: 50%; color: #c6d7e2; font-size: 12px; background: #18222b; }
+.garage-main { max-width: 1408px; margin: auto; padding: 64px 48px 26px; }
+.garage-greeting { margin-bottom: 54px; }
+.greeting { margin: 0 0 16px; font-size: 25px; font-weight: 500; letter-spacing: -0.8px; }
+h1 { margin: 0; font-size: clamp(30px, 3.1vw, 44px); line-height: 1.35; font-weight: 650; letter-spacing: -1.9px; word-break: keep-all; }
+.title-break { display: none; }
+.greeting-description { margin: 20px 0 0; font-size: 16px; line-height: 1.8; color: var(--muted); word-break: keep-all; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+.section-heading h2 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.6px; }
+.section-count { color: var(--accent); margin-left: 9px; font-size: 18px; font-weight: 500; }
+.section-caption { color: var(--muted); font-size: 13px; }
+.vehicle-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: #0f1317; }
+.vehicle-card { min-width: 0; padding: 24px 28px 22px; }
+.vehicle-card + .vehicle-card { border-left: 1px solid var(--border); }
+.vehicle-topline { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.powertrain-label { color: var(--muted); font-size: 12px; letter-spacing: 0.2px; }
+.status-badge { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; line-height: 1.5; white-space: nowrap; }
+.status-dot { width: 5px; height: 5px; background: currentColor; border-radius: 50%; }
+.status-success { color: #89d8ae; }
+.status-warning { color: #efc27a; }
+.status-neutral { color: #b1bdc8; }
+.vehicle-image { margin: 12px -15px 10px; }
+.vehicle-image img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; object-fit: contain; }
+.vehicle-card h3 { margin: 0 0 8px; font-size: clamp(20px, 1.9vw, 25px); font-weight: 600; letter-spacing: -0.7px; }
+.vehicle-trim { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.vehicle-metrics { margin: 26px 0 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.vehicle-metrics dt { font-size: 12px; color: var(--muted); margin-bottom: 7px; }
+.vehicle-metrics dd { margin: 0; font-size: 30px; letter-spacing: -1px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.metric-unit { color: #b6c3cd; margin-left: 5px; font-size: 14px; letter-spacing: 0; }
+.metric-unavailable { font-size: 17px; }
+.energy-track { background: #27313a; height: 3px; overflow: hidden; }
+.energy-track > span { height: 100%; display: block; background: var(--accent); }
+.energy-combustion > span { background: #b1bcc7; }
+.vehicle-software { margin: 20px 0 0; font-size: 12px; }
+.vehicle-software > div { display: flex; justify-content: space-between; gap: 12px; }
+.vehicle-software dt { color: var(--muted); }
+.vehicle-software dd { margin: 0; font-family: var(--font-mono); color: #dce5ed; }
+.connection-note { font-size: 11px; color: #d6b881; margin: 10px 0 0; }
+.empty-garage { padding: 40px 24px; border-block: 1px solid var(--border); color: var(--muted); }
+.empty-garage p:first-child { color: var(--foreground); font-size: 18px; }
+.primary-services { display: grid; grid-template-columns: 1.12fr 1fr; gap: 24px; margin-top: 42px; }
+.primary-service { min-width: 0; display: flex; flex-direction: column; padding: 32px 34px; border: 1px solid #35434e; background: var(--surface); border-radius: 4px; }
+.update-service { border-top: 2px solid var(--accent); background: #121b22; }
+.charging-service { border-top: 2px solid #7e99a9; }
+.service-kicker { display: flex; align-items: center; gap: 12px; color: var(--accent); font-size: 12px; letter-spacing: 0.2px; margin-bottom: 22px; }
+.charging-service .service-kicker { color: #b1cad8; }
+.primary-service h2 { margin: 0; font-size: clamp(23px, 2.1vw, 30px); font-weight: 600; letter-spacing: -1px; word-break: keep-all; }
+.service-description { color: #b2bec8; font-size: 14px; line-height: 1.85; margin: 15px 0 28px; word-break: keep-all; }
+.update-counts { display: grid; grid-template-columns: 1fr 1fr; margin: 0 0 24px; }
+.update-counts > div + div { border-left: 1px solid #34434e; padding-left: 28px; }
+.update-counts dt { color: #b2bec8; font-size: 12px; margin-bottom: 8px; }
+.update-counts dd { margin: 0; font-size: 38px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.update-counts > div:first-child dd { color: var(--accent); }
+.update-counts dd > span { font-size: 14px; margin-left: 7px; color: #b2bec8; }
+.verification-preview { display: flex; align-items: center; gap: 12px; border-top: 1px solid #2d3b46; padding-top: 18px; }
+.verification-marker { font-size: 26px; color: var(--accent); }
+.verification-preview p { margin: 0; font-size: 12px; line-height: 1.8; color: #c2ced7; }
+.verification-preview p > span { color: var(--muted); font-size: 11px; }
+.charging-details { margin: 0 0 24px; }
+.charging-details > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+.charging-details > div:first-child { padding-top: 0; }
+.charging-details dt { color: #b2bec8; font-size: 13px; }
+.charging-details dd { margin: 0; }
+.charging-note { font-size: 12px; line-height: 1.8; color: var(--muted); margin: 0 0 8px; word-break: keep-all; }
+.service-footer { margin-top: auto; padding-top: 24px; display: flex; align-items: center; flex-wrap: wrap; gap: 12px 18px; }
+.service-action { display: inline-flex; justify-content: space-between; align-items: center; gap: 36px; padding: 13px 19px; border: 1px solid var(--accent); border-radius: 2px; background: var(--accent); color: #09222c; font-weight: 650; font-size: 14px; }
+.service-action > span { font-size: 19px; line-height: 1; }
+.service-action:disabled { border-color: #44616d; background: #203943; color: #b4ced8; }
+.service-action:not(:disabled):hover { background: #a1edfc; }
+.action-note { margin: 0; font-size: 11px; color: var(--muted); }
+.service-introduction { margin-top: 68px; padding-block: 36px; border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1.3fr; gap: 48px; align-items: center; }
+.introduction-copy h2 { font-size: 22px; font-weight: 600; margin: 0 0 14px; letter-spacing: -0.5px; }
+.introduction-copy > p { margin: 0; font-size: 13px; line-height: 1.9; color: var(--muted); word-break: keep-all; }
+.introduction-features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.introduction-features svg { color: #95acbb; margin-bottom: 16px; }
+.introduction-features h3 { font-size: 14px; margin: 0 0 9px; font-weight: 500; }
+.introduction-features p { font-size: 11px; margin: 0; color: var(--muted); line-height: 1.7; word-break: keep-all; }
+.demo-notice { border-top: 1px solid #20282f; padding-top: 20px; margin: 0; font-size: 11px; color: var(--muted); line-height: 1.8; word-break: keep-all; }
+.app-footer { border-top: 1px solid var(--border); }
+.app-footer > div { display: flex; align-items: center; gap: 24px; max-width: 1408px; margin: auto; padding: 26px 48px; }
+.app-footer span { font-size: 14px; font-weight: 600; color: #cbd4dc; }
+.app-footer p { font-size: 12px; color: var(--muted); margin: 0; }
+.app-footer a { margin-left: auto; font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+@media (max-width: 1050px) {
+  .header-inner { padding-inline: 32px; gap: 24px; }
+  .header-nav { gap: 18px; font-size: 12px; }
+  .header-profile { padding-left: 20px; }
+  .garage-main { padding-inline: 32px; }
+  .vehicle-card { padding-inline: 20px; }
+  .vehicle-card h3 { font-size: 20px; }
+  .primary-service { padding: 28px 24px; }
+  .desktop-break { display: none; }
+  .service-introduction { grid-template-columns: 1fr; gap: 32px; }
+  .app-footer > div { padding-inline: 32px; }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (max-width: 700px) {
+  .header-inner { min-height: 76px; padding: 18px 22px 12px; gap: 16px; flex-wrap: wrap; }
+  .brand { font-size: 21px; }
+  .header-profile { margin-left: auto; padding-left: 0; border-left: 0; font-size: 12px; }
+  .header-nav { width: 100%; order: 3; margin-left: 0; gap: 24px; }
+  .header-nav a { padding: 8px 0; }
+  .garage-main { padding: 40px 22px 24px; }
+  .garage-greeting { margin-bottom: 36px; }
+  .greeting { font-size: 21px; margin-bottom: 14px; }
+  h1 { font-size: 32px; letter-spacing: -1.2px; }
+  .title-break { display: block; }
+  .greeting-description { font-size: 14px; }
+  .section-caption { font-size: 11px; }
+  .vehicle-grid { grid-template-columns: 1fr; }
+  .vehicle-card { padding: 24px; }
+  .vehicle-card + .vehicle-card { border-left: 0; border-top: 1px solid var(--border); }
+  .vehicle-image { max-width: 440px; margin: 0 auto 12px; }
+  .vehicle-card h3 { font-size: 25px; }
+  .vehicle-metrics { margin-top: 22px; }
+  .primary-services { grid-template-columns: 1fr; margin-top: 32px; gap: 20px; }
+  .primary-service { padding: 28px 24px; }
+  .primary-service h2 { font-size: 25px; }
+  .service-description { font-size: 13px; }
+  .service-introduction { margin-top: 44px; padding-block: 28px; }
+  .introduction-features { gap: 16px; }
+  .introduction-features h3 { font-size: 13px; }
+  .app-footer > div { padding: 24px 22px; flex-wrap: wrap; gap: 12px; }
+  .app-footer p { order: 3; width: 100%; }
+}
+
+@media (max-width: 380px) {
+  .header-nav { gap: 16px; font-size: 11px; }
+  .garage-main { padding-inline: 18px; }
+  h1 { font-size: 28px; }
+  .primary-service { padding: 24px 20px; }
+  .primary-service h2 { font-size: 22px; }
+  .introduction-features { grid-template-columns: 1fr; gap: 20px; }
+  .introduction-features > div { display: grid; grid-template-columns: 32px 1fr; column-gap: 12px; }
+  .introduction-features svg { grid-row: span 2; margin-bottom: 0; }
 }
