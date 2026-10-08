@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ServiceIcon } from "@/components/ui/service-icon";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -14,6 +14,7 @@ const checkLabels: Record<OtaCheckName, string> = { PACKAGE_FORMAT: "패키지 �
 const checkStatuses = { PASSED: "통과", FAILED: "실패", NOT_RUN: "미실행" };
 
 export function OtaSecurityLab({ vehicleId, vehicleName }: { vehicleId: number; vehicleName: string }) {
+  const id = useId();
   const session = useSession();
   const client = useQueryClient();
   const pending = useRef(false);
@@ -35,17 +36,17 @@ export function OtaSecurityLab({ vehicleId, vehicleName }: { vehicleId: number; 
     finally { pending.current = false; }
   }
   const result = verification.data;
-  return <section className="primary-service update-service" aria-labelledby="ota-title">
-    <div className="service-heading"><span className="service-icon"><ServiceIcon name="shield" /></span><div><p className="service-kicker">{vehicleName}</p><h2 id="ota-title">OTA Security Lab</h2></div></div>
+  return <section className="primary-service update-service" aria-labelledby={`${id}-ota-title`}>
+    <div className="service-heading"><span className="service-icon"><ServiceIcon name="shield" /></span><div><p className="service-kicker">{vehicleName}</p><h2 id={`${id}-ota-title`}>OTA Security Lab</h2></div></div>
     <p className="service-description">배포 주체·서명·파일 무결성·호환성·롤백 방지를 서버에서 검증합니다. 실제 설치는 수행하지 않습니다.</p>
     {scenarios.isPending && <p role="status">시나리오를 불러오고 있습니다…</p>}
     {scenarios.isError && <><p className="form-error" role="alert">{errorMessage(scenarios.error)}</p><button className="form-secondary" onClick={() => void scenarios.refetch()}>시나리오 다시 조회</button></>}
     {scenarios.isSuccess && (scenarios.data.length === 0 ? <p className="service-empty">지원하는 시나리오가 없습니다.</p> : <form onSubmit={submit} aria-busy={verification.isPending}>
       <fieldset className="form-fields" disabled={verification.isPending}>
         <legend className="sr-only">OTA 검증 설정</legend>
-        <label className="scenario-label" htmlFor="ota-scenario">검증 시나리오</label>
-        <select id="ota-scenario" value={scenario} onChange={event => { setScenario(event.target.value as OtaScenario); verification.reset(); }}>{scenarios.data.map(item => <option key={item.scenario} value={item.scenario}>{item.scenario} · {item.description}</option>)}</select>
-        <label className="scenario-label" htmlFor="ota-protection"><input id="ota-protection" type="checkbox" checked={protection} onChange={event => { setProtection(event.target.checked); verification.reset(); }} /> 보안 검증 ON</label>
+        <label className="scenario-label" htmlFor={`${id}-ota-scenario`}>검증 시나리오</label>
+        <select id={`${id}-ota-scenario`} value={scenario} onChange={event => { setScenario(event.target.value as OtaScenario); verification.reset(); }}>{scenarios.data.map(item => <option key={item.scenario} value={item.scenario}>{item.scenario} · {item.description}</option>)}</select>
+        <label className="scenario-label" htmlFor={`${id}-ota-protection`}><input id={`${id}-ota-protection`} type="checkbox" checked={protection} onChange={event => { setProtection(event.target.checked); verification.reset(); }} /> 보안 검증 ON</label>
       </fieldset>
       {!protection && <p className="action-note">보호 OFF는 검증 생략 시의 교육용 가상 승인 비교입니다. 실제 설치·침해·차량 제어는 수행하지 않습니다.</p>}
       <button className="form-submit" disabled={verification.isPending}>{verification.isPending ? "검증 실행 중…" : "검증 실행"}</button>

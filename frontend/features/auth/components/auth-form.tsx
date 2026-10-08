@@ -58,7 +58,7 @@ function AuthFields({ mode }: { mode: "login" | "signup" }) {
       controller.signal.throwIfAborted();
       setValues({ name: "", email: "", password: "", passwordConfirmation: "" });
       setStatus("success");
-      if (!signup) router.replace("/garage");
+      if (!signup) router.replace("/mode");
     } catch (error) {
       if (controller.signal.aborted) return;
       setStatus("error"); setMessage(errorMessage(error));

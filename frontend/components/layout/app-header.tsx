@@ -14,7 +14,7 @@ export function AppHeader({ displayName, hasVehicles = true, preview = false }: 
         </Link>
         <nav aria-label="차고지 메뉴" className="header-nav">
           {hasVehicles && <><a href="/garage#vehicles">내 차량</a><a href="/garage#controls">원격 제어</a><a href="/garage#updates">업데이트</a></>}
-          <Link href="/vehicles/register">차량 등록</Link>
+          <Link href="/owner">공유 관리</Link><Link href="/mode">모드 선택</Link><Link href="/vehicles/register">차량 등록</Link>
         </nav>
         <span className="header-profile">
           <span className="profile-avatar" aria-hidden="true">{displayName.charAt(0)}</span>

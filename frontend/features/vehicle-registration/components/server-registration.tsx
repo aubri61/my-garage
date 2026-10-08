@@ -27,7 +27,7 @@ export function ServerRegistration() {
   }
   if (mutation.isSuccess) return <section className="flow-success"><span className="success-mark" aria-hidden="true">✓</span>
     <h2>차량 등록이 완료되었습니다.</h2><p>{mutation.data.manufacturer} {mutation.data.model} · {mutation.data.licensePlate}</p>
-    <Link href="/garage" className="form-submit">내 차량 확인하기</Link></section>;
+    <Link href="/owner" className="form-submit">공유 설정하기</Link><Link href="/garage" className="form-secondary">내 차량 확인하기</Link></section>;
   return <><p className="registration-disclosure mock-disclosure">입력한 차량을 내 계정에 등록합니다. 실제 차량 연결·소유권 인증·인증서 발급은 수행하지 않습니다.</p>
     <form onSubmit={submit} aria-busy={mutation.isPending}>
       <fieldset className="form-fields" disabled={mutation.isPending}><legend className="sr-only">차량 등록 정보</legend>

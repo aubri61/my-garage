@@ -71,7 +71,9 @@ export async function logIn(page: Page) {
   await page.getByLabel("이메일", { exact: true }).fill("garage-test@example.com");
   await page.getByLabel("비밀번호", { exact: true }).fill("DemoPass123!");
   await page.getByRole("button", { name: "로그인", exact: true }).click();
-  await expect(page).toHaveURL(/\/garage$/);
+  await expect(page).toHaveURL(/\/mode$/);
+  await expect(page.getByRole("heading", { name: "어떤 서비스를 이용하시겠어요?" })).toBeVisible();
+  await page.goto("/garage");
   await expect(page.getByRole("heading", { name: "등록된 차량이 없습니다." })).toBeVisible();
 }
 

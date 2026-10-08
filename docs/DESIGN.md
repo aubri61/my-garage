@@ -1,121 +1,19 @@
-# My Garage Design Direction
+# 차량 공유 UI 방향
 
-## Overall Mood
+차량과 보안 상태를 중심으로 한 차분하고 기술적인 서비스다. 신규 공유 화면과 모드 선택은 짙은 중립 표면, 절제된 cyan 강조, 명확한 구분선과 상태 텍스트를 사용한다. 기존 form/layout/OTA 컴포넌트를 재사용하고 공유용 CSS scope로 기존 체험 화면을 보존한다.
 
-My Garage should feel like a premium connected vehicle service.
+## 주요 화면
 
-Keywords:
+- 모드 선택: 대여자/소유자 두 카드, 동일 계정의 양방향 사용 안내
+- 대여자: 검색 → 공개 픽업 지도/목록 → 선택 차량의 기간 신청 → 내 대여/계약/접근 상태
+- 소유자: 내 차량/픽업 공유 설정 → 신청과 원격 승인 → OTA 검증
+- 계약: 서버에서 반환한 고정 버전 조건과 양측 동의 상태
+- 보안: grant 활성/기간 외/회수, 가상 LOCKED/UNLOCKED, 요청 이력과 PKI 여부
 
-- premium
-- automotive
-- technical
-- trustworthy
-- calm
-- dark
-- precise
+실제 번호판은 소유 화면에만 표시한다. 공개 픽업 좌표가 GPS로 오해되지 않게 설명한다. 이미지·텔레메트리가 없는 공유 차량에 가짜 배터리/주행거리/사진을 만들지 않는다.
 
-The UI should be inspired by modern automotive companion services,
-not generic SaaS dashboards.
+## 상호작용
 
-## Color Direction
+버튼은 실제 API 결과에만 성공을 표시하고 pending 동안 비활성화한다. 오류는 code와 이유를 제공하며 재시도 가능한 조회에는 다시 조회 버튼을 둔다. 빈 목록/지도 키 누락/세션 만료를 별도로 표시한다. 폼 label, details/summary, status/alert, 키보드 focus 및 skip link를 제공한다. 지도 선택은 키보드로 사용할 수 있는 동일 차량 목록에서도 가능하다.
 
-- Background: near-black
-- Surface: dark neutral gray
-- Border: subtle neutral gray
-- Primary accent: cyan / electric blue
-- Success: restrained green
-- Warning: amber
-- Critical: red
-
-Avoid excessive gradients.
-
-## Typography
-
-Use strong visual hierarchy.
-
-Greeting and primary page title should be prominent.
-
-Body text should remain concise and muted.
-
-## Main Dashboard
-
-The first screen should communicate:
-
-1. greeting
-2. service purpose
-3. all owned vehicles
-4. key vehicle status
-5. software update entry point
-6. charging reservation entry point
-
-Hero copy example:
-
-"안녕하세요, 세라 님"
-
-"내 차들을 한 곳에서 안전하게 관리하세요."
-
-"차량 상태 확인부터 소프트웨어 업데이트,
-전기차 충전 예약까지 My Garage에서 관리할 수 있습니다."
-
-## Primary Actions
-
-Two actions should receive the strongest visual emphasis:
-
-### 차량 소프트웨어 업데이트
-
-Explain that My Garage verifies:
-
-- publisher authenticity
-- file integrity
-- digital signature
-
-before allowing installation.
-
-### 전기차 충전 예약
-
-Explain that users can:
-
-- search charging stations
-- select chargers
-- select time slots
-- pass authorization checks
-- make reservations
-
-## Vehicle Cards
-
-Each vehicle card should show:
-
-- vehicle image
-- vehicle name
-- trim/model
-- battery
-- estimated range
-- software version
-- connection status
-
-## Product Introduction
-
-Include a short section explaining My Garage as:
-
-"a digital vehicle management platform for vehicle status,
-secure software updates, and EV charging reservations."
-
-## Visual Rules
-
-Avoid:
-
-- huge marketing gradients
-- glassmorphism
-- excessive shadows
-- rounded-everything
-- playful illustrations
-- generic admin dashboard visuals
-
-Prefer:
-
-- large vehicle imagery
-- subtle borders
-- restrained radius
-- spacious layout
-- data-rich presentation
-- status-based UI
+모바일에서는 목록·선택 폼·대여 카드를 한 열로 배치한다. 불필요한 애니메이션/글래스/그라데이션은 추가하지 않는다. 충전 예약과 실제 차량 연결 체험은 현재 공유 서비스의 주요 행동으로 노출하지 않는다.

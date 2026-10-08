@@ -28,6 +28,29 @@ public class Vehicle {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    // Nullable columns keep pre-sharing rows compatible; null means private/locked.
+    private Boolean sharingEnabled;
+    @Column(length = 200)
+    private String pickupLocation;
+    private Double pickupLatitude;
+    private Double pickupLongitude;
+    @Enumerated(EnumType.STRING)
+    private LockState lockState;
+    public enum LockState { LOCKED, UNLOCKED }
+
+    public boolean isSharingEnabled() { return Boolean.TRUE.equals(sharingEnabled); }
+    public String getPickupLocation() { return pickupLocation; }
+    public Double getPickupLatitude() { return pickupLatitude; }
+    public Double getPickupLongitude() { return pickupLongitude; }
+    public LockState getLockState() { return lockState == null ? LockState.LOCKED : lockState; }
+    public void setLockState(LockState state) { lockState = state; }
+    public void configureSharing(boolean enabled, String location, Double latitude, Double longitude) {
+        sharingEnabled = enabled;
+        pickupLocation = location == null ? null : location.strip();
+        pickupLatitude = latitude;
+        pickupLongitude = longitude;
+    }
+
     protected Vehicle() {}
 
     public Vehicle(User owner, String manufacturer, String model, Integer modelYear, String licensePlate) {

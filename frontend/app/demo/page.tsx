@@ -1,8 +1,6 @@
-import Link from "next/link";
-import { GarageDashboard } from "@/features/garage/components/garage-dashboard";
-import { mockGarageDashboard } from "@/mocks/garage";
+import { AccountShell } from "@/components/layout/account-shell";
+import { SharingDemo } from "@/features/sharing/demo/sharing-demo";
 
 export default function DemoPage() {
-  return <><p className="demo-notice">별도 화면 체험 · 모든 차량·상태·인증서는 예시입니다. 실제 계정 로그인과 API 호출은 수행하지 않습니다. <Link href="/login">로그인으로 돌아가기</Link></p>
-    <GarageDashboard preview data={mockGarageDashboard} serviceAvailability={{ updates: false, charging: false }} /></>;
+  return <AccountShell title="차량 공유 서비스 체험" description="차량 검색부터 계약 동의, 소유자 승인과 가상 잠금 해제까지 직접 살펴보세요." wide><SharingDemo /></AccountShell>;
 }

@@ -12,7 +12,8 @@ The product should demonstrate:
 - mobility domain understanding
 - authentication and authorization
 - secure vehicle software update verification
-- EV charging station search and reservation
+- P2P vehicle sharing, rental agreements and digital access grants
+- owner-approved simulated remote unlocking and optional offline X.509 verification
 - backend concurrency and performance considerations
 
 The frontend is the primary portfolio focus.
@@ -78,8 +79,7 @@ src/
     garage/
     vehicle/
     updates/
-    charging/
-    reservation/
+    sharing/
   lib/
   services/
   types/
@@ -156,7 +156,20 @@ Critical flows:
 
 1. Garage Dashboard
 2. Secure Software Update
-3. Charging Station Search
-4. Reservation Authorization
+3. Vehicle Sharing and Rental Agreements
+4. Digital Access and Owner Authorization
 
 The project must remain understandable enough to explain during an interview.
+
+## My Garage 2.0 Scope
+
+- Preserve existing session authentication, CSRF, vehicle ownership and OTA verification.
+- OWNER/RENTER are UI modes, not permanent account roles. Enforce ownership/active grants on the backend.
+- Reuse existing components and extend models with additive compatible fields. Never reset existing data.
+- Remote LOCKED/UNLOCKED values are DB simulation; never claim real vehicle commands or telemetry.
+- No payment, legal e-signatures, insurance, license checks or commercial KMS.
+- Serialize conflicting vehicle operations with DB locks; emit SSE hints after commit and restore via REST.
+- Keep test CA/device private keys out of Git and HTTP APIs. Browser key use is non-extractable in-memory simulation.
+- Run relevant regression, frontend type/lint/build and backend tests; report actual results and limits.
+- Do not commit, push, merge or deploy unless the user explicitly changes this request's restriction.
+- Document current implementation and incomplete work in docs/IMPLEMENTATION_PLAN.md.

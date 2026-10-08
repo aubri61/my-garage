@@ -1,48 +1,22 @@
-## Dashboard Requirements
+# 제품 요구사항
 
-The dashboard is the primary entry point after login.
+My Garage는 신뢰할 수 있는 P2P 차량 원격 공유 시뮬레이션이다. 계정은 영구 OWNER/RENTER 역할로 분리하지 않는다. 모드는 화면과 시작 경로만 결정하며 권한은 서버의 차량 소유권·대여 관계·DB grant로 판단한다.
 
-It should include:
+## MVP 수직 흐름
 
-### Greeting
+| 사용자 | 기능 | 구현 |
+| --- | --- | --- |
+| 공통 | 가입/로그인/로그아웃/세션 복원/모드 변경 | 기존 인증 유지, 모드 선택 추가 |
+| 소유자 | 차량 등록, 공유 공개, 픽업 좌표 지정 | 실제 DB/API |
+| 대여자 | 공유 차량 목록, 검색, 지도 선택, 대여 신청 | 실제 DB/API, 지도 키 선택적 |
+| 소유자 | 신청 승인/거절, 겹치는 예약 승인 방지 | 차량별 DB 잠금 |
+| 양측 | 동일 버전 계약 조건 확인과 동의 시각 기록 | Rental에 snapshot 및 당사자별 시각 |
+| 대여자 | 기간 내 디지털 접근 권한으로 원격 해제 요청 | 서버 grant 검증 |
+| 소유자 | 원격 요청 승인/거절, 수동 잠금, 회수/종료 | 서버 재검증, 가상 DB 상태 |
+| 양측 | SSE 및 서버 상태 복원 | 사용자별 이벤트, REST 재조회 |
+| 대여자 | 테스트 기기 인증서와 개인키 보유 증명 | 오프라인 PKI 옵션, Web Crypto |
+| 소유자 | OTA 검증 및 이력 | 기존 구현 보존 |
 
-- personalized greeting
-- user name
-- service summary
+신청은 다른 사용자의 `REQUESTED` 신청과 겹칠 수 있다. 동일 사용자의 겹치는 신청은 차단한다. 승인된 예약과 겹치는 신청/승인은 모두 차단한다. 공유 공개는 기간별 예약 가능 보장이 아니며 실제 충돌 검사는 서버가 수행한다. 대여 시작은 현재 또는 미래(입력 분 단위 오차 60초 허용), 기간은 최대 30일이다.
 
-Example:
-
-"안녕하세요, 세라 님"
-
-"내 차들을 한 곳에서 안전하게 관리하세요."
-
-### Vehicle Overview
-
-Show all owned vehicles.
-
-Each vehicle displays:
-
-- image
-- model name
-- trim
-- battery
-- estimated range
-- software version
-- connection status
-
-### Primary Services
-
-Two primary service cards:
-
-1. 차량 소프트웨어 업데이트
-2. 전기차 충전 예약
-
-These cards should visually dominate secondary actions.
-
-### Service Introduction
-
-Explain that My Garage supports:
-
-- vehicle state management
-- secure update verification
-- charging station search and reservation
+계약의 법적 효력을 보장하지 않는다. 차량 등록에서 실제 소유권/면허를 검증하지 않는다. 실제 결제·보험·GPS·OEM 원격 API·KMS는 범위 밖이다. 상세 상태/API/제약은 각각 DATA_MODEL, API, SECURITY, IMPLEMENTATION_PLAN에 둔다.

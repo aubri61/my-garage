@@ -24,7 +24,7 @@ api.interceptors.response.use(response => response, error => {
   if (status === 401 && !authenticationRequest && typeof window !== "undefined") {
     window.dispatchEvent(new Event("my-garage:session-expired"));
   }
-  const message = status === 403
+  const message = status === 403 && error.response?.data?.code === "FORBIDDEN"
     ? `${error.response?.data?.message ?? "접근이 제한되었습니다."} CSRF 오류라면 다시 요청해주세요.`
     : status === 401 && !authenticationRequest ? "로그인이 필요하거나 세션이 만료되었습니다."
     : error.response?.data?.message ?? "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.";

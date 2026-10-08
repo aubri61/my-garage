@@ -1,0 +1,2 @@
+# Local test CA and device private keys are generated outside tracked resources.
+.local/

@@ -316,3 +316,81 @@ h1 { margin: 0; font-size: 30px; line-height: 1.4; font-weight: 650; letter-spac
   .registration-vehicle dl { grid-template-columns: 1fr; gap: 16px; }
   .connection-progress li { gap: 10px; font-size: 13px; }
 }
+
+/* P2P sharing uses the existing dark automotive tokens and forms. */
+.sharing-main { max-width: 1240px; margin: 0 auto; padding: 48px 28px 80px; }
+.sharing-title { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+.sharing-title h1 { font-size: clamp(26px, 4vw, 38px); }
+.sharing-title h2, .sharing-title h3 { margin: 0; }
+.sharing-disclosure, .connection-status { color: #9ba8b5; font-size: 13px; line-height: 1.7; }
+.sharing-panel { padding: 24px; border: 1px solid #303843; background: #171d24; border-radius: 12px; }
+.sharing-panel p { color: #a9b6c5; line-height: 1.7; }
+.mode-grid, .rental-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.mode-grid { margin: 32px 0; }
+.mode-card { text-decoration: none; transition: border-color .15s; }
+.mode-card:hover, .mode-card:focus-visible { border-color: #52cee5; }
+.mode-card strong { color: #52cee5; }
+.sharing-status { padding: 6px 10px; color: #73d9ec; background: #24333e; border-radius: 5px; font-size: 12px; }
+.sharing-search { margin: 30px 0 20px; max-width: 540px; }
+.pickup-map, .map-fallback { height: 360px; width: 100%; border: 1px solid #303843; border-radius: 12px; overflow: hidden; }
+.map-fallback { display: flex; flex-direction: column; justify-content: center; padding: 32px; background: #1a222b; }
+.map-fallback p { max-width: 600px; color: #a9b6c5; line-height: 1.7; }
+.sharing-search-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; align-items: start; }
+.available-list { display: grid; gap: 12px; max-height: 540px; overflow: auto; }
+.available-card { display: flex; flex-direction: column; gap: 10px; text-align: left; cursor: pointer; color: inherit; }
+.available-card[aria-pressed="true"] { border-color: #52cee5; background: #1c303c; }
+.available-card span { color: #9ba8b5; font-size: 14px; }
+.sharing-section { margin-top: 46px; }
+.sharing-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
+.sharing-actions button, .rental-card details button { padding: 10px 14px; background: #26323d; color: #e9f2f9; border: 1px solid #3b4c5a; border-radius: 5px; cursor: pointer; }
+.sharing-main button:disabled { opacity: .45; cursor: not-allowed; }
+.sharing-main button:focus-visible, .sharing-main summary:focus-visible { outline: 2px solid #52cee5; outline-offset: 3px; }
+.sharing-data { display: grid; gap: 14px; padding: 18px 0; border-block: 1px solid #303843; }
+.sharing-data div { display: flex; justify-content: space-between; gap: 12px; }
+.sharing-data dt { color: #9ba8b5; }
+.sharing-data dd { margin: 0; }
+.rental-card details { margin: 16px 0; }
+.rental-card summary { cursor: pointer; color: #73d9ec; }
+.unlock-history { padding-left: 20px; font-size: 13px; line-height: 1.8; }
+.unlock-history li { margin: 12px 0; }
+.coordinate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.sharing-toggle { display: flex; gap: 12px; align-items: center; }
+@media (max-width: 760px) { .mode-grid, .rental-grid, .sharing-search-layout { grid-template-columns: 1fr; } .sharing-main { padding: 28px 18px; } .sharing-data div { flex-direction: column; gap: 4px; } .pickup-map, .map-fallback { height: 300px; } }
+.sharing-app { min-height: 100vh; color-scheme: dark; background: #0e141b; color: #edf3fa; --background: #0e141b; --foreground: #edf3fa; --surface: #121a23; --border: #303c4a; --muted: #a4b2c2; --accent: #6ad6e9; }
+.sharing-app .brand { color: #edf3fa; }
+.sharing-app .header-nav { color: #a4b2c2; }
+.sharing-app .header-nav [aria-current="page"] { color: #6ad6e9; border-bottom: 2px solid currentColor; }
+.sharing-app .form-field input, .sharing-app .form-fields select { background: #111923; border-color: #425367; color: #edf3fa; }
+.sharing-app .form-fields:disabled input { background: #1d2733; }
+.sharing-app .form-submit { color: #0d1b24; }
+.sharing-app .form-submit:hover:not(:disabled) { background: #8be4f3; }
+.sharing-app .form-secondary { background: transparent; }
+.sharing-app .sharing-title > .form-secondary { width: auto; }
+.sharing-app .form-error { color: #ffb2b2; background: #321f29; border-color: #734253; }
+.sharing-app .field-error { color: #ffb2b2; }
+.sharing-app .form-field input[aria-invalid="true"] { border-color: #ee8e9d; }
+.sharing-app .form-submit:disabled, .sharing-app .form-secondary:disabled { background: #24303d; border-color: #425367; color: #a4b2c2; }
+.sharing-app .success-mark { color: #89e0b4; background: #18382b; }
+.sharing-app .registration-disclosure, .sharing-app .demo-codes, .sharing-app .registration-vehicle { background: #171f29; border-color: var(--border); }
+.sharing-app .demo-codes button { background: #111923; color: var(--accent); }
+.sharing-app .form-field input:autofill { -webkit-text-fill-color: #edf3fa; box-shadow: 0 0 0 1000px #111923 inset; }
+.account-app { display: flow-root; }
+.sharing-app .status-success { color: #89e0b4; }
+.sharing-app .status-warning { color: #efc481; }
+.sharing-app .primary-service { background: #1b2632; border-color: #425367; }
+.sharing-main h2 { font-size: 22px; font-weight: 650; letter-spacing: -.5px; margin: 24px 0 18px; }
+.sharing-main h3 { font-size: 18px; font-weight: 650; letter-spacing: -.3px; }
+.sharing-title h2, .sharing-title h3 { margin: 0; }
+.sharing-app .form-field { display: block; }
+.sharing-app .form-fields { display: grid; gap: 16px; margin: 18px 0; }
+.sharing-app .form-fields legend { color: #a4b2c2; font-size: 13px; padding-bottom: 8px; }
+.sharing-app .mode-card h2 { font-size: 25px; font-weight: 650; margin: 18px 0; }
+.sharing-app .mode-card p { margin-top: 14px; }
+.sharing-app .map-fallback { height: auto; min-height: 190px; gap: 10px; }
+.sharing-app .rental-grid { margin-top: 20px; }
+
+.account-app .sharing-actions button { color: var(--foreground); }
+.account-app .sharing-actions button[aria-pressed="true"] { border-color: var(--accent); background: #1c303c; }
+.account-app .demo-reset { width: auto; margin: 0; }
+.demo-boundary { font-size: 13px; line-height: 1.8; color: var(--muted); margin-bottom: 24px; }
+.account-app .sharing-actions button:disabled { opacity: .45; cursor: not-allowed; }

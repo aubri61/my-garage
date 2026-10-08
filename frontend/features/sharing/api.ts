@@ -1,0 +1,11 @@
+import { api } from "@/lib/api-client";
+import type { VehicleResponse } from "@/services/types";
+import type { AvailableVehicle, Rental, SharingSettings } from "./types";
+export async function availableVehicles(signal?: AbortSignal) { return (await api.get<AvailableVehicle[]>("/vehicles/available", { signal })).data; }
+export async function listRentals(signal?: AbortSignal) { return (await api.get<Rental[]>("/rentals", { signal })).data; }
+export async function configureSharing(id: number, settings: SharingSettings) { return (await api.put<VehicleResponse>(`/vehicles/${id}/sharing`, settings)).data; }
+export async function createRental(input: { vehicleId: number; startsAt: string; endsAt: string }) { return (await api.post<Rental>("/rentals", input)).data; }
+export type RentalAction = "approve" | "reject" | "consents" | "access-grant/revoke" | "complete" | "unlock-requests";
+export async function rentalAction(id: number, action: RentalAction) { return (await api.post<Rental>(`/rentals/${id}/${action}`)).data; }
+export async function unlockAction(id: number, action: "approve" | "reject") { return (await api.post<Rental>(`/unlock-requests/${id}/${action}`)).data; }
+export async function lockVehicle(id: number) { return (await api.post<VehicleResponse>(`/vehicles/${id}/lock`)).data; }

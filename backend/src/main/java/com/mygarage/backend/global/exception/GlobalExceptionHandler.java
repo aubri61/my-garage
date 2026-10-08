@@ -14,6 +14,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+  @ExceptionHandler(com.mygarage.backend.sharing.SharingException.class)
+  public ResponseEntity<ErrorResponse> handleSharing(com.mygarage.backend.sharing.SharingException e) {
+    return ResponseEntity.status(e.status).body(new ErrorResponse(e.code, e.getMessage()));
+  }
+
 
   @ExceptionHandler(AuthenticationException.class)
   public ResponseEntity<ErrorResponse> handleAuthentication() {
