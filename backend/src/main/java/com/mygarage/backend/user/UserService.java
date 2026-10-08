@@ -1,6 +1,8 @@
 package com.mygarage.backend.user;
 
 import com.mygarage.backend.user.dto.SignupRequest;
+import com.mygarage.backend.user.dto.UserResponse;
+import org.springframework.security.authentication.BadCredentialsException;
 import com.mygarage.backend.user.exception.DuplicateEmailException;
 
 import org.springframework.stereotype.Service;
@@ -16,6 +18,13 @@ public class UserService {
   public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
+  }
+
+  @Transactional(readOnly = true)
+  public UserResponse currentUser(String email) {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new BadCredentialsException("사용자를 찾을 수 없습니다."));
+    return new UserResponse(user.getId(), user.getName(), user.getEmail());
   }
 
   @Transactional

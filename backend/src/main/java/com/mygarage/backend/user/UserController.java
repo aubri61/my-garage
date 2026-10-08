@@ -2,6 +2,8 @@ package com.mygarage.backend.user;
 
 import com.mygarage.backend.user.dto.SignupRequest;
 import com.mygarage.backend.user.dto.SignupResponse;
+import com.mygarage.backend.user.dto.UserResponse;
+import java.security.Principal;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,11 @@ public class UserController {
 
   public UserController(UserService userService) {
     this.userService = userService;
+  }
+
+  @GetMapping("/me")
+  public UserResponse me(Principal principal) {
+    return userService.currentUser(principal.getName());
   }
 
   @PostMapping("/signup")
