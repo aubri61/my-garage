@@ -8,10 +8,18 @@ import { VehicleCertificateDetails } from "@/features/vehicle/components/vehicle
 import { VehicleMatch } from "@/features/vehicle-registration/components/vehicle-match";
 import { ConnectionProgress } from "@/features/vehicle-registration/components/connection-progress";
 import { registrationReducer, initialRegistrationState, isRegistrationPending, connectionProgressFor } from "@/features/vehicle-registration/reducer";
-import { registerDemoVehicle, useDemoSession } from "@/mocks/demo-session";
+import { registerDemoVehicle, useDemoSession, startMemberSession } from "@/mocks/demo-session";
 import { lookupMockVehicle, confirmMockOwnership, createMockVehicleIdentity, issueMockVehicleCertificate, connectMockVehicle, mockRegistrationFixtures, mockConnectionScenarios, type MockConnectionScenario } from "@/mocks/vehicle-registration";
 
+import { ServerRegistration } from "./server-registration";
+
 export function RegistrationFlow() {
+  return <><ServerRegistration /><details className="demo-codes" onToggle={event => { if (event.currentTarget.open) startMemberSession("체험", true); }}>
+    <summary>소유권·인증서 발급 데모 체험</summary><p className="mock-disclosure">별도 데모입니다. 이 흐름의 차량은 서버 차량 목록에 등록되지 않습니다.</p><DemoRegistrationFlow />
+  </details></>;
+}
+
+function DemoRegistrationFlow() {
   const { bfcacheId } = useRouter();
   // A fresh route entry starts a new registration; browser back restores the draft.
   return <RegistrationSteps key={bfcacheId} />;
@@ -138,7 +146,7 @@ function RegistrationSteps() {
       <span className="success-mark" aria-hidden="true">✓</span><h2 tabIndex={-1} ref={heading}>차량 연결이 완료되었습니다.</h2>
       <p>{state.vehicle.modelName} 차량이 내 차고지에 추가되었습니다.</p>
       <ConnectionProgress progress={progress} />
-      <VehicleCertificateDetails identity={state.vehicle.identity} certificate={state.vehicle.certificate} />
+      {state.vehicle.identity && state.vehicle.certificate && <VehicleCertificateDetails identity={state.vehicle.identity} certificate={state.vehicle.certificate} />}
       <Link href="/garage" className="form-submit">내 차량 확인하기</Link>
     </section>}
     <p className="sr-only" role="status">{busy ? phase === "provisioning" ? "데모 식별정보와 인증서를 준비하고 있습니다." : "요청을 처리하고 있습니다." : ""}</p>

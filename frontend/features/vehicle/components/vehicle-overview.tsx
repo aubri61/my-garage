@@ -66,7 +66,7 @@ export function VehicleOverview({ vehicles, selectedVehicle, onSelectVehicle, on
           <p className="sr-only" role="status">{selectedVehicle.modelName}, {selectedIndex + 1} / {vehicles.length} 차량 선택됨</p>
         </>
       ) : (
-        <div className="empty-garage"><ServiceIcon name="vehicle" /><h2>등록된 차량이 없습니다.</h2><p>내 차량을 연결하고 차량 상태와 서비스를 한 곳에서 확인하세요.</p><Link href="/vehicles/register" className="service-action">차량 등록하기 <span aria-hidden="true">→</span></Link><p className="field-hint">연결 코드나 VIN으로 데모 차량을 등록할 수 있습니다.</p></div>
+        <div className="empty-garage"><ServiceIcon name="vehicle" /><h2>등록된 차량이 없습니다.</h2><p>내 차량을 연결하고 차량 상태와 서비스를 한 곳에서 확인하세요.</p><Link href="/vehicles/register" className="service-action">차량 등록하기 <span aria-hidden="true">→</span></Link><p className="field-hint">제조사·차종·연식·차량 번호로 내 차량을 등록할 수 있습니다.</p></div>
       )}
     </section>
   );

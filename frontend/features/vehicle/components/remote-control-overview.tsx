@@ -20,7 +20,7 @@ export function RemoteControlOverview({ vehicle, updateCount, onSelectAction }: 
         <button id="updates" type="button" className="control-tile service-tile" onClick={() => onSelectAction("updates")} aria-haspopup="dialog"><ServiceIcon name="shield" /><span className="control-label">업데이트</span><span className="control-detail">{updateCount === null ? "정보 확인 불가" : updateCount > 0 ? `${updateCount}개 업데이트 확인` : "최신 소프트웨어"}</span></button>
         <button type="button" className="control-tile service-tile" disabled={vehicle.powertrain !== "electric"} onClick={() => onSelectAction("charging")} aria-haspopup="dialog"><ServiceIcon name="charging" /><span className="control-label">충전</span><span className="control-detail">{vehicle.powertrain === "electric" ? "충전 상태 · 충전소" : "전기차 전용"}</span></button>
       </div>
-      {vehicle.connectionStatus !== "connected" && <p className="connection-note">차량 연결이 끊겨 마지막 동기화 정보를 표시합니다. 원격 제어는 다시 연결한 후 사용할 수 있습니다.</p>}
+      {vehicle.connectionStatus !== "connected" && <p className="connection-note">현재 차량 연결 상태와 원격 제어는 확인할 수 없습니다.</p>}
     </section>
   );
 }

@@ -1,6 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
+import { installApiFixture, logIn } from "./api-fixture";
 
 async function signUp(page: Page) {
+  await installApiFixture(page);
   await page.goto("/signup");
   await page.getByLabel("이름", { exact: true }).fill("회귀 테스트 회원");
   await page.getByLabel("이메일", { exact: true }).fill("garage-test@example.com");
@@ -8,9 +10,10 @@ async function signUp(page: Page) {
   await page.getByLabel("비밀번호 확인", { exact: true }).fill("DemoPass123!");
   await page.getByRole("button", { name: "회원가입", exact: true }).click();
   await expect(page.getByRole("heading", { name: "가입이 완료되었습니다." })).toBeVisible();
-  await page.getByRole("link", { name: "내 차고지로 이동" }).click();
+  await logIn(page);
   await expect(page.getByRole("heading", { name: "등록된 차량이 없습니다." })).toBeVisible();
   await page.getByRole("link", { name: "차량 등록하기", exact: false }).click();
+  await page.getByText("소유권·인증서 발급 데모 체험", { exact: true }).click();
   await expect(page.getByLabel("연결 코드 / VIN", { exact: true })).toBeEnabled();
 }
 
@@ -57,6 +60,8 @@ for (const stage of [
   if (stage.elapsed >= 1900) await page.clock.runFor(750);
   await expect(page.getByRole("list", { name: "데모 차량 연결 진행 상태" }).getByRole("listitem").filter({ hasText: stage.step }).filter({ hasText: "진행 중" })).toBeVisible();
   await page.getByRole("link", { name: "차고지로 돌아가기" }).click();
+  // Query notifications use timers; resume after the demo work has been cancelled.
+  await page.clock.resume();
   await expect(page.getByRole("heading", { name: "등록된 차량이 없습니다." })).toBeVisible();
   await page.goBack();
   await expect(page.getByLabel("데모 확인 코드", { exact: true })).toHaveValue("123456");
@@ -80,17 +85,15 @@ test("인증서 발급 실패 시 차량이 등록되지 않으며 재시도할 
   await expect(page.getByRole("heading", { name: "등록된 차량이 없습니다." })).toBeVisible();
 });
 
-test("정상 등록한 차량이 dashboard와 새로고침 후에도 표시된다", async ({ page }) => {
+test("데모 등록은 실제 서버 차량 목록에 섞이지 않는다", async ({ page }) => {
   await signUp(page);
   await findVehicle(page);
   await page.getByRole("button", { name: "코드 확인 후 차량 연결" }).click();
   await expect(page.getByRole("heading", { name: "차량 연결이 완료되었습니다." })).toBeVisible();
   await page.getByRole("link", { name: "내 차량 확인하기" }).click();
-  await expect(page.getByRole("heading", { name: "Kia EV6", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "등록된 차량이 없습니다." })).toBeVisible();
   await page.reload();
-  await expect(page.getByRole("heading", { name: "Kia EV6", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "차량 정보 자세히 보기" }).click();
-  await expect(page.getByRole("dialog")).toContainText("demo-identity-ev6");
+  await expect(page.getByRole("heading", { name: "등록된 차량이 없습니다." })).toBeVisible();
 });
 
 test("잘못된 회원가입 입력은 오류를 표시하고 가입을 진행하지 않는다", async ({ page }) => {
@@ -115,6 +118,15 @@ test("잘못된 회원가입 입력은 오류를 표시하고 가입을 진행�
 
 
 test("가입 요청 중 이동 후 뒤로 돌아와도 입력을 보존하고 다시 제출할 수 있다", async ({ page }) => {
+  await installApiFixture(page);
+  let first = true;
+  let release = () => {};
+  await page.route("**/api/users/signup", async route => {
+    if (!first) { await route.fallback(); return; }
+    first = false;
+    await new Promise<void>(resolve => { release = resolve; });
+    await route.abort("aborted");
+  });
   await page.clock.install({ time: new Date("2026-10-08T00:00:00Z") });
   await page.goto("/signup");
   await page.getByLabel("이름", { exact: true }).fill("취소 테스트 회원");
@@ -122,10 +134,13 @@ test("가입 요청 중 이동 후 뒤로 돌아와도 입력을 보존하고 �
   await page.getByLabel("비밀번호", { exact: true }).fill("DemoPass123!");
   await page.getByLabel("비밀번호 확인", { exact: true }).fill("DemoPass123!");
   await page.clock.pauseAt(new Date("2026-10-08T01:00:00Z"));
+  const requestStarted = page.waitForRequest("**/api/users/signup");
   await page.getByRole("button", { name: "회원가입", exact: true }).click();
+  await requestStarted;
   await expect(page.getByRole("button", { name: "가입 처리 중…", exact: true })).toBeDisabled();
   await page.getByRole("link", { name: "로그인", exact: true }).click();
   await expect(page).toHaveURL(/\/login$/);
+  release();
   await page.goBack();
   const fields = page.getByRole("group", { name: "회원가입 정보" });
   await expect(fields.getByLabel("이메일", { exact: true })).toHaveValue("cancel-test@example.com");

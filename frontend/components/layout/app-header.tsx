@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SessionActions } from "@/features/auth/components/session-actions";
 
-export function AppHeader({ displayName, hasVehicles = true }: { displayName: string; hasVehicles?: boolean }) {
+export function AppHeader({ displayName, hasVehicles = true, preview = false }: { displayName: string; hasVehicles?: boolean; preview?: boolean }) {
   return (
     <header className="app-header">
       <div className="header-inner">
@@ -20,7 +20,7 @@ export function AppHeader({ displayName, hasVehicles = true }: { displayName: st
           <span className="profile-avatar" aria-hidden="true">{displayName.charAt(0)}</span>
           {displayName} 님
         </span>
-        <SessionActions />
+        {preview ? <Link href="/login" className="header-logout">로그인</Link> : <SessionActions />}
       </div>
     </header>
   );
