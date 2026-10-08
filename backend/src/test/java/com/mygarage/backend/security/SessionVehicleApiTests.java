@@ -4,6 +4,7 @@ import com.mygarage.backend.global.config.SecurityConfig;
 import com.mygarage.backend.global.controller.CsrfController;
 import com.mygarage.backend.user.*;
 import com.mygarage.backend.vehicle.*;
+import com.mygarage.backend.ota.*;
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.Cookie;
 import java.util.List;
@@ -32,8 +33,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 // Real security filter chain, authentication provider, BCrypt and services; only persistence is mocked.
-@WebMvcTest(controllers = {AuthController.class, UserController.class, CsrfController.class, VehicleController.class})
-@Import({SecurityConfig.class, CustomUserDetailsService.class, AuthService.class, UserService.class, VehicleService.class})
+@WebMvcTest(controllers = {AuthController.class, UserController.class, CsrfController.class, VehicleController.class, OtaController.class})
+@Import({SecurityConfig.class, CustomUserDetailsService.class, AuthService.class, UserService.class, VehicleService.class, OtaCryptoService.class, OtaScenarioService.class, OtaVerificationService.class})
 class SessionVehicleApiTests {
     @Autowired WebApplicationContext context;
     @Autowired Filter springSecurityFilterChain;
@@ -41,6 +42,7 @@ class SessionVehicleApiTests {
     @Autowired ObjectMapper mapper;
     @MockitoBean UserRepository users;
     @MockitoBean VehicleRepository vehicles;
+    @MockitoBean OtaVerificationRepository otaHistory;
     MockMvc mvc;
     User alice;
     User bob;
@@ -187,6 +189,109 @@ class SessionVehicleApiTests {
         mvc.perform(csrf.apply(post("/api/users/signup")).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"New User\",\"email\":\"new@example.com\",\"password\":\"password123\"}"))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.userId").value(3));
+    }
+
+    @Test
+    void otaRequiresAuthenticationAndCsrf() throws Exception {
+        for (String path : List.of("/api/ota/scenarios", "/api/vehicles/10/ota/history")) {
+            mvc.perform(get(path)).andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.code").value("UNAUTHORIZED"));
+        }
+        var anonymousCsrf = csrf(null);
+        mvc.perform(anonymousCsrf.apply(post("/api/vehicles/10/ota/verify"))
+                .contentType(MediaType.APPLICATION_JSON).content(otaBody("VALID", true)))
+                .andExpect(status().isUnauthorized());
+        var session = login(alice.getEmail());
+        mvc.perform(get("/api/ota/scenarios").session(session)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(7));
+        mvc.perform(post("/api/vehicles/10/ota/verify").session(session)
+                .contentType(MediaType.APPLICATION_JSON).content(otaBody("VALID", true)))
+                .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("FORBIDDEN"));
+        verifyNoInteractions(otaHistory);
+    }
+
+    @Test
+    void otaCannotVerifyOrReadAnotherOwnersVehicle() throws Exception {
+        var session = login(alice.getEmail());
+        var csrf = csrf(session);
+        mvc.perform(csrf.apply(post("/api/vehicles/20/ota/verify").session(session))
+                .contentType(MediaType.APPLICATION_JSON).content(otaBody("VALID", true)))
+                .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("VEHICLE_NOT_FOUND"));
+        mvc.perform(get("/api/vehicles/20/ota/history").session(session))
+                .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("VEHICLE_NOT_FOUND"));
+        verifyNoInteractions(otaHistory);
+    }
+
+    @Test
+    void otaAllScenariosUseEngineAndOffModeNeverMutatesVehicle() throws Exception {
+        var owned = vehicle(10L, alice);
+        when(vehicles.findByIdAndOwnerEmail(10L, alice.getEmail())).thenReturn(Optional.of(owned));
+        when(otaHistory.save(any(OtaVerificationHistory.class))).thenAnswer(invocation -> {
+            OtaVerificationHistory record = invocation.getArgument(0);
+            assertThat(ReflectionTestUtils.getField(record, "executedBy")).isSameAs(alice);
+            assertThat(ReflectionTestUtils.getField(record, "vehicle")).isSameAs(owned);
+            ReflectionTestUtils.setField(record, "id", 100L);
+            return record;
+        });
+        var snapshot = new Object[] {owned.getId(), owned.getOwner(), owned.getManufacturer(), owned.getModel(),
+                owned.getModelYear(), owned.getLicensePlate(), owned.getCreatedAt(), owned.getUpdatedAt()};
+        var session = login(alice.getEmail());
+        var csrf = csrf(session);
+        for (var scenario : OtaScenario.values()) {
+            mvc.perform(csrf.apply(post("/api/vehicles/10/ota/verify").session(session))
+                    .contentType(MediaType.APPLICATION_JSON).content(otaBody(scenario.name(), true)))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.status")
+                            .value(scenario == OtaScenario.VALID ? "APPROVED" : "BLOCKED"))
+                    .andExpect(jsonPath("$.historyId").value(100))
+                    .andExpect(jsonPath("$.simulatedRisk").isEmpty());
+            mvc.perform(csrf.apply(post("/api/vehicles/10/ota/verify").session(session))
+                    .contentType(MediaType.APPLICATION_JSON).content(otaBody(scenario.name(), false)))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("SIMULATED_APPROVAL"))
+                    .andExpect(jsonPath("$.failureCode").isEmpty())
+                    .andExpect(jsonPath("$.simulatedRisk.code").isNotEmpty())
+                    .andExpect(jsonPath("$.checks[0].status").value("NOT_RUN"));
+        }
+        assertThat(new Object[] {owned.getId(), owned.getOwner(), owned.getManufacturer(), owned.getModel(),
+                owned.getModelYear(), owned.getLicensePlate(), owned.getCreatedAt(), owned.getUpdatedAt()})
+                .containsExactly(snapshot);
+        verify(vehicles, never()).save(any());
+        verify(users, never()).save(any());
+        verify(otaHistory, times(14)).save(any());
+    }
+
+    @Test
+    void otaHistoryFiltersVehicleAndActorAndOwner() throws Exception {
+        var owned = vehicle(10L, alice);
+        when(vehicles.findByIdAndOwnerEmail(10L, alice.getEmail())).thenReturn(Optional.of(owned));
+        var record = new OtaVerificationHistory(owned, alice, OtaScenario.VALID, true, OtaDtos.Status.APPROVED, null);
+        ReflectionTestUtils.setField(record, "id", 100L);
+        when(otaHistory.findTop50ByVehicleIdAndExecutedByEmailAndVehicleOwnerEmailOrderByExecutedAtDescIdDesc(
+                10L, alice.getEmail(), alice.getEmail())).thenReturn(List.of(record));
+        mvc.perform(get("/api/vehicles/10/ota/history").session(login(alice.getEmail())))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(100)).andExpect(jsonPath("$[0].vehicleId").value(10))
+                .andExpect(jsonPath("$[0].fileBytes").doesNotExist())
+                .andExpect(jsonPath("$[0].executedBy").doesNotExist());
+        verify(otaHistory).findTop50ByVehicleIdAndExecutedByEmailAndVehicleOwnerEmailOrderByExecutedAtDescIdDesc(
+                10L, alice.getEmail(), alice.getEmail());
+    }
+
+    @Test
+    void malformedOtaRequestsReturn400Json() throws Exception {
+        var session = login(alice.getEmail());
+        var csrf = csrf(session);
+        for (String body : List.of("{}", "{\"scenario\":\"VALID\"}",
+                "{\"scenario\":\"UNKNOWN\",\"protectionEnabled\":true}",
+                "{\"scenario\":null,\"protectionEnabled\":true}")) {
+            mvc.perform(csrf.apply(post("/api/vehicles/10/ota/verify").session(session))
+                    .contentType(MediaType.APPLICATION_JSON).content(body))
+                    .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
+        }
+        verifyNoInteractions(otaHistory);
+    }
+
+    private String otaBody(String scenario, boolean protection) {
+        return "{\"scenario\":\"" + scenario + "\",\"protectionEnabled\":" + protection + "}";
     }
 
     private User user(long id, String email) {

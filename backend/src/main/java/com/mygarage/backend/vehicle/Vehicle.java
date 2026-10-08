@@ -39,6 +39,7 @@ public class Vehicle {
     }
 
     public Long getId() { return id; }
+    public User getOwner() { return owner; }
     public String getManufacturer() { return manufacturer; }
     public String getModel() { return model; }
     public Integer getModelYear() { return modelYear; }
