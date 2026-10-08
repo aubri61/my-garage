@@ -4,6 +4,7 @@ export type ClimateStatus = "on" | "off" | "unknown";
 export type ChargingStatus = "unplugged" | "connected" | "charging" | "complete" | "unknown";
 
 type VehicleBase = {
+  source?: "api";
   id: string;
   modelName: string;
   trim: string;
@@ -25,6 +26,7 @@ type VehicleDetails = VehicleBase & (
       targetChargePercent: number;
     }
   | { powertrain: "combustion"; fuelPercent: number | null }
+  | { powertrain: "unknown"; fuelPercent: null }
 );
 
 export type VehicleIdentity = { id: string; vin: string; createdAt: string };
@@ -43,7 +45,7 @@ export type UnregisteredVehicle = VehicleDetails & {
 };
 export type RegisteredVehicle = VehicleDetails & {
   registrationStatus: "registered";
-  identity: VehicleIdentity;
-  certificate: VehicleCertificate;
+  identity?: VehicleIdentity;
+  certificate?: VehicleCertificate;
 };
 export type Vehicle = UnregisteredVehicle | RegisteredVehicle;

@@ -9,6 +9,9 @@ import { ClimateSettings } from "@/features/vehicle/components/climate-settings"
 import { SoftwareUpdateCard } from "@/features/updates/components/software-update-card";
 import { ChargingReservationCard } from "@/features/charging/components/charging-reservation-card";
 
+import { OtaSecurityLab } from "@/features/updates/components/ota-security-lab";
+import { ServerVehicleDetails } from "./server-vehicle-details";
+
 const titles = { details: "차량 정보", cooling: "공조 설정", heating: "난방 설정", doors: "문 잠금 해제", updates: "업데이트 정보", charging: "충전 정보" };
 
 type Props = {
@@ -57,7 +60,7 @@ export function VehicleActionDialog({ action, vehicle, summary, eligibility, ava
     >
       <div className="dialog-header"><div><p>{vehicle.modelName}</p><h2 id="vehicle-dialog-title">{titles[action]}</h2></div><button type="button" className="dialog-close" onClick={closeDialog} aria-label="팝업 닫기">×</button></div>
       <div className="dialog-content">
-        {action === "details" && <><p className="dialog-description">{vehicle.trim}</p><VehicleStatus vehicle={vehicle} /></>}
+        {action === "details" && (vehicle.source === "api" ? <ServerVehicleDetails vehicleId={Number(vehicle.id)} /> : <><p className="dialog-description">{vehicle.trim}</p><VehicleStatus vehicle={vehicle} /></>)}
         {(action === "cooling" || action === "heating") && <ClimateSettings vehicle={vehicle} mode={action} />}
         {action === "doors" && <>
           <p className="dialog-description">{vehicle.connectionStatus === "connected" ? "현재" : "마지막 확인"} 도어 상태: {vehicle.doorStatus === "locked" ? "잠김" : vehicle.doorStatus === "unlocked" ? "잠금 해제" : "확인 불가"}</p>
@@ -65,7 +68,7 @@ export function VehicleActionDialog({ action, vehicle, summary, eligibility, ava
           <button className="service-action dialog-action" type="button" disabled aria-describedby="door-execution-note">잠금 해제 요청</button>
           <p id="door-execution-note" className="action-note">{vehicle.connectionStatus !== "connected" ? "차량이 다시 연결된 후 사용할 수 있습니다." : vehicle.doorStatus === "unlocked" ? "이미 문 잠금이 해제되어 있습니다." : "원격 실행 요청 흐름은 다음 단계에서 연결합니다."}</p>
         </>}
-        {action === "updates" && <SoftwareUpdateCard summary={summary} vehicleName={vehicle.modelName} available={availability.updates} />}
+        {action === "updates" && (vehicle.source === "api" ? <OtaSecurityLab key={vehicle.id} vehicleId={Number(vehicle.id)} vehicleName={vehicle.modelName} /> : <SoftwareUpdateCard summary={summary} vehicleName={vehicle.modelName} available={availability.updates} />)}
         {action === "charging" && vehicle.powertrain === "electric" && <ChargingReservationCard vehicle={vehicle} eligibility={eligibility} action={{ href: "/charging", available: availability.charging }} />}
       </div>
     </dialog>

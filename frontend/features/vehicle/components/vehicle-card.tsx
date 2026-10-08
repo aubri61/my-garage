@@ -11,12 +11,12 @@ const connectionLabels = {
 export function VehicleCard({ vehicle, onShowDetails }: { vehicle: Vehicle; onShowDetails: () => void }) {
   const connection = connectionLabels[vehicle.connectionStatus];
   const energy = vehicle.powertrain === "electric" ? vehicle.batteryPercent : vehicle.fuelPercent;
-  const energyLabel = vehicle.powertrain === "electric" ? "배터리 잔량" : "연료 잔량";
+  const energyLabel = vehicle.powertrain === "electric" ? "배터리 잔량" : vehicle.powertrain === "combustion" ? "연료 잔량" : "에너지 잔량";
 
   return (
     <article className="vehicle-card" aria-labelledby={`vehicle-${vehicle.id}`}>
       <div className="vehicle-identity">
-        <span className="powertrain-label">{vehicle.powertrain === "electric" ? "전기차" : "가솔린"}</span>
+        <span className="powertrain-label">{vehicle.powertrain === "electric" ? "전기차" : vehicle.powertrain === "combustion" ? "가솔린" : "차량 등록 정보"}</span>
         <h2 id={`vehicle-${vehicle.id}`}>{vehicle.modelName}</h2>
         <p className="vehicle-trim">{vehicle.trim}</p>
         <StatusBadge tone={connection.tone}>{connection.label}</StatusBadge>
@@ -30,7 +30,7 @@ export function VehicleCard({ vehicle, onShowDetails }: { vehicle: Vehicle; onSh
           <div><dt>주행 가능 거리</dt><dd>{vehicle.rangeKm === null ? <span className="metric-unavailable">확인 불가</span> : <>{vehicle.rangeKm}<span className="metric-unit">km</span></>}</dd></div>
         </dl>
         {energy !== null && <div className={`energy-track energy-${vehicle.powertrain}`} role="meter" aria-label={`${vehicle.modelName} ${energyLabel}`} aria-valuenow={energy} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${energy}%` }} /></div>}
-        <p className="energy-caption">{vehicle.connectionStatus === "connected" ? "최근 동기화 기준 예상 주행 거리" : "연결이 끊겨 마지막 동기화 정보를 표시합니다."}</p>
+        <p className="energy-caption">{vehicle.connectionStatus === "connected" ? "최근 동기화 기준 예상 주행 거리" : vehicle.connectionStatus === "unknown" ? "실시간 차량 상태는 제공되지 않습니다." : "연결이 끊겨 마지막 동기화 정보를 표시합니다."}</p>
         <button className="vehicle-details-link" type="button" onClick={onShowDetails} aria-haspopup="dialog">차량 정보 자세히 보기 <span aria-hidden="true">↗</span></button>
       </div>
     </article>
