@@ -110,7 +110,7 @@ test("잘못된 회원가입 입력은 오류를 표시하고 가입을 진행�
   await expect(page.getByLabel("이름", { exact: true })).toBeFocused();
   await expect(page.getByLabel("이메일", { exact: true })).toHaveAttribute("aria-invalid", "true");
   await expect(page.getByRole("heading", { name: "가입이 완료되었습니다." })).toHaveCount(0);
-  await page.getByRole("link", { name: "My Garage", exact: true }).click();
+  await page.goto("/login");
   await page.getByRole("button", { name: "로그인", exact: true }).click();
   const loginFields = page.getByRole("group", { name: "로그인 정보" });
   await expect(loginFields.getByText("올바른 이메일 주소를 입력해주세요.", { exact: true })).toBeVisible();

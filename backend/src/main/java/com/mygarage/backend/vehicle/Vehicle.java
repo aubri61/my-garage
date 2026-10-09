@@ -29,6 +29,26 @@ public class Vehicle {
     private LocalDateTime updatedAt;
 
     // Nullable columns keep pre-sharing rows compatible; null means private/locked.
+    private Long hourlyRate;
+    @Column(length=20) private String powerType;
+    @Column(length=20) private String bodyType;
+    @Column(length=2000) private String description;
+    private Integer minimumRentalHours;
+    public Long getHourlyRate() { return hourlyRate; }
+    public String getPowerType() { return powerType; }
+    public String getBodyType() { return bodyType; }
+    public String getDescription() { return description; }
+    public int getMinimumRentalHours() { return minimumRentalHours == null ? 1 : minimumRentalHours; }
+    public void configureRentalTerms(Long rate, String power, String body, String text, Integer minimum) {
+        if (rate != null) { if (rate <= 0 || rate > 1000000) throw new IllegalArgumentException("시간당 가격은 1원 이상 1,000,000원 이하입니다."); hourlyRate=rate; }
+        if (power != null) powerType=power;
+        if (body != null) bodyType=body;
+        if (text != null) description=text.isBlank() ? null : text.strip();
+        if (minimum != null) { if (minimum < 1 || minimum > 24) throw new IllegalArgumentException("최소 대여 시간은 1~24시간입니다."); minimumRentalHours=minimum; }
+    }
+    public void clearClassification() { this.powerType=null; this.bodyType=null; }
+
+    public void updateDetails(String maker, String name, Integer year, String plate) { manufacturer=maker.strip(); model=name.strip(); modelYear=year; licensePlate=plate.strip(); }
     private Boolean sharingEnabled;
     @Column(length = 200)
     private String pickupLocation;

@@ -86,6 +86,19 @@ public class SharingService {
         events.publishEvent(new NotificationService.InventoryChange());
     }
     private void currentVehicle(Vehicle v) { if (v.isDeleted()) throw new VehicleNotFoundException(); }
+    @Transactional(readOnly=true)
+    public PriceQuote quote(String email, RentalRequest input) {
+        var vehicle=vehicles.findById(input.vehicleId()).filter(v -> !v.isDeleted() && v.isSharingEnabled() && !v.getOwner().getEmail().equals(email)).orElseThrow(VehicleNotFoundException::new);
+        return calculate(vehicle,input.startsAt(),input.endsAt());
+    }
+    private PriceQuote calculate(Vehicle vehicle, Instant start, Instant end) {
+        validatePeriod(start,end);
+        if (vehicle.getHourlyRate() == null) throw failure(CONFLICT,"PRICE_REQUIRED","소유자가 시간당 가격을 설정해야 신청할 수 있습니다.");
+        var duration=java.time.Duration.between(start,end);
+        if (duration.compareTo(java.time.Duration.ofHours(vehicle.getMinimumRentalHours())) < 0) throw failure(BAD_REQUEST,"MINIMUM_DURATION","최소 대여 시간은 "+vehicle.getMinimumRentalHours()+"시간입니다.");
+        int hours=(int)(duration.toHours()+ (duration.minusHours(duration.toHours()).isZero() ? 0 : 1));
+        return new PriceQuote(vehicle.getId(),vehicle.getHourlyRate(),hours,Math.multiplyExact(vehicle.getHourlyRate(),hours),"시작·종료 간 실제 경과 시간을 1시간 단위로 올림합니다. 결제 금액이 아닌 예상 요금입니다.");
+    }
     public RentalView request(String email, RentalRequest input) {
         Vehicle v=lockVehicle(input.vehicleId());
         currentVehicle(v);
@@ -98,7 +111,10 @@ public class SharingService {
                 throw failure(CONFLICT, "RENTAL_CONFLICT", "예약 또는 동일 사용자의 요청과 시간이 겹칩니다.");
         }
         var renter=users.findByEmail(email).orElseThrow(() -> failure(UNAUTHORIZED, "UNAUTHORIZED", "로그인이 필요합니다."));
-        Rental rental=rentals.save(new Rental(v, renter, input.startsAt(), input.endsAt()));
+        var quote=calculate(v,input.startsAt(),input.endsAt());
+        var candidate=new Rental(v, renter, input.startsAt(), input.endsAt());
+        candidate.snapshotPrice(quote.hourlyRate(),quote.billedHours());
+        Rental rental=rentals.save(candidate);
         changed(rental, email, "RENTAL_REQUESTED");
         return view(rental);
     }
@@ -271,6 +287,6 @@ public class SharingService {
         return new RentalView(r.getId(), r.getVehicle().getId(), r.getVehicle().getManufacturer()+" "+r.getVehicle().getModel(),
                 r.getVehicle().getOwner().getId(), r.getRenter().getId(), r.getPickupLocation(), r.getStartsAt(), r.getEndsAt(), r.getStatus(),
                 r.getTermsVersion(), r.getTerms(), r.getOwnerConsentedAt(), r.getRenterConsentedAt(), grant, r.getVehicle().getLockState(),
-                unlocks.findAllByRentalIdOrderByIdDesc(r.getId()).stream().map(u -> new UnlockView(u.getId(),u.getStatus(),u.getRequestedAt(),u.getChallengeId() != null)).toList(), r.getVehicle().getOwner().getName(), r.getRenter().getName(), r.getPickupDetail(), r.getPickupInstructions());
+                unlocks.findAllByRentalIdOrderByIdDesc(r.getId()).stream().map(u -> new UnlockView(u.getId(),u.getStatus(),u.getRequestedAt(),u.getChallengeId() != null)).toList(), r.getVehicle().getOwner().getName(), r.getRenter().getName(), r.getPickupDetail(), r.getPickupInstructions(), r.getHourlyRate(), r.getEstimatedTotal(), r.getBilledHours());
     }
 }

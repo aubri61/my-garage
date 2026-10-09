@@ -29,6 +29,7 @@ public class SharingController {
     @DeleteMapping("/api/vehicles/{id}") @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
     public void deleteVehicle(Principal p, @PathVariable Long id) { service.deleteVehicle(p.getName(), id); }
     @PostMapping("/api/vehicles/{id}/lock") public VehicleResponse lock(Principal p, @PathVariable Long id) { return service.lock(p.getName(), id); }
+    @PostMapping("/api/rentals/quote") public PriceQuote quote(Principal p, @Valid @RequestBody RentalRequest body) { return service.quote(p.getName(),body); }
     @PostMapping("/api/rentals") @ResponseStatus(org.springframework.http.HttpStatus.CREATED)
     public RentalView request(Principal p, @Valid @RequestBody RentalRequest body) { return service.request(p.getName(), body); }
     @GetMapping("/api/rentals") public List<RentalView> list(Principal p) { return service.list(p.getName()); }

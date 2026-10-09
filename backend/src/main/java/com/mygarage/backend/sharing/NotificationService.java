@@ -23,16 +23,22 @@ public class NotificationService {
     private record Subscription(String email, String sessionId, SseEmitter emitter) {}
     private final Set<Subscription> subscriptions=ConcurrentHashMap.newKeySet();
 
+    SseEmitter newEmitter() { return new SseEmitter(55_000L); }
+    private void completeSafely(SseEmitter emitter) {
+        try { emitter.complete(); }
+        catch (IllegalStateException ignored) { /* Disconnected servlet contexts are already closed. */ }
+    }
+
     public SseEmitter subscribe(String email, HttpSession session) {
-        var emitter=new SseEmitter(55_000L);
+        var emitter=newEmitter();
         var subscription=new Subscription(email, session.getId(), emitter);
         subscriptions.add(subscription);
         Runnable remove=() -> subscriptions.remove(subscription);
         emitter.onCompletion(remove);
-        emitter.onTimeout(() -> { remove.run(); emitter.complete(); });
+        emitter.onTimeout(() -> { remove.run(); completeSafely(emitter); });
         emitter.onError(error -> remove.run());
         try { emitter.send(SseEmitter.event().name("ready").data("connected")); }
-        catch (IOException | IllegalStateException error) { remove.run(); emitter.complete(); }
+        catch (IOException | IllegalStateException error) { remove.run(); completeSafely(emitter); }
         return emitter;
     }
 
@@ -56,14 +62,14 @@ public class NotificationService {
             if (recipients != null && !recipients.contains(subscription.email())) continue;
             try { subscription.emitter().send(SseEmitter.event().id(eventId).name(name).data(payload)); }
             catch (IOException | IllegalStateException error) {
-                subscriptions.remove(subscription); subscription.emitter().complete();
+                subscriptions.remove(subscription); completeSafely(subscription.emitter());
             }
         }
     }
     public record Payload(String action, Long rentalId) {}
     public void closeSession(String sessionId) {
         for (var subscription : subscriptions) if (subscription.sessionId().equals(sessionId)) {
-            subscriptions.remove(subscription); subscription.emitter().complete();
+            subscriptions.remove(subscription); completeSafely(subscription.emitter());
         }
     }
     @Configuration

@@ -36,6 +36,7 @@ class SharingIntegrationTests {
         renter=users.save(new User("Renter", "renter-"+suffix+"@example.com", "hash"));
         stranger=users.save(new User("Other", "other-"+suffix+"@example.com", "hash"));
         vehicle=vehicles.saveAndFlush(new Vehicle(owner,"Hyundai","IONIQ 5",2025,"test-plate"));
+        vehicle.configureRentalTerms(12000L,null,null,null,1);
         sharing.sharing(owner.getEmail(),vehicle.getId(),new SharingRequest(true,"서울 시청",37.5665,126.978));
     }
     RentalView requested(Instant start, Instant end) {
@@ -77,8 +78,8 @@ class SharingIntegrationTests {
     }
     @Test void overlapsDuplicateRequestsAndInvalidTransitionsAreRejected() {
         var first=requested(now,now.plusSeconds(3600));
-        assertThatThrownBy(() -> requested(now,now.plusSeconds(1200))).isInstanceOf(SharingException.class);
-        var competitor=sharing.request(stranger.getEmail(),new RentalRequest(vehicle.getId(),now,now.plusSeconds(1800)));
+        assertThatThrownBy(() -> requested(now,now.plusSeconds(3600))).isInstanceOf(SharingException.class);
+        var competitor=sharing.request(stranger.getEmail(),new RentalRequest(vehicle.getId(),now,now.plusSeconds(3600)));
         sharing.decide(owner.getEmail(),first.id(),true);
         assertThatThrownBy(() -> sharing.decide(owner.getEmail(),competitor.id(),true))
                 .isInstanceOf(SharingException.class).hasMessageContaining("겹칩니다");
@@ -87,7 +88,7 @@ class SharingIntegrationTests {
         assertThat(requested(now.plusSeconds(3600),now.plusSeconds(7200)).status()).isEqualTo(Rental.Status.REQUESTED);
     }
     @Test void futureAndExpiredGrantsCannotControlAndPendingRequestExpires() {
-        var r=requested(now.plusSeconds(600),now.plusSeconds(3600));
+        var r=requested(now.plusSeconds(600),now.plusSeconds(4200));
         sharing.decide(owner.getEmail(),r.id(),true);
         sharing.consent(owner.getEmail(),r.id());
         var confirmed=sharing.consent(renter.getEmail(),r.id());
@@ -97,7 +98,7 @@ class SharingIntegrationTests {
         when(clock.instant()).thenReturn(now.plusSeconds(601));
         var pending=sharing.requestUnlock(renter.getEmail(),r.id());
         assertThat(pending.status()).isEqualTo(Rental.Status.ACTIVE);
-        when(clock.instant()).thenReturn(now.plusSeconds(3600));
+        when(clock.instant()).thenReturn(now.plusSeconds(4200));
         var completed=sharing.detail(renter.getEmail(),r.id());
         assertThat(completed.status()).isEqualTo(Rental.Status.COMPLETED);
         assertThat(completed.unlockRequests().getFirst().status()).isEqualTo(RemoteUnlockRequest.Status.EXPIRED);

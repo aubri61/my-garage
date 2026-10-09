@@ -1,4 +1,4 @@
-export type AvailableVehicle = { id: number; manufacturer: string; model: string; modelYear: number; pickupLocation: string; pickupDetail?: string | null; pickupInstructions?: string | null; latitude: number; longitude: number; ownerName?: string; available?: boolean | null; hourlyPriceWon?: number | null };
+export type AvailableVehicle = { id: number; manufacturer: string; model: string; modelYear: number; pickupLocation: string; pickupDetail?: string | null; pickupInstructions?: string | null; latitude: number; longitude: number; ownerName?: string; available?: boolean | null; hourlyPriceWon?: number | null; hourlyRate?: number | null; powerType?: string | null; bodyType?: string | null; description?: string | null; minimumRentalHours?: number };
 export type RentalStatus = "REQUESTED" | "REJECTED" | "CONTRACT_PENDING" | "CONFIRMED" | "ACTIVE" | "COMPLETED" | "CANCELLED";
 export type AccessGrant = { active: boolean; startsAt: string; endsAt: string; revokedAt: string | null; allowedOperation: "REQUEST_UNLOCK" };
 export type UnlockRequest = { id: number; status: "PENDING" | "APPROVED" | "REJECTED" | "EXPIRED" | "CANCELLED"; requestedAt: string; pkiVerified: boolean };
@@ -6,6 +6,7 @@ export type Rental = {
   id: number; vehicleId: number; vehicleModel: string; ownerId: number; renterId: number; pickupLocation: string; pickupDetail?: string | null; pickupInstructions?: string | null;
   startsAt: string; endsAt: string; status: RentalStatus; termsVersion: string; terms: string;
   ownerConsentedAt: string | null; renterConsentedAt: string | null; accessGrant: AccessGrant | null;
+  hourlyRate?: number | null; estimatedTotal?: number | null; billedHours?: number | null;
   ownerName?: string; renterName?: string; lockState: "LOCKED" | "UNLOCKED"; unlockRequests: UnlockRequest[];
 };
 export type SharingSettings = { enabled: boolean; pickupLocation: string; pickupDetail?: string | null; pickupInstructions?: string | null; latitude: number; longitude: number };

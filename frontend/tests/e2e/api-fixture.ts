@@ -34,9 +34,17 @@ export async function installApiFixture(page: Page) {
     if (path === "/api/auth/logout") { session = false; return route.fulfill({ status: 204, headers: { "Set-Cookie": "JSESSIONID=; Max-Age=0; Path=/" } }); }
     if (!session || expire) return json(401, { code: "UNAUTHORIZED", message: "로그인이 필요합니다." });
     if (path === "/api/users/me") return json(200, { id: 1, name: "회귀 테스트 회원", email: "garage-test@example.com" });
+    if (path === "/api/rentals") return json(200, []);
+    if (path === "/api/sharing/security") return json(200, { pkiRequired: false });
+    if (path === "/api/rentals/quote") {
+      const body = request.postDataJSON();
+      const billedHours = Math.ceil((Date.parse(body.endsAt)-Date.parse(body.startsAt))/3600000);
+      return json(200, { vehicleId: body.vehicleId, hourlyRate: 12000, billedHours, estimatedTotal: billedHours*12000, calculation: "시간 단위 올림" });
+    }
     if (path === "/api/vehicles" && request.method() === "POST") {
       const body = request.postDataJSON();
-      expect(Object.keys(body).sort()).toEqual(["licensePlate", "manufacturer", "model", "modelYear"]);
+      expect(body).toMatchObject({ hourlyRate: 12000, minimumRentalHours: 1 });
+      expect(body.licensePlate).toMatch(/\d{2,3}[가-힣]\d{4}$/);
       const vehicle = { ...body, id: vehicles.length + 1, createdAt: "2026-10-09T10:00:00", updatedAt: "2026-10-09T10:00:00" };
       vehicles.push(vehicle); return json(201, vehicle);
     }
@@ -82,6 +90,7 @@ export async function addVehicle(page: Page, model = "EV6") {
   await chooseVehicleOption(page, "제조사", "기아");
   await chooseVehicleOption(page, "차종", model);
   await chooseVehicleOption(page, "연식", "2025");
+  await page.getByLabel("시간당 대여 가격 (원)", { exact: true }).fill("12000");
   await page.getByLabel("차량 번호", { exact: true }).fill("123가4567");
   await page.getByRole("button", { name: "차량 등록", exact: true }).click();
   await expect(page.getByRole("heading", { name: "차량 등록이 완료되었습니다." })).toBeVisible();

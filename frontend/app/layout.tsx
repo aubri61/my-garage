@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "@/components/platform/design-system.css";
+import "@/components/platform/stitch-layout.css";
 import { QueryProvider } from "@/lib/query-provider";
 
 export const metadata: Metadata = {

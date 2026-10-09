@@ -23,6 +23,13 @@ public class Rental {
     @Enumerated(EnumType.STRING) @Column(nullable=false) Status status = Status.REQUESTED;
     @Column(nullable=false) String termsVersion = TERMS_VERSION;
     @Column(nullable=false, length=2000) String terms = TERMS;
+    Long hourlyRate;
+    Long estimatedTotal;
+    Integer billedHours;
+    public Long getHourlyRate() { return hourlyRate; }
+    public Long getEstimatedTotal() { return estimatedTotal; }
+    public Integer getBilledHours() { return billedHours; }
+    public void snapshotPrice(Long rate, int hours) { hourlyRate=rate; billedHours=hours; estimatedTotal=Math.multiplyExact(rate,hours); }
     Instant ownerConsentedAt;
     Instant renterConsentedAt;
     public Long getId() { return id; }

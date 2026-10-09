@@ -46,6 +46,7 @@ class PkiSharingIntegrationTests {
         var a=users.save(new User("Owner",owner,"hash"));
         users.save(new User("Renter",EMAIL,"hash"));
         var v=vehicles.saveAndFlush(new Vehicle(a,"Hyundai","PKI Test",2025,"pki-test"));
+        v.configureRentalTerms(12000L,null,null,null,1);
         sharing.sharing(owner,v.getId(),new SharingRequest(true,"테스트 픽업",37.5,127.0));
         rental=sharing.request(EMAIL,new RentalRequest(v.getId(),now,now.plusSeconds(3600)));
         sharing.decide(owner,rental.id(),true); sharing.consent(owner,rental.id()); sharing.consent(EMAIL,rental.id());

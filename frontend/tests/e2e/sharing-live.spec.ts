@@ -30,18 +30,18 @@ test("두 계정 공유·계약·SSE·원격 승인·회수·세션 복원", asy
   }
   try {
     await account(owner, "Owner"); await account(renter, "Renter"); await account(other, "Other");
-    const response = await mutate(owner, "post", "/api/vehicles", { manufacturer: "Hyundai", model: `LIVE-${suffix}`, modelYear: 2025, licensePlate: "live-test" });
+    const response = await mutate(owner, "post", "/api/vehicles", { manufacturer: "Hyundai", model: `LIVE-${suffix}`, modelYear: 2025, licensePlate: "live-test", hourlyRate: 12000 });
     expect(response.status()).toBe(201); const vehicle = await response.json();
     expect((await mutate(owner, "put", `/api/vehicles/${vehicle.id}/sharing`, { enabled: true, pickupLocation: "서울 시청 테스트 픽업", latitude: 37.5665, longitude: 126.978 })).status()).toBe(200);
     const a = await owner.newPage(), b = await renter.newPage(), c = await other.newPage();
     await a.goto("/owner"); await b.goto("/renter");
     await expect(a.getByText("실시간 연결됨", { exact: true })).toBeVisible(); await expect(b.getByText("실시간 연결됨", { exact: true })).toBeVisible();
     await c.goto("/renter"); await connect(a); await connect(b); await connect(c);
-    await b.getByRole("searchbox").fill("차량 정보 확인 필요");
+    await b.getByLabel("차량·픽업 주소 검색", {exact:true}).fill("차량 정보 확인 필요");
     await b.locator(`button[data-vehicle-id="${vehicle.id}"]`).click();
     const local = (date: Date) => new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     await b.getByLabel("대여 시작 시각").fill(local(new Date(Date.now() + 60000)));
-    await b.getByLabel("대여 종료 시각").fill(local(new Date(Date.now() + 3600000)));
+    await b.getByLabel("대여 종료 시각").fill(local(new Date(Date.now() + 3660000)));
     await b.getByRole("button", { name: "대여 신청하기", exact: true }).click();
     await expect(b.getByText(/대여 신청이 완료되었습니다/)).toBeVisible(); await event(a, "RENTAL_REQUESTED");
     expect(await c.evaluate(() => (window as Window & { sharingEvents?: string[] }).sharingEvents?.length)).toBe(0);
@@ -52,9 +52,15 @@ test("두 계정 공유·계약·SSE·원격 승인·회수·세션 복원", asy
     const rentalResponse = await mutate(renter, "post", "/api/rentals", { vehicleId: vehicle.id, startsAt: new Date().toISOString(), endsAt: new Date(Date.now()+3600000).toISOString() });
     expect(rentalResponse.status()).toBe(201); const rental = await rentalResponse.json();
     const ownerCard = a.locator(`article[data-rental-id="${rental.id}"]`);
-    const renterCard = b.locator(`article[data-rental-id="${rental.id}"]`);
+    await b.goto("/bookings");
+    await connect(b);
+const renterCard = b.locator(`article[data-rental-id="${rental.id}"]`);
     await ownerCard.getByRole("button", { name: "대여 승인", exact: true }).click(); await event(b, "RENTAL_APPROVED");
+    await ownerCard.getByRole("checkbox", { name: "계약 조건과 대여 요금을 확인하고 동의합니다.", exact: true }).check();
+    await ownerCard.getByLabel("서명 대신 이름 입력", { exact: true }).fill("테스트 동의자");
     await ownerCard.getByRole("button", { name: "위 계약 조건에 동의" }).click();
+    await renterCard.getByRole("checkbox", { name: "계약 조건과 대여 요금을 확인하고 동의합니다.", exact: true }).check();
+    await renterCard.getByLabel("서명 대신 이름 입력", { exact: true }).fill("테스트 동의자");
     await renterCard.getByRole("button", { name: "위 계약 조건에 동의" }).click();
     await expect(renterCard.getByText(/디지털 키 발급 완료 · 차량 접근 가능/)).toBeVisible();
     await renterCard.getByRole("button", { name: "잠금 해제 요청", exact: true }).click(); await event(a, "UNLOCK_REQUESTED");

@@ -1,0 +1,11 @@
+"use client";
+import { useRef, useState, type PointerEvent } from "react";
+import { Button } from "@/components/platform/platform-ui";
+export function ContractConsent({ pending, onConsent }: { pending: boolean; onConsent: () => void }) {
+  const canvas = useRef<HTMLCanvasElement>(null), drawing = useRef(false);
+  const [agreed, setAgreed] = useState(false), [signed, setSigned] = useState(false), [name, setName] = useState("");
+  function point(event: PointerEvent<HTMLCanvasElement>) { const box=event.currentTarget.getBoundingClientRect(); return { x: (event.clientX-box.left)*600/box.width, y:(event.clientY-box.top)*180/box.height }; }
+  function start(event: PointerEvent<HTMLCanvasElement>) { if (pending) return; const context=canvas.current?.getContext("2d"); if (!context) return; drawing.current=true; event.currentTarget.setPointerCapture(event.pointerId); const p=point(event); context.beginPath(); context.moveTo(p.x,p.y); }
+  function move(event: PointerEvent<HTMLCanvasElement>) { if (!drawing.current) return; const context=canvas.current?.getContext("2d"); if (!context) return; const p=point(event); context.lineWidth=2; context.strokeStyle="#16243e"; context.lineTo(p.x,p.y); context.stroke(); setSigned(true); }
+  return <div className="contract-signature"><label><input type="checkbox" checked={agreed} disabled={pending} onChange={event => setAgreed(event.target.checked)} />계약 조건과 대여 요금을 확인하고 동의합니다.</label><p className="field-hint">아래에 서명하거나 이름을 입력해주세요. 모의 서명이며 이미지와 이름은 서버에 저장하지 않습니다. 서버에는 동의 시각과 동의자만 기록됩니다.</p><canvas ref={canvas} width={600} height={180} className="signature-pad" aria-label="모의 계약 서명 패드" onPointerDown={start} onPointerMove={move} onPointerUp={() => { drawing.current=false; }} onPointerCancel={() => { drawing.current=false; }} /><label className="form-field">서명 대신 이름 입력<input value={name} disabled={pending} maxLength={80} onChange={event => setName(event.target.value)} placeholder="이름을 입력하면 키보드로도 서명할 수 있어요" /></label><div className="sharing-actions"><Button variant="secondary" disabled={pending} onClick={() => { canvas.current?.getContext("2d")?.clearRect(0,0,600,180);setSigned(false);setName(""); }}>서명 지우기</Button><Button disabled={pending || !agreed || (!signed && !name.trim())} onClick={onConsent}>위 계약 조건에 동의</Button></div></div>;
+}

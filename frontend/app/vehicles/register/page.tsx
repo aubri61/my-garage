@@ -1,6 +1,3 @@
-import { AccountShell } from "@/components/layout/account-shell";
-import { SessionBoundary } from "@/features/auth/components/session-boundary";
+import { SharingShell } from "@/features/sharing/components/sharing-shell";
 import { RegistrationFlow } from "@/features/vehicle-registration/components/registration-flow";
-export default function VehicleRegisterPage() {
-  return <SessionBoundary><AccountShell title="내 차량 등록하기" description="내 계정에 차량을 저장하고 공개 픽업 위치와 공유 여부를 설정하세요." wide><RegistrationFlow /></AccountShell></SessionBoundary>;
-}
+export default function VehicleRegisterPage() { return <SharingShell mode="owner" title="차량 등록"><div className="vehicle-editor"><div className="registration-intro"><h2>내 차량 등록하기</h2><p>차량 정보와 이용 조건을 입력하고, 이웃과 공유할 픽업 위치를 정해주세요.</p></div><RegistrationFlow /></div></SharingShell>; }

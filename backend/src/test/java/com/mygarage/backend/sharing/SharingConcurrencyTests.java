@@ -32,6 +32,7 @@ class SharingConcurrencyTests {
             var b=users.save(new User("Concurrency Renter", "race-b-"+suffix+"@example.com","hash"));
             var c=users.save(new User("Concurrency Renter", "race-c-"+suffix+"@example.com","hash"));
             var v=vehicles.saveAndFlush(new Vehicle(a,"Test","Concurrent",2025,"race-test"));
+            v.configureRentalTerms(12000L,null,null,null,1);
             sharing.sharing(a.getEmail(),v.getId(),new SharingRequest(true,"동시 승인 테스트",37.5,127.0));
             Instant start=Instant.now().plusSeconds(60), end=start.plusSeconds(3600);
             var first=sharing.request(b.getEmail(),new RentalRequest(v.getId(),start,end));

@@ -40,7 +40,12 @@ export const vehicleCategories: readonly VehicleCategory[] = [
   category("기아", "Sorento", "쏘렌토", ["가솔린", "디젤", "하이브리드"], "SUV"),
   category("기아", "Carnival", "카니발", ["가솔린", "디젤", "하이브리드"], "미니밴"),
 ];
-export const vehicleCatalog: Record<string, readonly string[]> = Object.fromEntries(["현대", "기아"].map(manufacturer => [manufacturer, vehicleCategories.filter(item => item.manufacturer === manufacturer).map(item => item.model)]));
+// Registration offers only models whose image is stored and verified locally.
+export const selectableVehicleCategories = vehicleCategories.filter(category =>
+  vehicleMedia.some(media => media.manufacturer === category.manufacturer && media.model === category.model && media.imageReady));
+export const vehicleCatalog: Record<string, readonly string[]> = Object.fromEntries(
+  [...new Set(selectableVehicleCategories.map(item => item.manufacturer))].map(manufacturer =>
+    [manufacturer, selectableVehicleCategories.filter(item => item.manufacturer === manufacturer).map(item => item.model)]));
 export function manufacturerName(value: string) { return ({ Hyundai: "현대", Kia: "기아", Genesis: "제네시스", Tesla: "테슬라" } as Record<string, string>)[value] ?? value; }
 export function vehicleCategory(manufacturer: string, model: string) {
   return vehicleCategories.find(item => item.manufacturer === manufacturerName(manufacturer) && [item.model, ...item.aliases].some(name => name.toLowerCase() === model.toLowerCase()));

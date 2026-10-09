@@ -87,7 +87,6 @@ function AuthFields({ mode }: { mode: "login" | "signup" }) {
       <p role="status" className="sr-only">{status === "pending" ? "요청을 처리하고 있습니다." : ""}</p>
     </form>
     {/* 데모 화면 진입은 일반 서비스 UI에서 숨깁니다. */}
-    {false && !signup && <button type="button" className="form-secondary" disabled={status === "pending"} onClick={() => router.push("/demo")}>데모 화면 체험</button>}
     <p className="auth-alternate">{signup ? "이미 시작하셨나요?" : "처음 방문하셨나요?"} <Link href={signup ? "/login" : "/signup"}>{signup ? "로그인" : "회원가입"}</Link></p>
     <p className="mock-disclosure">{signup ? "서버에 계정을 생성합니다. 비밀번호는 브라우저에 저장하지 않습니다." : "로그인 후 차량을 등록하거나 대여할 수 있습니다."}</p>
   </>;

@@ -27,6 +27,7 @@ public class VehicleService {
                 .orElseThrow(() -> new BadCredentialsException("사용자를 찾을 수 없습니다."));
         var vehicle = new Vehicle(owner, request.manufacturer(), request.model(),
                 request.modelYear(), request.licensePlate());
+        applyTerms(vehicle, request);
         if (request.sharing() != null) {
             var sharing = request.sharing();
             vehicle.configureSharing(sharing.enabled(), sharing.pickupLocation(), sharing.latitude(), sharing.longitude());
@@ -38,6 +39,21 @@ public class VehicleService {
         return VehicleResponse.from(vehicle);
     }
 
+    @Transactional
+    public VehicleResponse update(String email, Long id, VehicleRequest request) {
+        var vehicle=vehicleRepository.lockById(id).filter(v -> !v.isDeleted() && v.getOwner().getEmail().equals(email)).orElseThrow(VehicleNotFoundException::new);
+        if (!vehicle.getManufacturer().equals(request.manufacturer()) || !vehicle.getModel().equals(request.model())) vehicle.clearClassification();
+        applyTerms(vehicle, request);
+        vehicle.updateDetails(request.manufacturer(),request.model(),request.modelYear(),request.licensePlate());
+        if (request.sharing() != null) { var s=request.sharing(); vehicle.configureSharing(s.enabled(),s.pickupLocation(),s.latitude(),s.longitude()); vehicle.configurePickupDetails(s.pickupDetail(),s.pickupInstructions()); }
+        events.publishEvent(new com.mygarage.backend.sharing.NotificationService.VehicleChange(email));
+        events.publishEvent(new com.mygarage.backend.sharing.NotificationService.InventoryChange());
+        return VehicleResponse.from(vehicle);
+    }
+    private void applyTerms(Vehicle vehicle, VehicleRequest request) {
+        VehicleCatalog.validate(request.manufacturer(),request.model(),request.powerType(),request.bodyType());
+        vehicle.configureRentalTerms(request.hourlyRate(),request.powerType(),request.bodyType(),request.description(),request.minimumRentalHours());
+    }
     public List<VehicleResponse> list(String email) {
         return vehicleRepository.findAllByOwnerEmailOrderByCreatedAtDescIdDesc(email).stream()
                 .map(VehicleResponse::from).toList();

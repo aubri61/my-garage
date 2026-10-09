@@ -32,6 +32,7 @@ class VehicleLifecycleTests {
         owner=users.save(new User("소유자","owner-"+id+"@example.com","hash"));
         renter=users.save(new User("대여자","renter-"+id+"@example.com","hash"));
         vehicle=vehicles.saveAndFlush(new Vehicle(owner,"현대","IONIQ 5",2026,"123가4567"));
+        vehicle.configureRentalTerms(12000L,null,null,null,1);
         sharing.sharing(owner.getEmail(),vehicle.getId(),new SharingRequest(true,"서울 중구 세종대로 110",37.5665,126.978,"지하 2층 B구역","3번 출입구 앞"));
     }
     @Test void pickupDetailsPersistAndContractKeepsSnapshot() {
@@ -64,7 +65,7 @@ class VehicleLifecycleTests {
     }
     @Test void deletionIsOwnerOnlyAndBlocksPendingFutureAndActiveRentals() {
         assertThatThrownBy(() -> sharing.deleteVehicle(renter.getEmail(),vehicle.getId())).isInstanceOf(VehicleNotFoundException.class);
-        var rental=sharing.request(renter.getEmail(),new RentalRequest(vehicle.getId(),now.plusSeconds(60),now.plusSeconds(3600)));
+        var rental=sharing.request(renter.getEmail(),new RentalRequest(vehicle.getId(),now.plusSeconds(60),now.plusSeconds(3660)));
         assertThatThrownBy(() -> sharing.deleteVehicle(owner.getEmail(),vehicle.getId())).hasMessageContaining("삭제할 수 없습니다");
         sharing.decide(owner.getEmail(),rental.id(),true);
         sharing.consent(owner.getEmail(),rental.id()); sharing.consent(renter.getEmail(),rental.id());

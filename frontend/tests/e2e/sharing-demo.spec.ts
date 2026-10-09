@@ -1,58 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-test("새 공유 데모는 양측 승인·계약·접근 회수를 체험하며 서버를 호출하지 않는다", async ({ page }) => {
-  const apiCalls: string[] = [];
-  const exceptions: string[] = [];
-  page.on("request", request => { if (new URL(request.url()).pathname.startsWith("/api/")) apiCalls.push(request.url()); });
-  page.on("pageerror", error => exceptions.push(error.message));
-  await page.goto("/login");
-  await expect(page.getByRole("button", { name: "데모 화면 체험" })).toHaveCount(0);
-  await page.goto("/demo");
-  await expect(page).toHaveURL(/\/demo$/);
-  await expect(page.getByRole("heading", { name: "차량 공유 서비스 체험" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "대여 요청 체험", exact: true })).toBeDisabled();
-  await page.getByRole("searchbox").fill("없는 위치");
-  await expect(page.getByText("조건에 맞는 예시 차량이 없습니다.")).toBeVisible();
-  await page.getByRole("searchbox").fill("성수");
-  await page.locator(".available-list").getByRole("button", { name: /현대 아이오닉 5/ }).click();
-  await page.getByRole("button", { name: "대여 요청 체험", exact: true }).click();
-  await expect(page.getByRole("status", { name: "" }).filter({ hasText: /^승인 대기$/ })).toBeVisible();
-  await page.getByRole("button", { name: "소유자 모드", exact: true }).click();
-  await page.getByRole("button", { name: "대여 승인 체험", exact: true }).click();
-  await page.getByRole("button", { name: "소유자 계약 동의 체험", exact: true }).click();
-  await expect(page.getByRole("button", { name: "소유자 계약 동의 체험", exact: true })).toBeDisabled();
-  await page.getByRole("button", { name: "대여자 모드", exact: true }).click();
-  await page.getByRole("button", { name: "대여자 계약 동의 체험", exact: true }).click();
-  await page.getByRole("button", { name: "잠금 해제 요청 체험", exact: true }).click();
-  await expect(page.getByText("잠금 해제 요청 · 소유자 승인 대기", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "잠금 해제 요청 체험", exact: true })).toBeDisabled();
-  await page.getByRole("button", { name: "소유자 모드", exact: true }).click();
-  await page.getByRole("button", { name: "잠금 해제 승인 체험", exact: true }).click();
-  await expect(page.getByText("차량 잠금 해제됨", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "차량 잠그기 체험", exact: true }).click();
-  await page.getByRole("button", { name: "접근 권한 회수 체험", exact: true }).click();
-  await page.getByRole("button", { name: "대여자 모드", exact: true }).click();
-  await expect(page.getByRole("button", { name: "잠금 해제 요청 체험", exact: true })).toBeDisabled();
-  await page.getByRole("button", { name: "대여 종료 체험", exact: true }).click();
-  await expect(page.getByText("대여 종료", { exact: true })).toBeVisible();
-  await page.reload();
-  await expect(page.getByRole("button", { name: "대여 요청 체험", exact: true })).toBeDisabled();
-  await expect(page.getByText("대여 종료", { exact: true })).toHaveCount(0);
-  expect(apiCalls).toEqual([]);
-  expect(exceptions).toEqual([]);
-});
-
-test("모바일 체험은 거절과 초기화를 제공하며 이전 데모도 별도 경로에 남아 있다", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/demo");
-  await page.locator(".available-list").getByRole("button", { name: /기아 EV6/ }).click();
-  await page.getByRole("button", { name: "대여 요청 체험", exact: true }).click();
-  await page.getByRole("button", { name: "소유자 모드", exact: true }).click();
-  await page.getByRole("button", { name: "대여 거절 체험", exact: true }).click();
-  await expect(page.getByText("거절됨", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "처음부터 체험", exact: true }).click();
-  await expect(page.getByRole("button", { name: "대여자 모드", exact: true })).toHaveAttribute("aria-pressed", "true");
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
-  await page.goto("/demo/garage");
-  await expect(page.getByText(/별도 화면 체험/)).toBeVisible();
-});
+for (const route of ["/demo", "/demo/garage"]) {
+  test(`제거한 데모 경로 ${route}는 예시 차량을 노출하지 않는다`, async ({ page }) => {
+    const response = await page.goto(route);
+    expect(response?.status()).toBe(404);
+    await expect(page.getByText("차량 공유 서비스 체험", { exact: true })).toHaveCount(0);
+  });
+}

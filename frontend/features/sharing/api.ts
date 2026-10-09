@@ -13,3 +13,6 @@ export async function lockVehicle(id: number) { return (await api.post<VehicleRe
 
 export async function setSharingEnabled(id: number, enabled: boolean) { return (await api.patch<VehicleResponse>(`/vehicles/${id}/sharing`, { enabled })).data; }
 export async function deleteVehicle(id: number) { await api.delete(`/vehicles/${id}`); }
+
+export type PriceQuote = { vehicleId: number; hourlyRate: number; billedHours: number; estimatedTotal: number; calculation: string };
+export async function quoteRental(input: { vehicleId: number; startsAt: string; endsAt: string }, signal?: AbortSignal) { return (await api.post<PriceQuote>("/rentals/quote", input, { signal })).data; }

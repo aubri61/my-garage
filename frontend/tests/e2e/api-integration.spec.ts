@@ -78,6 +78,7 @@ test("CSRF 403은 자동 재시도하지 않으며 다음 수동 요청으로 �
   await chooseVehicleOption(page, "제조사", "기아");
   await chooseVehicleOption(page, "차종", "EV6");
   await chooseVehicleOption(page, "연식", "2025");
+  await page.getByLabel("시간당 대여 가격 (원)", { exact: true }).fill("12000");
   await page.getByLabel("차량 번호", { exact: true }).fill("123가4567");
   let attempts = 0;
   page.on("request", request => { if (request.url().endsWith("/api/vehicles") && request.method() === "POST") attempts++; });
@@ -108,6 +109,7 @@ test("검증 중 중복 실행 방지 및 차량 전환 후 이전 결과 격리
   await chooseVehicleOption(page, "제조사", "기아");
   await chooseVehicleOption(page, "차종", "EV3");
   await chooseVehicleOption(page, "연식", "2025");
+  await page.getByLabel("시간당 대여 가격 (원)", { exact: true }).fill("12000");
   await page.getByLabel("차량 번호", { exact: true }).fill("234나5678");
   await page.getByRole("button", { name: "차량 등록", exact: true }).click();
   await expect(page.getByRole("heading", { name: "차량 등록이 완료되었습니다." })).toBeVisible();

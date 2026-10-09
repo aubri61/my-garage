@@ -20,7 +20,7 @@ test("브라우저 Web Crypto PKI 요청·사용자 기기 검증·재사용 차
   }
   try {
     await account(owner,`e2e-${process.env.E2E_RUN_ID}-owner@example.com`,"PKI Owner"); await account(renter,email!,"PKI Renter");
-    const response = await post(owner,"/api/vehicles",{manufacturer:"Hyundai",model:"PKI Browser",modelYear:2025,licensePlate:"pki-live"});
+    const response = await post(owner,"/api/vehicles",{manufacturer:"Hyundai",model:"PKI Browser",modelYear:2025,licensePlate:"pki-live",hourlyRate:12000});
     expect(response.status()).toBe(201); const vehicle = await response.json();
     const csrf = await (await owner.request.get("/api/csrf")).json();
     expect((await owner.request.put(`/api/vehicles/${vehicle.id}/sharing`, { data:{enabled:true,pickupLocation:"서울 시청 PKI 테스트",latitude:37.5665,longitude:126.978},headers:{[csrf.headerName]:csrf.token} })).status()).toBe(200);
@@ -30,7 +30,7 @@ test("브라우저 Web Crypto PKI 요청·사용자 기기 검증·재사용 차
     expect((await post(owner,`/api/rentals/${rental.id}/consents`)).status()).toBe(200);
     expect((await post(renter,`/api/rentals/${rental.id}/consents`)).status()).toBe(200);
     const a=await owner.newPage(), b=await renter.newPage();
-    await a.goto("/owner"); await b.goto("/renter");
+    await a.goto("/owner"); await b.goto("/bookings");
     const ownerCard=a.locator(`article[data-rental-id="${rental.id}"]`);
     const renterCard=b.locator(`article[data-rental-id="${rental.id}"]`);
     await expect(renterCard.getByRole("button",{name:"잠금 해제 요청",exact:true})).toBeDisabled();
@@ -39,7 +39,7 @@ test("브라우저 Web Crypto PKI 요청·사용자 기기 검증·재사용 차
     await renterCard.getByLabel("공개 기기 인증서 (.pem)",{exact:true}).setInputFiles(path.join(directory!,"browser-device-cert.pem"));
     await renterCard.getByLabel("로컬 테스트 개인키 (PKCS#8 PEM)",{exact:true}).setInputFiles(path.join(directory!,"browser-device-key.pem"));
     await renterCard.getByRole("button",{name:"서명하여 잠금 해제 요청",exact:true}).click();
-    await expect(renterCard.getByRole("alert")).toContainText("CERTIFICATE_IDENTITY");
+    await expect(renterCard.getByRole("alert")).toContainText("인증서 사용자·기기가 현재 접근 요청과 일치하지 않습니다.");
     await renterCard.getByLabel("기기 ID",{exact:true}).fill("browser-device");
     const sending=b.waitForRequest(request => request.url().endsWith(`/rentals/${rental.id}/unlock-requests`) && request.method()==="POST");
     await renterCard.getByRole("button",{name:"서명하여 잠금 해제 요청",exact:true}).click();
