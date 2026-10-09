@@ -139,7 +139,7 @@ const renterCard = b.locator(`article[data-rental-id="${rental.id}"]`);
     await ownerCard.getByLabel("서명 대신 이름 입력", { exact: true }).fill("테스트 동의자");
     await ownerCard.getByRole("button", { name: "위 계약 조건에 동의", exact: true }).click();
     await event(b, "CONSENT_RECORDED", rental.id);
-    await expect(renterCard.getByText(/디지털 키 발급 완료/)).toHaveCount(0);
+    await expect(renterCard.getByText(/접근 권한 활성/)).toHaveCount(0);
     expect((await post(bContext, `/api/rentals/${rental.id}/unlock-requests`)).status()).toBe(403);
     await renterCard.getByRole("checkbox", { name: "계약 조건과 대여 요금을 확인하고 동의합니다.", exact: true }).check();
     const signature = renterCard.getByLabel("모의 계약 서명 패드", {exact:true});
@@ -150,7 +150,7 @@ const renterCard = b.locator(`article[data-rental-id="${rental.id}"]`);
     await renterCard.getByRole("button", { name: "위 계약 조건에 동의", exact: true }).click();
     await expect(a.locator(".owner-vehicle-card").filter({ hasText: plate }).locator(".sharing-status")).toContainText(/예약 확정|이용 중/);
     await a.screenshot({ path: "/private/tmp/my-garage-polish-owner-contract.png", fullPage: true });
-    for (const card of [ownerCard, renterCard]) { await expect(card.getByText(/디지털 키 발급 완료 · 차량 접근 가능/)).toBeVisible({ timeout: 6000 }); await expect(card.getByText("계약 확정 · 양측 동의 완료", { exact: true })).toBeVisible(); }
+    for (const card of [ownerCard, renterCard]) { await expect(card.getByText(/(?:접근 권한 활성|차량 접근 권한 활성)/)).toBeVisible({ timeout: 6000 }); await expect(card.getByText("계약 확정 · 양측 동의 완료", { exact: true })).toBeVisible(); }
     await b.goto("/renter");
     await expect(b.getByRole("region", { name: "현재 이용 중인 차량" })).toContainText("현대 아이오닉 5");
     await b.goto(`/contracts/${rental.id}`);
@@ -166,7 +166,7 @@ const renterCard = b.locator(`article[data-rental-id="${rental.id}"]`);
     await a.getByRole("dialog", { name: "차량 삭제 확인" }).getByRole("button", { name: "취소", exact: true }).click();
     const confirmed = await (await bContext.request.get(`/api/rentals/${rental.id}`)).json();
     expect(confirmed.ownerConsentedAt).toBeTruthy(); expect(confirmed.renterConsentedAt).toBeTruthy(); expect(confirmed.termsVersion).toBe("simulation-v1");
-    await renterCard.getByRole("button", { name: "잠금 해제 요청", exact: true }).click(); await event(a, "UNLOCK_REQUESTED", rental.id);
+    await renterCard.getByRole("button", { name: "문 열기 요청", exact: true }).click(); await event(a, "UNLOCK_REQUESTED", rental.id);
     await ownerCard.getByRole("button", { name: "잠금 해제 승인", exact: true }).click(); await event(b, "UNLOCK_APPROVED", rental.id);
     await expect(renterCard.getByText(/차량 잠금 해제됨/)).toBeVisible({ timeout: 6000 });
     await a.goto("/security");

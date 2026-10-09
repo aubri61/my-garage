@@ -1,5 +1,5 @@
 "use client";
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, errorMessage } from "@/lib/api-client";
 import type { Rental } from "../types";
@@ -12,6 +12,12 @@ export function SignedUnlockForm({ rental }: { rental: Rental }) {
   const [certificate, setCertificate] = useState<File | null>(null);
   const [key, setKey] = useState<File | null>(null);
   const [deviceId, setDeviceId] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    const form = formRef.current;
+    // Next may retain an inactive route in memory. Release selected files on exit.
+    return () => { form?.reset(); setCertificate(null); setKey(null); setDeviceId(""); };
+  }, []);
   const mutation = useMutation({ mutationFn: async () => {
     if (!certificate || !key || !deviceId) throw new Error("기기 인증서, PKCS#8 테스트 키와 기기 ID를 선택해주세요.");
     if (certificate.size > 12000 || key.size > 16000) throw new Error("파일 크기가 너무 큽니다.");
@@ -28,7 +34,7 @@ export function SignedUnlockForm({ rental }: { rental: Rental }) {
   function submit(e: FormEvent<HTMLFormElement>) { e.preventDefault(); if (!mutation.isPending && allowed) mutation.mutate(); }
   return <details><summary>테스트 인증서로 서명된 잠금 해제 요청</summary>
     <p className="sharing-disclosure">오프라인 테스트 CA가 서명한 RSA 인증서만 지원합니다. 실차 디지털 키가 아닙니다. 개인키 파일은 서버로 전송하지 않으며 브라우저 저장소에 저장하지 않습니다.</p>
-    <form onSubmit={submit}><fieldset disabled={mutation.isPending || !allowed} className="form-fields"><legend className="sr-only">기기 접근 서명</legend>
+    <form ref={formRef} onSubmit={submit}><fieldset disabled={mutation.isPending || !allowed} className="form-fields"><legend className="sr-only">기기 접근 서명</legend>
       <label className="form-field">기기 ID<input required maxLength={80} value={deviceId} onChange={e => setDeviceId(e.target.value)} /></label>
       <label className="form-field">공개 기기 인증서 (.pem)<input type="file" accept=".pem" required onChange={e => setCertificate(e.target.files?.[0] ?? null)} /></label>
       <label className="form-field">로컬 테스트 개인키 (PKCS#8 PEM)<input type="file" accept=".pem" required onChange={e => setKey(e.target.files?.[0] ?? null)} /></label>

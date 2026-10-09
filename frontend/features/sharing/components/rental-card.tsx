@@ -2,18 +2,16 @@
 import Link from "next/link";
 import { VehiclePlaceholder } from "./vehicle-placeholder";
 import { ContractConsent } from "./contract-consent";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { lockVehicle, rentalAction, unlockAction, type RentalAction } from "../api";
 import { rentalLabels, type Rental } from "../types";
-import { api } from "@/lib/api-client";
-import { SignedUnlockForm } from "./signed-unlock-form";
+import { RenterAccess } from "./renter-access";
 import { errorMessage } from "@/lib/api-client";
 import { rentalVehicleName, pickupAddress, personName } from "../presentation";
 const unlockLabels = { PENDING: "승인 대기", APPROVED: "승인", REJECTED: "거절", EXPIRED: "만료", CANCELLED: "취소" };
 export function RentalCard({ rental, mode, variant = "card" }: { rental: Rental; mode: "owner" | "renter"; variant?: "card" | "review" | "document" }) {
   const client = useQueryClient();
   const owner = mode === "owner";
-  const security = useQuery({ queryKey: ["sharing-security"], queryFn: async ({ signal }) => (await api.get<{ pkiRequired: boolean }>("/sharing/security", { signal })).data });
   const mutation = useMutation({ mutationFn: (input: { action: RentalAction } | { unlockId: number; decision: "approve" | "reject" }) =>
     "action" in input ? rentalAction(rental.id, input.action) : unlockAction(input.unlockId, input.decision),
     onSuccess: async () => { await Promise.all([client.invalidateQueries({ queryKey: ["rentals"] }), client.invalidateQueries({ queryKey: ["vehicles"] }), client.invalidateQueries({ queryKey: ["available-vehicles"] })]); } });
@@ -43,15 +41,14 @@ export function RentalCard({ rental, mode, variant = "card" }: { rental: Rental;
     {owner && rental.status === "REQUESTED" && <div className="sharing-actions"><button className="rental-approve" disabled={mutation.isPending} onClick={() => action("approve")}>대여 승인</button><button disabled={mutation.isPending} onClick={() => action("reject")}>대여 거절</button></div>}
       {rental.status === "CONTRACT_PENDING" && !consent && <ContractConsent pending={mutation.isPending} onConsent={() => action("consents")} />}
       {consent && <p className="consent-complete">✓ 내 계약 동의 완료</p>}
-    {grant && !["COMPLETED", "CANCELLED", "REJECTED"].includes(rental.status) && <p className="key-status">{grant.revokedAt ? "차량 접근 권한이 종료되었습니다." : grant.active ? "디지털 키 발급 완료 · 차량 접근 가능" : "이용 시작 전 · 대여 기간에 차량 접근 가능"}{grant.active && <span> · {rental.lockState === "LOCKED" ? "차량 잠김" : "차량 잠금 해제됨"}</span>}</p>}
+    {!owner && <RenterAccess rental={rental} pending={mutation.isPending} onRequest={() => action("unlock-requests")} />}
+    {owner && grant && !["COMPLETED", "CANCELLED", "REJECTED"].includes(rental.status) && <p className="key-status">{grant.revokedAt ? "차량 접근 권한이 종료되었습니다." : grant.active ? "차량 접근 권한 활성" : "이용 시작 전 · 대여 기간에 차량 접근 가능"}{grant.active && <span> · {rental.lockState === "LOCKED" ? "차량 잠김" : "차량 잠금 해제됨"}</span>}</p>}
     <div className="sharing-actions">
-      {!owner && grant && <button disabled={mutation.isPending || security.isPending || security.isError || security.data?.pkiRequired || !grant.active || rental.unlockRequests.some(u => u.status === "PENDING")} onClick={() => action("unlock-requests")}>잠금 해제 요청</button>}
       {owner && grant?.active && <button disabled={lock.isPending || rental.lockState === "LOCKED"} onClick={()=>lock.mutate()}>차량 문 잠그기</button>}
       {owner && grant && rental.status !== "COMPLETED" && <><button disabled={mutation.isPending || !!grant.revokedAt} onClick={() => action("access-grant/revoke")}>접근 권한 회수</button><button disabled={mutation.isPending} onClick={() => action("complete")}>대여 종료</button></>}
     </div>
-    {!owner && grant?.active && <><SignedUnlockForm rental={rental} />{security.data?.pkiRequired && <p className="sharing-disclosure">등록된 기기 인증서로 잠금 해제를 요청해주세요.</p>}{security.isError && <p className="form-error" role="alert">보안 정책 조회 실패: {errorMessage(security.error)}</p>}</>}
     {rental.unlockRequests.length > 0 && <details open={rental.unlockRequests.some(u => u.status === "PENDING")}><summary>원격 해제 요청 이력 ({rental.unlockRequests.length})</summary><ul className="unlock-history">
-      {rental.unlockRequests.map(u => <li key={u.id}>{u.pkiVerified ? "기기 인증 완료" : "접근 권한 확인 완료"} · {unlockLabels[u.status]} · {new Date(u.requestedAt).toLocaleString("ko-KR")}
+      {rental.unlockRequests.map(u => <li key={u.id}>{u.pkiVerified ? "PKI 서명 검증 완료" : "접근 권한 확인 완료"} · {unlockLabels[u.status]} · {new Date(u.requestedAt).toLocaleString("ko-KR")}
         {owner && u.status === "PENDING" && <div className="sharing-actions"><button disabled={mutation.isPending || !grant?.active} onClick={() => mutation.mutate({ unlockId: u.id, decision: "approve" })}>잠금 해제 승인</button><button disabled={mutation.isPending || !grant?.active} onClick={() => mutation.mutate({ unlockId: u.id, decision: "reject" })}>잠금 해제 거절</button></div>}</li>)}</ul></details>}
     </aside></div>
     {lock.isError && <p role="alert" className="form-error">{errorMessage(lock.error)}</p>}

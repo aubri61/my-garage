@@ -270,6 +270,16 @@
 }
 
 /* Renter activity is a top section; discovery keeps its full-width layout. */
+.renter-access { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+.renter-access h5 { font-size: 17px; margin: 0 0 12px; }
+.access-flow { display: grid; gap: 8px; padding-left: 20px; margin: 18px 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.6; }
+.renter-access > .platform-button { width: 100%; }
+.renter-access .sharing-disclosure a { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+.pki-security-lab { display: grid; gap: 24px; max-width: 880px; }
+.pki-security-lab .sharing-panel { padding: 28px; }
+.pki-security-lab p { line-height: 1.8; overflow-wrap: anywhere; }
+.pki-lab-form > details { margin-top: 24px; }
+.pki-lab-form .form-submit { width: 100%; margin-top: 16px; }
 .renter-app .sharing-main > .market-attention { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; margin: 0 0 32px; padding: 24px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; box-shadow: none; }
 .renter-app .sharing-main > .market-attention h2 { font-size: 19px; margin: 0 0 10px; }
 .renter-app .sharing-main > .market-attention > div { flex: 1; }

@@ -163,3 +163,17 @@ ESLint / TypeScript / production build 통과. 프론트 단위 8건, 최종 Pla
 검증: 최종 production build/ESLint/TypeScript 및 diff 공백 검사 통과. 전체 Playwright 24건 통과·기존 7건 제외, 단위 8건 통과. 두 계정 실제 DB 계약 동의/SSE/문 열기 승인과 등록/자동 로그인/OTA 회귀를 통과했다. 통합 알림 역할별 색상, 다른 회원 계약 제외, 확인 후 모드 전환·새로고침 유지, 상태 변경 시 읽지 않음, 진행 예약 없는 경우 상단 영역 숨김 및 390px 가로 넘침 없음을 검증했다. 초기 알림 칩의 공통 CSS 우선순위 오류는 수정 후 통과했다. 최종 병렬 검증 중 디스크 공간 부족으로 빌드/테스트 캐시 쓰기가 실패하여 생성된 `.next-e2e`와 `.next/cache`만 정리하고 순차 재검증했다.
 
 캡처 `/private/tmp/my-garage-unified-{owner-request,notifications}.png`, `/private/tmp/my-garage-renter-menu-{1440,1280,768,390}.png`. 로그 `/private/tmp/my-garage-notifications-{final-e2e,build,lint,types,unit}.log`. Kakao SDK의 자동화 환경 오류 상태도 정상 표시되며 지도 코드는 변경하지 않았다. 이번 작업은 프론트만 변경했으며 검증용 8083 서버만 종료하고 기존 개발 서버는 유지했다. 개발 DB 삭제/수정, commit/push/배포는 하지 않았다.
+
+
+## 2026-10-10 디지털 키 UX와 PKI 보안 실험실 분리
+
+구현 범위 조사와 미구현 기기 등록 설계는 `docs/DIGITAL_KEY_AND_PKI_UX.md`에 정리했다. 현재 디지털 키는 양측 동의로 생성하는 DB 접근 권한이며, 일반 기기 등록·인증서 발급·자동 서명 API는 없다. 기존 오프라인 테스트 CA/X.509 검증, 일회용 120초 챌린지와 브라우저 서명만 존재한다.
+
+- 일반 예약·계약·디지털 키 화면의 인증서/개인키 폼을 제거했다. `RenterAccess`는 권한 상태 → 문 열기 요청 → 소유자 승인 → 가상 잠금 해제를 표시하고 실제 세션 기반 API를 재사용한다. 만료/회수/대기 요청/가상 해제/정책 조회 실패 상태에서 요청을 제한한다.
+- PKI 필수 서버에서는 일반 요청을 활성화하거나 우회하지 않는다. 기기 등록/자동 서명 미구현 안내와 보안 실험실 링크를 제공한다. DB 접근 권한과 PKI 인증 완료를 구분한다.
+- `/security-lab`에 본인이 대여자인 실제 접근 권한 발급 계약 선택, 활성/비활성 상태 및 기존 `SignedUnlockForm`을 배치했다. 원래 Web Crypto 비추출 RSA 키 import/챌린지 서명/공개 인증서·서명 전송을 유지한다. 개인키는 서버에 전송하거나 브라우저 저장소에 저장하지 않는다. Next Activity가 페이지를 숨길 때 파일 입력과 메모리의 File 참조를 비운다.
+- 기존 소유자 승인·PKI 재검증·권한 검사·일회용 챌린지 및 백엔드 API/스키마를 변경하지 않았다. OTA 보안 화면도 유지했다.
+
+검증: 최종 production build/ESLint/TypeScript 및 diff 공백 검사 통과. 백엔드 57건 실패/오류/제외 0, 프론트 단위 8건 통과. 전체 Playwright 첫 실행은 23건 통과·7건 제외·2건 실패였다. 상태 문구 기대값 및 Next Activity가 보존하는 숨겨진 폼의 DOM 검사 기대값을 고친 후 두 항목 재검증 통과(25개 고유 항목 통과). 별도 PKI 필수 E2E 서버의 기존 Web Crypto 테스트를 보안 실험실로 옮겨 1건 추가 통과: 기기 ID 불일치 거절, 정상 인증서 서명/소유자 승인, 동일 proof 재사용 403, 개인키 HTTP 미전송·local/sessionStorage 미저장 및 클라이언트 화면 이동 후 파일 입력 초기화를 검증했다. 격리 테스트 네임스페이스를 맞추도록 오프라인 fixture 발급 setup을 보완했다. PKI 브라우저 테스트를 별도로 실행해 일반 회귀에서 제외됐던 PKI 1건도 검증했으며, 나머지 6개 제외는 폐기된 데모 등록 테스트다.
+
+초기 디스크 부족으로 Gradle 실행/생성 캐시 쓰기가 실패해 이번 검증용 Next 캐시를 정리하고 재실행했다. 마지막 PKI 브라우저 실행은 캐시 오류 없이 통과했다. 로그 `/private/tmp/my-garage-access-{backend-tests,e2e,recheck,pki-final,build,lint,types,unit}.log`, 캡처 `/private/tmp/my-garage-{digital-key-policy,security-lab-mobile,renter-desktop,renter-mobile}.png`. 검증용 8083 서버만 종료했고 생성한 임시 CA/개인키 파일을 삭제했다. 기존 개발 서버·개발 DB는 유지했고 commit/push/배포/DB 초기화는 하지 않았다.
