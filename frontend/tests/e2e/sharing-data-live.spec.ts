@@ -101,7 +101,7 @@ test("실제 DB 차량 등록부터 A/B 브라우저 계약·SSE·잠금 해제�
     const start = local(new Date()), end = local(new Date(Date.now() + 3600000));
     await b.getByLabel("조회 시작 시각", { exact: true }).fill(start);
     await b.getByLabel("조회 종료 시각", { exact: true }).fill(end);
-    await expect(b.locator(`button[data-vehicle-id="${vehicle.id}"]`)).toContainText("선택 기간 대여 가능");
+    await expect(b.locator(`article[data-vehicle-id="${vehicle.id}"]`)).toContainText("대여 가능");
     await b.getByRole("button", { name: "대여 신청하기", exact: true }).click();
     await expect(b.getByText(/대여 신청이 완료되었습니다/)).toBeVisible();
     const rental = (await (await bContext.request.get("/api/rentals")).json()).find((r: { vehicleId: number }) => r.vehicleId === vehicle.id);

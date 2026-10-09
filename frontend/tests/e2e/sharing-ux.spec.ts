@@ -19,7 +19,7 @@ test("대여 요청은 상단에 표시되고 테스트 식별자는 카드·지
   await expect(page.locator('body')).not.toContainText("대여 #89");
   await expect(page.locator('body')).not.toContainText("LIVE-");
   await expect(page.locator('body')).not.toContainText("LIVE-PICKUP-");
-  await expect(page.locator('button[data-vehicle-id="43"]')).toContainText("차량 정보 확인 필요");
+  await expect(page.locator('article[data-vehicle-id="43"]')).toContainText("차량 정보 확인 필요");
   await expect(page.getByLabel("조회 시작 시각", { exact: true })).not.toHaveValue("");
   await page.getByLabel("전기차만 보기", { exact: true }).check();
   await expect(page.locator('.available-card')).toHaveCount(1);

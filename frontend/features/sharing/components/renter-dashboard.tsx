@@ -1,23 +1,24 @@
 "use client";
+import "./renter-dashboard.css";
 import { LargeSelect } from "@/components/ui/large-select";
 import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "@/features/auth/session";
 import { errorMessage } from "@/lib/api-client";
 import { availableVehicles, type RentalPeriod } from "../api";
-import { manufacturerName, vehicleCategory, isElectricVehicle } from "@/features/vehicle-registration/catalog";
-import { vehicleName, pickupAddress, personName } from "../presentation";
-import { VehiclePlaceholder } from "./vehicle-placeholder";
+import { manufacturerName, isElectricVehicle } from "@/features/vehicle-registration/catalog";
+import { vehicleName, pickupAddress } from "../presentation";
+import { hourlyPrice } from "../pricing";
 import { PickupMap } from "./pickup-map";
 import { RentalForm } from "./rental-form";
 import { RentalList } from "./rental-list";
-import { RentalPeriodFields, useRentalDates } from "./rental-period-fields";
+import { useRentalDates } from "./rental-period-fields";
+import { RenterFilters, emptyRenterFilters } from "./renter-filters";
+import { RenterVehicleCard } from "./renter-vehicle-card";
 export function RenterDashboard() {
   const session = useSession();
-  const [search, setSearch] = useState("");
-  const [manufacturer, setManufacturer] = useState("");
-  const [electric, setElectric] = useState(false);
-  const [model, setModel] = useState("");
+  const [filters, setFilters] = useState(emptyRenterFilters);
+  const [sort, setSort] = useState("recommended");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const { start, end, setStart, setEnd } = useRentalDates();
   const startsAt = start ? new Date(start) : null, endsAt = end ? new Date(end) : null;
@@ -26,28 +27,28 @@ export function RenterDashboard() {
   const select = useCallback((id: number) => setSelectedId(id), []);
   const query = useQuery({ queryKey: ["available-vehicles", session.data?.id, period?.startsAt, period?.endsAt], queryFn: ({ signal }) => availableVehicles(signal, period), enabled: !!session.data, refetchInterval: 30000 });
   const allVehicles = query.data ?? [];
-  const models = [...new Set(allVehicles.filter(vehicle => !manufacturer || manufacturerName(vehicle.manufacturer) === manufacturer).map(vehicle => vehicleName(vehicle.manufacturer, vehicle.model)))];
+  const hasPrices = allVehicles.some(vehicle => hourlyPrice(vehicle) !== null);
+  const effectiveSort = !hasPrices && sort.startsWith("price-") ? "recommended" : sort;
+  const manufacturers = [...new Set(allVehicles.map(vehicle => manufacturerName(vehicle.manufacturer)))];
+  const models = [...new Set(allVehicles.filter(vehicle => !filters.manufacturer || manufacturerName(vehicle.manufacturer) === filters.manufacturer).map(vehicle => vehicleName(vehicle.manufacturer, vehicle.model)))];
   const vehicles = allVehicles.filter(vehicle => {
-    const name = vehicleName(vehicle.manufacturer, vehicle.model), address = pickupAddress(vehicle.pickupLocation);
-    return `${name} ${address}`.toLowerCase().includes(search.toLowerCase()) && (!manufacturer || manufacturerName(vehicle.manufacturer) === manufacturer) && (!model || name === model) && (!electric || isElectricVehicle(vehicle.manufacturer, vehicle.model));
+    const name = vehicleName(vehicle.manufacturer, vehicle.model), address = pickupAddress(vehicle.pickupLocation), price = hourlyPrice(vehicle);
+    return `${name} ${address}`.toLowerCase().includes(filters.search.trim().toLowerCase()) && (!filters.manufacturer || manufacturerName(vehicle.manufacturer) === filters.manufacturer) && (!filters.model || name === filters.model) && (!filters.electric || isElectricVehicle(vehicle.manufacturer, vehicle.model)) && (!filters.availableOnly || vehicle.available === true) && (!filters.minPrice || (price !== null && price >= Number(filters.minPrice))) && (!filters.maxPrice || (price !== null && price <= Number(filters.maxPrice)));
+  }).sort((a, b) => {
+    if (effectiveSort === "price-asc" || effectiveSort === "price-desc") { const left = hourlyPrice(a), right = hourlyPrice(b); if (left === null) return right === null ? 0 : 1; if (right === null) return -1; return effectiveSort === "price-asc" ? left - right : right - left; }
+    if (effectiveSort === "year") return b.modelYear - a.modelYear;
+    return Number(b.available === true) - Number(a.available === true);
   });
-  const selected = vehicles.find(vehicle => vehicle.id === selectedId);
-  return <>
-    <RentalList mode="renter" />
-    <section className="sharing-section"><div className="section-heading"><h2>픽업 위치 지도</h2><p>가까운 픽업 위치를 확인하고 차량을 선택하세요.</p></div><PickupMap vehicles={vehicles} selectedId={selectedId} onSelect={select} /></section>
-    <section className="sharing-section" aria-labelledby="available-title"><div className="section-heading"><h2 id="available-title">대여 가능한 차량 목록</h2><p>차량과 대여 기간을 선택한 뒤 신청할 수 있습니다.</p></div>
-      <div className="inventory-filters sharing-panel"><label className="form-field sharing-search">차량·픽업 주소 검색<input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="차량 이름이나 픽업 지역을 검색하세요" /></label>
-        <div className="filter-row"><LargeSelect label="제조사" value={manufacturer} placeholder="전체 제조사" options={[{value:"",label:"전체 제조사"}, ...[...new Set(allVehicles.map(vehicle => manufacturerName(vehicle.manufacturer)))].map(value=>({value,label:value}))]} onChange={value => { setManufacturer(value); setModel(""); }} /><LargeSelect label="차종" value={model} placeholder="전체 차종" options={[{value:"",label:"전체 차종"}, ...models.map(value=>({value,label:value}))]} onChange={setModel} /><label className="sharing-toggle"><input type="checkbox" checked={electric} onChange={event => setElectric(event.target.checked)} />전기차만 보기</label></div>
-        <RentalPeriodFields start={start} end={end} onStart={setStart} onEnd={setEnd} browsing />
-        {!validPeriod && (start || end) && <p role="status" className="field-hint">시작보다 뒤인 종료 시각을 선택해주세요.</p>}
-      </div>
-      {query.isPending && <p role="status">대여 가능한 차량을 찾고 있습니다…</p>}
-      {query.isError && <p className="form-error" role="alert">{errorMessage(query.error)} <button onClick={() => void query.refetch()}>다시 조회</button></p>}
-      {!query.isPending && !query.isError && vehicles.length === 0 && <p className="sharing-panel">조건에 맞는 차량이 없습니다. 검색어나 대여 기간을 변경해보세요.</p>}
-      <div className="sharing-search-layout"><div className="available-list">{vehicles.map(vehicle => <button key={vehicle.id} data-vehicle-id={vehicle.id} className="sharing-panel available-card" aria-pressed={vehicle.id === selectedId} onClick={() => select(vehicle.id)}>
-        <VehiclePlaceholder manufacturer={vehicle.manufacturer} model={vehicle.model} /><div className="vehicle-card-content"><div className="vehicle-meta"><span>{manufacturerName(vehicle.manufacturer)}</span><span>{vehicle.modelYear}년</span><span>{isElectricVehicle(vehicle.manufacturer, vehicle.model) ? "전기차" : vehicleCategory(vehicle.manufacturer, vehicle.model) ? "연료 정보 확인 필요" : "차종 정보 확인 필요"}</span></div><strong>{vehicleName(vehicle.manufacturer, vehicle.model)}</strong><span>픽업 주소: {pickupAddress(vehicle.pickupLocation)}</span><span>소유자: {personName(vehicle.ownerName)}</span><span className={`availability-badge ${vehicle.available === false ? "unavailable" : ""}`}>공유 중 · {vehicle.available === false ? "선택 기간 대여 불가" : vehicle.available ? "선택 기간 대여 가능" : "대여 기간 선택 필요"}</span></div>
-      </button>)}</div>
-        {selected ? <RentalForm key={`${selected.id}-${period?.startsAt}-${period?.endsAt}`} vehicle={selected} period={period} /> : <aside className="sharing-panel selection-empty"><h3>마음에 드는 차량을 선택하세요</h3><p>픽업 주소와 대여 기간을 확인한 후 신청할 수 있습니다.</p></aside>}</div>
-    </section>
-  </>;
+  const selected = query.isError ? undefined : vehicles.find(vehicle => vehicle.id === selectedId);
+  function apply(id: number) { select(id); requestAnimationFrame(() => document.getElementById("renter-selection")?.scrollIntoView({ behavior: "smooth", block: "start" })); }
+  return <div className="renter-experience"><RentalList mode="renter" /><div className="renter-explore">
+    <RenterFilters value={filters} onChange={setFilters} manufacturers={manufacturers} models={models} hasPrices={hasPrices} start={start} end={end} onStart={setStart} onEnd={setEnd} validPeriod={validPeriod} />
+    <section className="renter-results" aria-labelledby="available-title"><div className="renter-results-heading"><div><p className="eyebrow">나에게 맞는 차량 찾기</p><h2 id="available-title">대여 가능한 차량</h2><p aria-live="polite">{query.isPending ? "차량을 찾고 있어요" : query.isError ? "목록을 불러오지 못했어요" : `검색 결과 ${vehicles.length}대`}</p></div><LargeSelect label="정렬" value={effectiveSort} options={[{ value: "recommended", label: "대여 가능순" }, { value: "year", label: "최신 연식순" }, ...(hasPrices ? [{ value: "price-asc", label: "낮은 가격순" }, { value: "price-desc", label: "높은 가격순" }] : [])]} onChange={setSort} /></div>
+      <div className="renter-map-panel"><div className="renter-map-heading"><h3>픽업 위치 둘러보기</h3><span>지도와 목록에서 같은 차량을 확인하세요</span></div><PickupMap vehicles={query.isError ? [] : vehicles} selectedId={selected?.id ?? null} onSelect={select} /></div>
+      {query.isPending && <div className="renter-empty" role="status">대여 가능한 차량을 찾고 있습니다…</div>}
+      {query.isError && <div className="renter-empty" role="alert"><h3>차량 목록을 불러오지 못했습니다</h3><p>{errorMessage(query.error)}</p><button className="form-secondary" onClick={() => void query.refetch()}>다시 조회</button></div>}
+      {!query.isPending && !query.isError && vehicles.length === 0 && <div className="renter-empty"><h3>조건에 맞는 차량이 없습니다</h3><p>검색어나 필터, 대여 기간을 변경해보세요.</p><button type="button" className="form-secondary" onClick={() => setFilters(emptyRenterFilters)}>필터 초기화</button></div>}
+      {!query.isError && <div className="renter-cards">{vehicles.map(vehicle => <RenterVehicleCard key={vehicle.id} vehicle={vehicle} selected={vehicle.id === selectedId} onSelect={() => select(vehicle.id)} onApply={() => apply(vehicle.id)} />)}</div>}
+      {selected && <div id="renter-selection" className="renter-selection"><div className="renter-selection-heading"><h3>선택한 차량 · 대여 신청</h3><button type="button" onClick={() => setSelectedId(null)}>선택 닫기</button></div><RentalForm key={`${selected.id}-${period?.startsAt}-${period?.endsAt}`} vehicle={selected} period={period} /></div>}
+    </section></div></div>;
 }

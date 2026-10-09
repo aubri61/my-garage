@@ -7,12 +7,12 @@ import { SessionActions } from "@/features/auth/components/session-actions";
 import { personName } from "../presentation";
 import { useSharingEvents } from "../use-sharing-events";
 export function SharingShell({ mode, children }: { mode: "owner" | "renter"; children: ReactNode }) {
-  return <SessionBoundary><AuthenticatedShell mode={mode}>{children}</AuthenticatedShell></SessionBoundary>;
+  return <SessionBoundary signedOutTitle={mode === "renter" ? "차량 대여하기" : "차량 빌려주기"} loadingText="차량 공유 화면을 준비하고 있습니다…"><AuthenticatedShell mode={mode}>{children}</AuthenticatedShell></SessionBoundary>;
 }
 function AuthenticatedShell({ mode, children }: { mode: "owner" | "renter"; children: ReactNode }) {
   const session = useSession();
   const { connection, notification } = useSharingEvents(session.data?.id);
-  return <div className="sharing-app"><a className="skip-link" href="#sharing-content">본문으로 바로가기</a>
+  return <div className={`sharing-app ${mode === "renter" ? "renter-app" : "owner-app"}`}><a className="skip-link" href="#sharing-content">본문으로 바로가기</a>
     <header className="app-header"><div className="header-inner"><Link href="/mode" className="brand">My Garage</Link>
       <nav className="header-nav" aria-label="차량 공유 메뉴"><Link href="/renter" aria-current={mode === "renter" ? "page" : undefined}>차량 빌리기</Link>
         <Link href="/owner" aria-current={mode === "owner" ? "page" : undefined}>차량 빌려주기</Link><Link href="/mode">모드 선택</Link></nav>

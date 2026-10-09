@@ -1,0 +1,83 @@
+/* Vehicle discovery, scoped to the renter experience. */
+.renter-app { background: #f6f8fc; }
+.renter-app .sharing-main, .renter-app .header-inner { max-width: 1400px; }
+.renter-app .sharing-main { padding: 36px 32px 56px; }
+.renter-app .sharing-title h1 { font-size: clamp(28px,3vw,36px); letter-spacing: -.04em; }
+.renter-experience .request-board { margin: 24px 0 32px; background: #fff; border-radius: 20px; box-shadow: 0 4px 18px #15325e04; }
+.renter-explore { display: grid; grid-template-columns: 300px minmax(0,1fr); gap: 28px; align-items: start; }
+.renter-filters { display: grid; gap: 24px; background: #fff; border: 1px solid #e2e8f1; border-radius: 20px; padding: 24px; position: sticky; top: 20px; box-shadow: 0 4px 18px #15325e04; }
+.renter-filter-heading, .renter-selection-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.renter-filter-heading h2, .renter-selection-heading h3 { font-size: 18px; line-height: 1.5; margin: 0; }
+.renter-filter-heading button, .renter-selection-heading button { background: none; border: 0; color: #2463d4; padding: 8px 0; font-size: 14px; cursor: pointer; white-space: nowrap; }
+.renter-filter-group { display: grid; gap: 16px; border-top: 1px solid #edf0f5; padding-top: 22px; }
+.renter-filter-group h3 { font-size: 16px; margin: 0; }
+.renter-filters .coordinate-grid { grid-template-columns: 1fr; gap: 16px; }
+.renter-filters .form-field { font-size: 14px; }
+.renter-filters .large-select-trigger { margin-top: 8px; font-size: 15px; min-height: 48px; }
+.renter-price-filter { margin: 0; padding: 0; border: 0; min-width: 0; }
+.renter-price-filter legend { font-size: 15px; font-weight: 600; padding: 0 0 12px; }
+.renter-price-filter > div { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); gap: 8px; align-items: end; }
+.renter-price-filter > div > span { padding-bottom: 14px; color: #748298; }
+.renter-price-filter .form-field { font-size: 12px; }
+.renter-price-filter p { font-size: 12px; color: #687a91; line-height: 1.7; margin: 10px 0 0; }
+.renter-filters input:disabled { background: #f4f6f9; color: #8390a1; cursor: not-allowed; }
+.renter-filters .sharing-toggle { min-height: 26px; font-size: 15px; }
+.renter-results { min-width: 0; }
+.renter-results-heading { display: flex; justify-content: space-between; gap: 20px; align-items: center; margin-bottom: 22px; }
+.renter-results-heading h2 { font-size: 26px; letter-spacing: -.04em; margin: 6px 0 8px; }
+.renter-results-heading p { margin: 0; font-size: 14px; color: #62748d; }
+.renter-results-heading .eyebrow { font-size: 12px; }
+.renter-results-heading .large-select { width: 180px; flex-shrink: 0; }
+.renter-results-heading .large-select-trigger { min-height: 46px; margin-top: 6px; font-size: 14px; }
+.renter-map-panel { background: #fff; border: 1px solid #e2e8f1; padding: 18px; border-radius: 20px; margin-bottom: 24px; }
+.renter-map-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 14px; }
+.renter-map-heading h3 { font-size: 16px; margin: 0; }
+.renter-map-heading span { color: #687a91; font-size: 12px; }
+.renter-map-panel .pickup-map { height: 310px; border-radius: 14px; }
+.renter-map-panel .sharing-disclosure { font-size: 12px; margin: 12px 0 0; }
+.renter-cards { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.renter-vehicle-card { display: block; background: #fff; border: 1px solid #e2e8f1; border-radius: 20px; box-shadow: 0 4px 16px #15325e04; transition: border-color .15s,box-shadow .15s; cursor: pointer; }
+.renter-vehicle-card:hover { border-color: #b9c9df; box-shadow: 0 8px 24px #15325e0c; }
+.renter-vehicle-card.is-selected { border-color: #2463d4; box-shadow: 0 0 0 2px #2463d421; }
+.renter-card-visual { position: relative; padding: 8px 14px 0; background: #f8fafd; }
+.renter-card-visual .sharing-vehicle-placeholder { height: 200px; margin: 0; border-radius: 0; background: #f8fafd; flex-direction: column; gap: 10px; }
+.renter-card-visual .sharing-vehicle-placeholder > svg { width: 100px; height: 70px; opacity: .75; }
+.renter-card-visual .sharing-vehicle-placeholder > span { font-size: 13px; color: #71849c; }
+.renter-card-visual .sharing-vehicle-placeholder .vehicle-image-note { font-size: 10px; }
+.renter-availability { position: absolute; top: 16px; left: 16px; background: #eaf2ff; color: #2454a1 !important; padding: 7px 10px; border-radius: 9px; font-weight: 600; font-size: 12px !important; }
+.renter-availability.muted { background: #edf0f5; color: #54657b !important; }
+.renter-card-body { padding: 20px; }
+.renter-card-make { font-size: 13px; color: #6d7e94; margin: 0 0 6px; }
+.renter-card-body h3 { font-size: 22px; letter-spacing: -.04em; line-height: 1.4; margin: 0 0 8px; }
+.renter-card-spec { color: #61738b; font-size: 14px; margin: 0 0 12px; }
+.renter-card-spec span { margin: 0 6px; }
+.renter-card-location { color: #50627a; font-size: 14px; line-height: 1.7; margin: 0; min-height: 48px; overflow-wrap: anywhere; }
+.renter-card-price { display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; border-top: 1px solid #edf0f5; margin-top: 16px; padding-top: 16px; }
+.renter-card-price > span { color: #61738b; font-size: 13px; }
+.renter-card-price strong { font-size: 23px; letter-spacing: -.04em; }
+.renter-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+.renter-card-actions button { border: 1px solid #d6e0ed; border-radius: 10px; min-height: 46px; padding: 10px; background: #fff; color: #263d5a; font-size: 14px; font-weight: 600; cursor: pointer; }
+.renter-card-actions button.primary { background: #2463d4; border-color: #2463d4; color: #fff; }
+.renter-card-actions button.primary:hover:not(:disabled) { background: #174eaf; }
+.renter-empty { padding: 44px 24px; text-align: center; background: #fff; border: 1px solid #e2e8f1; border-radius: 20px; color: #64768d; margin-bottom: 24px; }
+.renter-empty h3 { color: #243a56; font-size: 20px; }
+.renter-empty .form-secondary { max-width: 180px; margin: 18px auto 0; }
+.renter-selection { margin-top: 28px; scroll-margin-top: 24px; }
+.renter-selection-heading { margin-bottom: 16px; }
+.renter-selection .rental-application { position: static; border-radius: 20px; padding: 28px; }
+.renter-selection .sharing-vehicle-placeholder { max-width: 420px; margin-inline: auto; }
+.rental-price-summary strong { font-size: 22px; color: #17283e; }
+.renter-app button:focus-visible { outline: 3px solid #2463d4; outline-offset: 3px; }
+@media (max-width:1050px) { .renter-explore { grid-template-columns: 260px minmax(0,1fr); gap: 20px; } .renter-filters { padding: 20px; } .renter-cards { grid-template-columns: 1fr; } }
+@media (max-width:760px) {
+ .renter-app .sharing-main { padding: 28px 18px 40px; } .renter-explore { grid-template-columns: 1fr; } .renter-filters { position: static; }
+ .renter-results-heading { align-items: flex-start; gap: 12px; } .renter-results-heading h2 { font-size: 22px; } .renter-results-heading .large-select { width: 145px; }
+ .renter-map-heading { align-items: flex-start; flex-direction: column; gap: 6px; } .renter-map-panel { padding: 14px; } .renter-map-panel .pickup-map { height: 260px; } .renter-selection .rental-application { padding: 20px; }
+}
+
+.renter-filter-content { display: grid; gap: 24px; min-width: 0; }
+.renter-mobile-filter-toggle { display: none; }
+@media (max-width: 760px) {
+ .renter-filter-content:not(.is-open) { display: none; }
+ .renter-mobile-filter-toggle { display: block; width: 100%; min-height: 46px; border: 1px solid #d6e0ed; border-radius: 10px; background: #fff; color: #2454a1; font: inherit; font-size: 14px; cursor: pointer; }
+}
