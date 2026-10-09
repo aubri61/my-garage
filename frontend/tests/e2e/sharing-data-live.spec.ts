@@ -73,7 +73,7 @@ test("실제 DB 차량 등록부터 A/B 브라우저 계약·SSE·잠금 해제�
     await a.getByRole("button", { name: "차량 등록", exact: true }).click();
     await expect(a.getByRole("heading", { name: "차량 등록이 완료되었습니다." })).toBeVisible();
     await a.getByRole("link", { name: "내 차량 관리하기", exact: true }).click();
-    await expect(a.getByRole("article").filter({ hasText: plate })).toContainText("공유 공개");
+    await expect(a.getByRole("article").filter({ hasText: plate })).toContainText("목록 공개");
     const ownVehicles = await (await aContext.request.get("/api/vehicles")).json();
     const vehicle = ownVehicles.find((v: { licensePlate: string }) => v.licensePlate === plate);
     expect(vehicle.hourlyRate).toBe(12000);
@@ -148,7 +148,11 @@ const renterCard = b.locator(`article[data-rental-id="${rental.id}"]`);
     await b.mouse.move(signatureBox!.x+30,signatureBox!.y+70); await b.mouse.down();
     await b.mouse.move(signatureBox!.x+130,signatureBox!.y+110); await b.mouse.move(signatureBox!.x+200,signatureBox!.y+50); await b.mouse.up();
     await renterCard.getByRole("button", { name: "위 계약 조건에 동의", exact: true }).click();
+    await expect(a.locator(".owner-vehicle-card").filter({ hasText: plate }).locator(".sharing-status")).toContainText(/예약 확정|이용 중/);
+    await a.screenshot({ path: "/private/tmp/my-garage-polish-owner-contract.png", fullPage: true });
     for (const card of [ownerCard, renterCard]) { await expect(card.getByText(/디지털 키 발급 완료 · 차량 접근 가능/)).toBeVisible({ timeout: 6000 }); await expect(card.getByText("계약 확정 · 양측 동의 완료", { exact: true })).toBeVisible(); }
+    await b.goto("/renter");
+    await expect(b.getByRole("region", { name: "현재 이용 중인 차량" })).toContainText("현대 아이오닉 5");
     await b.goto(`/contracts/${rental.id}`);
     await expect(b.getByRole("heading",{name:"차량 대여 계약",exact:true})).toBeVisible();
     await expect(renterCard).toContainText("예상 총액 12,000원");

@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 const destinations = [
   { href: "/owner", label: "대시보드", icon: "dashboard" },
   { href: "/bookings?mode=owner", label: "예약 및 계약", icon: "calendar" },
-  { href: "/owner#owner-vehicles", label: "보유 차량", icon: "vehicle" },
   { href: "/vehicles/register", label: "차량 등록", icon: "plus" },
   { href: "/digital-key?mode=owner", label: "디지털 접근 권한", icon: "lock" },
   { href: "/security", label: "소프트웨어 보안", icon: "shield" },

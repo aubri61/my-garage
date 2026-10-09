@@ -31,8 +31,8 @@ test("탐색 UI: 요금·가격 필터·정렬·지도와 카드 선택·신청�
   await expect(page.locator('button[data-vehicle-id="42"]')).toHaveAttribute("aria-pressed", "true");
   await page.locator('article[data-vehicle-id="44"]').getByRole("button", { name: "상세 보기", exact: false }).click();
   await expect(page.getByRole("button", { name: "기아 EV3 픽업 마커", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await page.getByLabel("대여 가능한 차량만", { exact: true }).check();
-  await expect(page.locator('.renter-vehicle-card')).toHaveCount(2);
+  await expect(page.getByLabel("대여 가능한 차량만", { exact: true })).toHaveCount(0);
+  await expect(page.locator('.renter-vehicle-card')).toHaveCount(3);
   await first.getByRole("button", { name: "대여 신청", exact: true }).click();
   await expect(page.getByRole("button", { name: "대여 신청하기", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "대여 신청하기", exact: true }).click();

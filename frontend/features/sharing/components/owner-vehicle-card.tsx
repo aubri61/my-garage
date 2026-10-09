@@ -5,13 +5,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { VehicleResponse } from "@/services/types";
 import { errorMessage } from "@/lib/api-client";
 import { configureSharing, lockVehicle, setSharingEnabled, deleteVehicle } from "../api";
-import type { SharingSettings } from "../types";
+import type { Rental, SharingSettings } from "../types";
 import { PickupLocationField } from "@/components/maps/pickup-location-field";
 import { vehicleName, isInternalLabel } from "../presentation";
 import { VehicleDeleteDialog } from "./vehicle-delete-dialog";
 import { VehiclePlaceholder } from "./vehicle-placeholder";
 
-export function OwnerVehicleCard({ vehicle }: { vehicle: VehicleResponse }) {
+export function OwnerVehicleCard({ vehicle, rentals = [], rentalsPending = false, rentalsFailed = false, asOf = 0 }: { vehicle: VehicleResponse; rentals?: Rental[]; rentalsPending?: boolean; rentalsFailed?: boolean; asOf?: number }) {
   const client = useQueryClient();
   const [enabled, setEnabled] = useState(vehicle.sharingEnabled);
   const [location, setLocation] = useState(isInternalLabel(vehicle.pickupLocation) ? "" : vehicle.pickupLocation ?? "");
@@ -25,7 +25,9 @@ export function OwnerVehicleCard({ vehicle }: { vehicle: VehicleResponse }) {
   const mutation = useMutation({ mutationFn: async (input: SharingSettings | "lock" | "delete" | "toggle") => input === "lock" ? lockVehicle(vehicle.id) : input === "delete" ? deleteVehicle(vehicle.id) : input === "toggle" ? setSharingEnabled(vehicle.id, !vehicle.sharingEnabled) : configureSharing(vehicle.id, input),
     onSuccess: async (updated) => { setConfirmDelete(false); if (updated) setEnabled(updated.sharingEnabled); await Promise.all([client.invalidateQueries({ queryKey: ["vehicles"] }), client.invalidateQueries({ queryKey: ["available-vehicles"] }), client.invalidateQueries({ queryKey: ["rentals"] })]); } });
   function submit(e: FormEvent<HTMLFormElement>) { e.preventDefault(); if (!location.trim() || !lat.trim() || !lng.trim()) { setValidation("픽업 주소를 검색해 선택하거나 주소와 좌표를 입력해주세요."); return; } setValidation(""); if (!mutation.isPending) mutation.mutate({ enabled, pickupLocation: location, latitude: Number(lat), longitude: Number(lng), pickupDetail: detail, pickupInstructions: instructions }); }
-  return <article className="sharing-panel owner-vehicle-card"><div className="owner-vehicle-status"><span className={`sharing-status ${vehicle.sharingEnabled ? "is-public" : "is-private"}`}>{vehicle.sharingEnabled ? "공유 공개" : "비공개"}</span><span className="owner-lock-state">{vehicle.lockState === "LOCKED" ? "잠김" : "잠금 해제됨"} · 가상 상태</span></div>
+  const currentContracts = rentals.filter(rental => ["CONFIRMED", "ACTIVE", "CONTRACT_PENDING"].includes(rental.status) && Date.parse(rental.endsAt) > asOf);
+  const rentalStatus = rentalsPending ? "예약 정보 확인 중" : rentalsFailed ? "예약 정보 조회 실패" : currentContracts.some(rental => rental.status === "ACTIVE") ? "이용 중" : currentContracts.some(rental => rental.status === "CONFIRMED") ? "예약 확정" : currentContracts.length ? "계약 동의 대기" : "확정된 예약 없음";
+  return <article className="sharing-panel owner-vehicle-card"><div className="owner-vehicle-status"><div className="owner-vehicle-status"><span className="sharing-status">{rentalStatus}</span><span className="owner-listing-state">{vehicle.sharingEnabled ? "목록 공개" : "목록 비공개"}</span></div><span className="owner-lock-state">{vehicle.lockState === "LOCKED" ? "잠김" : "잠금 해제됨"} · 가상 상태</span></div>
     <div className="owner-vehicle-identity"><VehiclePlaceholder manufacturer={vehicle.manufacturer} model={vehicle.model} /><div><p className="owner-vehicle-meta">{vehicle.manufacturer} · {vehicle.modelYear}년식</p><h3>{vehicleName(vehicle.manufacturer, vehicle.model)}</h3><p className="owner-vehicle-meta">{isInternalLabel(vehicle.licensePlate) ? "차량 번호 확인 필요" : vehicle.licensePlate}</p><p className="rental-price-summary">{vehicle.hourlyRate != null ? `시간당 ${vehicle.hourlyRate.toLocaleString("ko-KR")}원` : "가격 설정 필요"}</p></div></div>
     <div className="owner-vehicle-location"><span aria-hidden="true">⌖</span><p>{isInternalLabel(vehicle.pickupLocation) ? "픽업 주소 확인 필요" : vehicle.pickupLocation || "픽업 위치를 설정해주세요"}</p></div>
     <div className="sharing-actions"><Link className="platform-pill" href={`/vehicles/${vehicle.id}/edit`}>차량 수정</Link><button disabled={mutation.isPending} onClick={() => mutation.mutate("toggle")}>{vehicle.sharingEnabled ? "공유 중단" : "공유 재개"}</button><button disabled={mutation.isPending} onClick={() => { mutation.reset(); setConfirmDelete(true); }}>차량 삭제</button></div>

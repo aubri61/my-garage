@@ -1,11 +1,12 @@
 type ServiceIconProps = {
-  name: "vehicle" | "shield" | "charging" | "climate" | "lock" | "heating" | "dashboard" | "calendar" | "plus";
+  name: "vehicle" | "shield" | "charging" | "climate" | "lock" | "heating" | "dashboard" | "calendar" | "plus" | "bell";
   className?: string;
 };
 
 export function ServiceIcon({ name, className }: ServiceIconProps) {
   return (
     <svg className={className} width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {name === "bell" && <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></>}
       {name === "dashboard" && <><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></>}
       {name === "calendar" && <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M7 3v4M17 3v4M3 10h18M7 14h3M7 17h6" /></>}
       {name === "plus" && <><circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" /></>}

@@ -18,21 +18,27 @@ export function ServerRegistration({ vehicle }: { vehicle?: VehicleResponse }) {
   const client = useQueryClient();
   const pending = useRef(false);
   const [values, setValues] = useState({ manufacturer: vehicle?.manufacturer ?? "", model: vehicle?.model ?? "", modelYear: String(vehicle?.modelYear ?? ""), licensePlate: vehicle?.licensePlate ?? "", pickupLocation: vehicle?.pickupLocation ?? "", pickupDetail: vehicle?.pickupDetail ?? "", pickupInstructions: vehicle?.pickupInstructions ?? "", latitude: String(vehicle?.pickupLatitude ?? ""), longitude: String(vehicle?.pickupLongitude ?? ""), hourlyRate: String(vehicle?.hourlyRate ?? ""), powerType: vehicle?.powerType ?? "", description: vehicle?.description ?? "", minimumRentalHours: String(vehicle?.minimumRentalHours ?? 1) });
+  const [plateChecked, setPlateChecked] = useState(false);
+  const [rateChecked, setRateChecked] = useState(false);
+  const [rateDisplay, setRateDisplay] = useState(vehicle?.hourlyRate?.toLocaleString("ko-KR") ?? "");
   const [sharing, setSharing] = useState(vehicle?.sharingEnabled ?? false);
   const [validation, setValidation] = useState("");
-  const mutation = useMutation({ mutationFn: (request: VehicleRequest) => vehicle ? updateVehicle(vehicle.id, request) : registerVehicle(request), onSuccess: async () => { await Promise.all([client.invalidateQueries({ queryKey: ["vehicles", session.data?.id] }), client.invalidateQueries({ queryKey: ["available-vehicles"] })]); } });
+  const mutation = useMutation({ mutationFn: (request: VehicleRequest) => vehicle ? updateVehicle(vehicle.id, request) : registerVehicle(request), onSuccess: async () => { await Promise.all([client.invalidateQueries({ queryKey: ["vehicles", session.data?.id] }), client.invalidateQueries({ queryKey: ["available-vehicles"] })]); window.scrollTo({ top: 0, behavior: "instant" }); } });
   function change(field: keyof typeof values, value: string) { setValues(previous => ({ ...previous, [field]: value })); }
+  const plateError = plateChecked && !validKoreanPlate(values.licensePlate) ? "차량 번호를 확인해주세요. 예: 123가4567" : undefined;
+  const rate = Number(values.hourlyRate);
+  const rateError = rateChecked && (!Number.isSafeInteger(rate) || rate < 100 || rate > 1000000 || rate % 100 !== 0) ? "100원 이상 1,000,000원 이하, 100원 단위로 입력해주세요." : undefined;
   const category = vehicleCategory(values.manufacturer, values.model);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pending.current || !session.data) return;
-    if (!values.manufacturer.trim() || !values.model.trim() || !values.licensePlate.trim()) { setValidation("제조사, 차종, 차량 번호를 입력해주세요."); return; }
+    if (!values.manufacturer.trim() || !values.model.trim()) { setValidation("제조사, 차종, 차량 번호를 입력해주세요."); return; }
     if (!vehicleCatalog[values.manufacturer]?.includes(values.model)) { setValidation("사진이 준비된 차종을 목록에서 선택해주세요."); return; }
-    if (!validKoreanPlate(values.licensePlate)) { setValidation("차량 번호를 확인해주세요. 예: 123가4567 또는 서울12가3456"); return; }
+    if (!validKoreanPlate(values.licensePlate)) { setPlateChecked(true); document.getElementById("licensePlate")?.focus(); return; }
     if ((sharing || values.pickupLocation.trim() || values.latitude.trim() || values.longitude.trim()) && (!values.pickupLocation.trim() || !values.latitude.trim() || !values.longitude.trim())) {
       setValidation("검색 결과를 선택하거나 지도에서 픽업 위치를 지정해주세요."); return;
     }
-    if (!Number.isSafeInteger(Number(values.hourlyRate)) || Number(values.hourlyRate) <= 0 || Number(values.hourlyRate) > 1000000) { setValidation("시간당 대여 가격은 1원 이상 1,000,000원 이하로 입력해주세요."); return; }
+    if (!Number.isSafeInteger(rate) || rate < 100 || rate > 1000000 || rate % 100 !== 0) { setRateChecked(true); document.getElementById("hourlyRate")?.focus(); return; }
     setValidation(""); pending.current = true;
     const request: VehicleRequest = { manufacturer: values.manufacturer.trim(), model: values.model.trim(),
       hourlyRate: Number(values.hourlyRate), minimumRentalHours: Number(values.minimumRentalHours), description: values.description.trim(), ...(category ? { powerType: values.powerType || category.powerTypes[0], bodyType: category.bodyType } : {}),
@@ -41,21 +47,22 @@ export function ServerRegistration({ vehicle }: { vehicle?: VehicleResponse }) {
     try { await mutation.mutateAsync(request); } catch { /* The mutation exposes the server error below. */ }
     finally { pending.current = false; }
   }
-  if (mutation.isSuccess) return <section className="flow-success"><span className="success-mark" aria-hidden="true">✓</span>
-    <h2>{vehicle ? "차량 수정이 완료되었습니다." : "차량 등록이 완료되었습니다."}</h2><p>{mutation.data.manufacturer} {mutation.data.model} · {mutation.data.licensePlate}</p>
-    <p>{mutation.data.sharingEnabled ? "공유 공개 · 다른 사용자가 공개 목록에서 조회할 수 있습니다." : "비공개 · 내 차량 목록에서 공유를 활성화할 수 있습니다."}</p><Link href="/owner" className="form-submit">내 차량 관리하기</Link>{/* 고급 차고지·OTA 진입 UI는 숨기고 기존 경로는 보존합니다. */}{false && <Link href="/garage" className="form-secondary">기존 차고지·OTA 확인하기</Link>}</section>;
+  if (mutation.isSuccess) return <section className="flow-success vehicle-registration-success" aria-labelledby="registration-success-title">
+    <span className="success-mark" aria-hidden="true">✓</span><p className="eyebrow">{vehicle ? "VEHICLE UPDATED" : "VEHICLE REGISTERED"}</p>
+    <h2 id="registration-success-title">{vehicle ? "차량 수정이 완료되었습니다." : "차량 등록이 완료되었습니다."}</h2>
+    <p>내 차량에서 등록 정보와 공유 설정을 관리할 수 있습니다.</p>
+    <div className="registration-success-vehicle"><VehiclePlaceholder manufacturer={mutation.data.manufacturer} model={mutation.data.model} /><div><h3>{mutation.data.manufacturer} {modelLabel(mutation.data.manufacturer, mutation.data.model)}</h3><p>{mutation.data.modelYear}년식 · {mutation.data.licensePlate}</p><span className="platform-badge">{mutation.data.sharingEnabled ? "공개 목록에 표시" : "비공개 차량"}</span></div></div>
+    <Link href="/owner" className="form-submit">내 차량 관리하기</Link>
+  </section>;
   return <><nav className="registration-outline" aria-label="등록 항목"><ol>{["차량 정보", "대여 조건", "픽업 위치", "최종 확인"].map((label, index) => <li key={label}><a href={`#registration-section-${index + 1}`}><span>{index + 1}</span>{label}</a></li>)}</ol></nav><div className="registration-layout"><div><p className="registration-disclosure mock-disclosure">입력한 차량을 내 계정에 등록합니다. 기본 정보를 입력하고 픽업 위치와 공개 여부를 설정해주세요.</p>
     <form onSubmit={submit} aria-busy={mutation.isPending}>
       <fieldset className="form-fields" disabled={mutation.isPending}><legend className="sr-only">차량 등록 정보</legend><section id="registration-section-1" className="registration-step"><h2><span>1</span> 차량 기본 정보</h2><p className="field-hint">사진이 준비된 제조사와 차종만 선택할 수 있습니다.</p>
         <LargeSelect label="제조사" required value={values.manufacturer} placeholder="제조사 선택" options={Object.keys(vehicleCatalog).map(value => ({ value, label: value }))} onChange={value => setValues(previous => ({ ...previous, manufacturer: value, model: "", powerType: "" }))} />
         {<LargeSelect label="차종" required disabled={!values.manufacturer || mutation.isPending} value={values.model} placeholder="차종 선택" options={(vehicleCatalog[values.manufacturer] ?? []).map(value => ({ value, label: modelLabel(values.manufacturer, value) }))} onChange={value => setValues(previous => ({ ...previous, model: value, powerType: "" }))} />}
-        {values.manufacturer && <div className="registration-model-options" role="group" aria-label="추천 차량 모델">{(vehicleCatalog[values.manufacturer] ?? []).slice(0, 4).map(model => <button key={model} type="button" aria-pressed={values.model === model} onClick={() => setValues(previous => ({ ...previous, model, powerType: "" }))}><VehiclePlaceholder manufacturer={values.manufacturer} model={model} /><span><strong>{modelLabel(values.manufacturer, model)}</strong><small>{vehicleCategory(values.manufacturer, model)?.bodyType} · {vehicleCategory(values.manufacturer, model)?.powerTypes.join(" / ")}</small></span></button>)}</div>}
         <LargeSelect label="연식" required value={values.modelYear} placeholder="연식 선택" options={Array.from({ length: 142 }, (_, index) => ({ value: String(2027 - index), label: `${2027 - index}년` }))} onChange={value => change("modelYear", value)} />
         {category && <><LargeSelect label="동력 유형" value={values.powerType || category.powerTypes[0]} options={category.powerTypes.map(value => ({ value, label: value }))} onChange={value => change("powerType", value)} /><p className="field-hint">차체 분류: {category.bodyType}</p></>}
-        <VehiclePlaceholder manufacturer={values.manufacturer} model={values.model} />
-        <FormField name="licensePlate" label="차량 번호" value={values.licensePlate} onChange={value => change("licensePlate", value)} maxLength={30} />
-        <p className="field-hint">번호판을 직접 입력해주세요. 예: 123가4567</p></section>
-        <section id="registration-section-2" className="registration-step"><h2><span>2</span> 대여 조건</h2><label className="form-field">시간당 대여 가격 (원)<input type="number" required min="1" max="1000000" step="1" value={values.hourlyRate} onChange={event => change("hourlyRate", event.target.value)} placeholder="예: 12000" /></label><p className="field-hint">1원 이상 설정해주세요. 실제 결제는 제공하지 않습니다.</p><label className="form-field">최소 대여 시간<input type="number" min="1" max="24" required value={values.minimumRentalHours} onChange={event => change("minimumRentalHours", event.target.value)} /></label><label className="form-field">차량 설명<textarea maxLength={2000} value={values.description} onChange={event => change("description", event.target.value)} placeholder="차량 이용 시 알아두면 좋은 내용을 적어주세요" /></label><label className="sharing-toggle"><input type="checkbox" checked={sharing} onChange={event => setSharing(event.target.checked)} />등록 후 공개 목록에 차량 공유</label></section>
+        <FormField name="licensePlate" label="차량 번호" value={values.licensePlate} onChange={value => change("licensePlate", value)} onBlur={() => setPlateChecked(true)} error={plateError} hint={plateChecked && !plateError && values.licensePlate ? "올바른 차량 번호 형식입니다." : "예: 123가4567"} maxLength={30} /></section>
+        <section id="registration-section-2" className="registration-step"><h2><span>2</span> 대여 조건</h2><div className="form-field"><label htmlFor="hourlyRate">시간당 대여 가격 (원)</label><div className="currency-input"><input id="hourlyRate" type="text" inputMode="numeric" required value={rateDisplay} onBlur={() => { setRateDisplay(values.hourlyRate ? rate.toLocaleString("ko-KR") : ""); setRateChecked(true); }} onChange={event => { const raw = event.target.value.replace(/,/g, ""); if (/^\d*$/.test(raw)) { setRateDisplay(event.target.value); change("hourlyRate", raw); } }} aria-invalid={!!rateError} aria-describedby={rateError ? "hourlyRate-error" : "hourlyRate-hint"} placeholder="예: 12,000" /><span>원</span></div><p id="hourlyRate-hint" className="field-hint">최소 100원 · 100원 단위로 설정해주세요. 실제 결제는 제공하지 않습니다.</p>{rateError && <p id="hourlyRate-error" className="field-error">{rateError}</p>}</div><label className="form-field">최소 대여 시간<input type="number" min="1" max="24" required value={values.minimumRentalHours} onChange={event => change("minimumRentalHours", event.target.value)} /></label><label className="form-field">차량 설명<textarea maxLength={2000} value={values.description} onChange={event => change("description", event.target.value)} placeholder="차량 이용 시 알아두면 좋은 내용을 적어주세요" /></label><label className="sharing-toggle"><input type="checkbox" checked={sharing} onChange={event => setSharing(event.target.checked)} />등록 후 공개 목록에 차량 공유</label></section>
         <section id="registration-section-3" className="registration-step"><h2><span>3</span> 픽업 위치</h2>
         <PickupLocationField value={values.pickupLocation} latitude={values.latitude} longitude={values.longitude} disabled={mutation.isPending} detail={values.pickupDetail} instructions={values.pickupInstructions}
           onDetailChange={value => change("pickupDetail", value)} onInstructionsChange={value => change("pickupInstructions", value)}

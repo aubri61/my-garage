@@ -21,7 +21,7 @@ test("로그인 실패·세션 복원·로그아웃·localStorage 플래그로 �
   expect(api.mutations.filter(item => item.path === "/api/auth/logout")).toHaveLength(1);
 });
 
-test("회원가입 성공 후 로그인 필요·중복 이메일 409 표시", async ({ page }) => {
+test("회원가입 후 자동 로그인·중복 이메일 409 표시", async ({ page }) => {
   await installApiFixture(page);
   async function signup() {
     await page.goto("/signup");
@@ -34,7 +34,9 @@ test("회원가입 성공 후 로그인 필요·중복 이메일 409 표시", as
   await signup();
   await expect(page.getByRole("heading", { name: "가입이 완료되었습니다." })).toBeVisible();
   await page.goto("/garage");
-  await expect(page.getByText("로그인이 필요하거나 세션이 만료되었습니다.", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "등록된 차량이 없습니다." })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "등록된 차량이 없습니다." })).toBeVisible();
   await signup();
   await expect(page.getByRole("alert").filter({ hasText: "이미 가입된 이메일" })).toContainText("이미 가입된 이메일");
 });

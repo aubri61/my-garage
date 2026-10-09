@@ -18,7 +18,7 @@ export function OwnerDashboard() {
   const ownedRentals = rentals.data?.filter(rental => rental.ownerId === session.data?.id);
   const stats = [
     { label: "내 등록 차량", value: query.isError ? undefined : query.data?.length, unit: "대", hint: "비공개 차량 포함" },
-    { label: "공유 중", value: query.isError ? undefined : query.data?.filter(v => v.sharingEnabled).length, unit: "대", hint: "공개 목록에 표시되는 차량" },
+    { label: "공개 등록 차량", value: query.isError ? undefined : query.data?.filter(v => v.sharingEnabled).length, unit: "대", hint: "예약 여부와 별개인 목록 공개 설정" },
     { label: "승인 대기 요청", value: rentals.isError ? undefined : ownedRentals?.filter(r => r.status === "REQUESTED").length, unit: "건", hint: "새로운 대여 신청을 확인하세요" },
     { label: "진행 중인 대여", value: rentals.isError ? undefined : ownedRentals?.filter(r => ["CONFIRMED", "ACTIVE"].includes(r.status)).length, unit: "건", hint: "확정된 계약 및 이용 중인 차량" },
   ];
@@ -30,7 +30,7 @@ export function OwnerDashboard() {
       {query.isPending && <LoadingSkeleton />}
       {query.isError && <p className="form-error" role="alert">{errorMessage(query.error)} <button onClick={() => void query.refetch()}>다시 조회</button></p>}
       {!query.isError && query.data?.length === 0 && <div className="platform-empty"><h3>첫 차량을 등록해보세요</h3><p>차량을 등록한 후 공유를 활성화해주세요.</p><Link className="platform-pill" href="/vehicles/register">차량 등록하기</Link></div>}
-      {!query.isError && <div className="rental-grid owner-vehicle-grid">{query.data?.map(v => <OwnerVehicleCard key={`${v.id}-${v.updatedAt}`} vehicle={v} />)}</div>}
+      {!query.isError && <div className="rental-grid owner-vehicle-grid">{query.data?.map(v => <OwnerVehicleCard key={`${v.id}-${v.updatedAt}`} vehicle={v} rentals={ownedRentals?.filter(rental => rental.vehicleId === v.id) ?? []} rentalsPending={rentals.isPending} rentalsFailed={rentals.isError} asOf={rentals.dataUpdatedAt} />)}</div>}
     </section>
     <OwnerOperations vehicles={query.isError ? [] : query.data ?? []} rentals={rentals.isError ? [] : ownedRentals ?? []} pending={query.isPending || rentals.isPending} failed={query.isError || rentals.isError} />
     <RentalList mode="owner" dashboard view="ongoing" />

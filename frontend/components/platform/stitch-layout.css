@@ -46,8 +46,8 @@
 .rental-authority .contract-signature .field-hint { font-size: 11px; }
 .rental-authority .contract-signature .signature-pad { height: 130px; margin-top: 14px; background: var(--secondary); }
 .rental-authority .contract-signature .platform-button { font-size: 12px; }
-.rental-authority .key-status { padding: 14px; border-radius: 12px; background: var(--success-soft); color: #176846; font-size: 12px; }
-.rental-authority .consent-complete { color: #176846; font-weight: 600; font-size: 13px; }
+.rental-authority .key-status { padding: 14px; border-radius: 12px; background: var(--success-soft); color: #1b60bc; font-size: 12px; }
+.rental-authority .consent-complete { color: #1b60bc; font-weight: 600; font-size: 13px; }
 .rental-card--review { padding: 24px; border: 0; border-radius: 0; box-shadow: none; }
 .rental-card--review .rental-content-layout { display: grid; grid-template-columns: minmax(0,1fr) 260px; gap: 24px; }
 .rental-card--review .rental-card-image { display: none; }
@@ -210,4 +210,102 @@
 @media (max-width: 950px) { .host-sidebar nav a > svg { display: none; } }
 .contract-stage-strip li[data-state=current] { color: var(--primary); }
 .contract-stage-strip li[data-state=current] > span { background: var(--primary); color: var(--primary-foreground); }
-.contract-stage-strip li[data-state=done] > span { background: var(--success-soft); color: #176846; }
+.contract-stage-strip li[data-state=done] > span { background: var(--success-soft); color: #1b60bc; }
+
+/* Completion cards share the same blue visual language as registration and login. */
+.flow-success { padding: 36px; display: grid; gap: 16px; border: 1px solid var(--border); }
+.flow-success > h2, .flow-success > p { margin: 0; }
+.flow-success > h2 { font-size: 24px; line-height: 1.4; }
+.flow-success > h2:focus { outline: none; }
+.flow-success .success-mark { color: var(--primary); background: var(--accent); width: 56px; height: 56px; }
+.flow-success > .form-submit { margin: 8px 0 0; justify-self: start; min-width: 220px; text-align: center; }
+.account-app .flow-success { padding: 24px 0 0; border: 0; box-shadow: none; background: transparent; text-align: center; justify-items: center; }
+.account-app .flow-success > .form-submit { justify-self: stretch; }
+.vehicle-registration-success { max-width: 760px; margin: 24px 0; }
+.registration-success-vehicle { display: grid; grid-template-columns: 200px 1fr; align-items: center; gap: 24px; padding: 20px; background: var(--secondary); border-radius: 16px; }
+.registration-success-vehicle .sharing-vehicle-placeholder { min-height: 120px; height: 120px; }
+.registration-success-vehicle h3 { margin: 0 0 8px; }
+.registration-success-vehicle p { font-size: 14px; color: var(--muted-foreground); }
+.currency-input { position: relative; }
+.currency-input input { padding-right: 44px; font-variant-numeric: tabular-nums; }
+.currency-input > span { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--muted-foreground); }
+.owner-vehicle-status { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.owner-listing-state { font-size: 12px; color: var(--muted-foreground); }
+@media (max-width: 600px) {
+ .flow-success { padding: 24px; }
+ .registration-success-vehicle { grid-template-columns: 1fr; gap: 12px; }
+ .flow-success > .form-submit { justify-self: stretch; min-width: 0; }
+}
+
+/* Renter navigation shares the owner shell, with room for discovery filters. */
+.renter-workspace { max-width: 1680px; }
+.renter-workspace .renter-explore { grid-template-columns: 260px minmax(0,1fr); gap: 24px; }
+.renter-workspace .market-inventory { grid-template-columns: minmax(0,1fr); }
+.renter-workspace .renter-map-panel { position: static; }
+.renter-workspace .renter-map-panel .pickup-map { height: 320px; min-height: 0; }
+.renter-current-rentals { margin: 0 0 24px; }
+.renter-current-rentals .sharing-title { gap: 16px; margin-bottom: 16px; }
+.renter-current-rentals h2 { margin: 4px 0 0; font-size: 22px; }
+.current-rental-grid { display: grid; gap: 16px; }
+.current-rental-card { display: grid; grid-template-columns: 170px minmax(0,1fr) auto; gap: 24px; align-items: center; padding: 24px; border: 1px solid var(--border); border-radius: 20px; background: var(--card); box-shadow: var(--shadow-card); }
+.current-rental-card .sharing-vehicle-placeholder { height: 130px; min-height: 0; background: var(--secondary); border-radius: 16px; }
+.current-rental-information h3 { margin: 10px 0 8px; font-size: 21px; }
+.current-rental-information p { margin: 4px 0; color: var(--muted-foreground); font-size: 13px; overflow-wrap: anywhere; }
+.current-rental-actions { display: grid; gap: 10px; text-align: center; }
+@media (min-width: 1600px) {
+ .renter-workspace .market-inventory { grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr); }
+ .renter-workspace .renter-map-panel { position: sticky; top: 104px; }
+ .renter-workspace .renter-map-panel .pickup-map { height: calc(100vh - 260px); min-height: 420px; max-height: 780px; }
+}
+@media (max-width: 1100px) {
+ .current-rental-card { grid-template-columns: 150px minmax(0,1fr); }
+ .current-rental-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; }
+}
+@media (max-width: 760px) {
+ .renter-workspace .renter-explore { grid-template-columns: minmax(0,1fr); }
+ .renter-current-rentals .sharing-title { align-items: start; flex-direction: column; }
+ .current-rental-card { grid-template-columns: minmax(0,1fr); gap: 16px; padding: 20px; }
+ .current-rental-card .sharing-vehicle-placeholder { height: 160px; }
+ .current-rental-actions > a { flex: 1; }
+}
+
+/* Renter activity is a top section; discovery keeps its full-width layout. */
+.renter-app .sharing-main > .market-attention { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; margin: 0 0 32px; padding: 24px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; box-shadow: none; }
+.renter-app .sharing-main > .market-attention h2 { font-size: 19px; margin: 0 0 10px; }
+.renter-app .sharing-main > .market-attention > div { flex: 1; }
+.renter-top-section { padding-bottom: 24px; margin-bottom: 28px; border-bottom: 1px solid var(--border); }
+.platform-notification-button { position: relative; display: inline-flex; align-items: center; gap: 6px; }
+.platform-notification-button svg { width: 18px; height: 18px; }
+.platform-notification-button.has-unread { color: var(--primary); border-color: var(--primary); background: var(--accent); }
+.notification-light { position: absolute; top: 3px; right: 3px; width: 8px; height: 8px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 3px var(--card); }
+.notification-description { color: var(--muted-foreground); font-size: 13px; }
+.platform-notifications > a { display: grid; gap: 8px; padding: 18px; border: 1px solid var(--border); background: var(--card); border-radius: 14px; }
+.platform-notifications .notification-mode { justify-self: start; padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+.platform-notifications .notification-mode--renter { color: #1b60bc; background: #eaf2ff; }
+.platform-notifications .notification-mode--owner { color: #6945ad; background: #f2edfc; }
+.platform-notifications > a strong { font-size: 15px; line-height: 1.5; }
+.notification-vehicle, .notification-period { color: var(--muted-foreground); font-size: 12px; }
+.host-request-board.rental-list--requests { padding: 0; border: 0; background: transparent; box-shadow: none; overflow: visible; }
+.host-request-board.rental-list--requests > .section-heading { background: transparent; padding: 0; margin-bottom: 18px; border: 0; }
+.host-request-board.rental-list--requests .rental-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; }
+.owner-request-card { padding: 24px; border: 1px solid var(--border); border-radius: 24px; box-shadow: var(--shadow-card); }
+.owner-request-card .owner-vehicle-identity { margin-block: 20px; }
+.owner-request-card .sharing-vehicle-placeholder { border-radius: 14px; }
+.owner-request-card .sharing-title { margin: 0; }
+.owner-request-card .owner-vehicle-location { margin: 18px 0; }
+.owner-request-card .rental-price-summary { padding: 0; background: transparent; font-weight: 700; }
+.request-period { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 12px; padding-block: 18px; border-block: 1px solid var(--border); }
+.request-period > div { display: grid; gap: 8px; }
+.request-period > div > span { color: var(--muted-foreground); font-size: 12px; }
+.request-period time { display: grid; gap: 6px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.request-period time strong { font-size: 26px; letter-spacing: -.03em; }
+.request-total { font-size: 13px; color: var(--muted-foreground); }
+.request-total strong { color: var(--foreground); font-size: 16px; }
+.request-card-actions { border-top: 1px solid var(--border); padding-top: 18px; margin-top: 18px; flex-wrap: wrap; }
+.sharing-app .request-card-actions .rental-approve { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+@media (max-width:760px) {
+ .host-request-board.rental-list--requests .rental-grid { grid-template-columns: minmax(0,1fr); }
+ .renter-app .sharing-main > .market-attention { padding: 20px; }
+ .renter-app .sharing-main > .market-attention > div { flex-basis: 100%; }
+ .request-period time strong { font-size: 24px; }
+}

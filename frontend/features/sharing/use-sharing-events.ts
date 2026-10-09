@@ -49,8 +49,8 @@ export function useSharingEvents(userId: number | undefined) {
         refresh();
         try {
           const payload = JSON.parse((event as MessageEvent).data) as { action: string; rentalId: number };
-          const labels: Record<string, string> = { RENTAL_REQUESTED: "새 대여 요청", RENTAL_APPROVED: "대여 승인", RENTAL_REJECTED: "대여 거절", CONSENT_RECORDED: "계약 동의 반영", GRANT_ACTIVE: "접근 권한 활성", UNLOCK_REQUESTED: "잠금 해제 요청", UNLOCK_APPROVED: "잠금 해제 승인", VEHICLE_LOCKED: "차량 잠금 완료", GRANT_REVOKED: "접근 권한 회수", RENTAL_COMPLETED: "대여 종료" };
-          setNotification({ userId, text: `${labels[payload.action] ?? "대여 상태 변경"} · 내 대여 요청에서 확인해주세요.` });
+          const labels: Record<string, string> = { RENTAL_REQUESTED: "새 차량 렌탈 신청이 등록됐어요", RENTAL_APPROVED: "대여 승인", RENTAL_REJECTED: "대여 거절", CONSENT_RECORDED: "계약 동의 반영", GRANT_ACTIVE: "접근 권한 활성", UNLOCK_REQUESTED: "잠금 해제 요청", UNLOCK_APPROVED: "잠금 해제 승인", VEHICLE_LOCKED: "차량 잠금 완료", GRANT_REVOKED: "접근 권한 회수", RENTAL_COMPLETED: "대여 종료" };
+          setNotification({ userId, text: `${labels[payload.action] ?? "대여 상태 변경"} · 통합 알림에서 확인해주세요.` });
         } catch { /* REST refresh remains authoritative for an unrecognized hint. */ }
       });
       connection.addEventListener("inventory", event => { if (!disposed && source === connection && !duplicate(event as MessageEvent)) refresh(["available-vehicles", "rental-quote"]); });

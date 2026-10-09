@@ -11,7 +11,7 @@ import { vehicleName, pickupAddress } from "../presentation";
 import { hourlyPrice } from "../pricing";
 import { PickupMap } from "./pickup-map";
 import { RentalForm } from "./rental-form";
-import { RentalAttentionBanner } from "./rental-attention-banner";
+
 import { useRentalDates } from "./rental-period-fields";
 import { RenterFilters, emptyRenterFilters } from "./renter-filters";
 import { RenterVehicleCard } from "./renter-vehicle-card";
@@ -35,7 +35,7 @@ export function RenterDashboard() {
   const bodyTypes = [...new Set(allVehicles.flatMap(v => {const body=v.bodyType ?? vehicleCategory(v.manufacturer,v.model)?.bodyType; return body ? [body] : [];}))];
   const vehicles = allVehicles.filter(vehicle => {
     const name = vehicleName(vehicle.manufacturer, vehicle.model), address = pickupAddress(vehicle.pickupLocation), price = hourlyPrice(vehicle);
-    return `${name} ${address}`.toLowerCase().includes(filters.search.trim().toLowerCase()) && address.toLowerCase().includes(filters.region.trim().toLowerCase()) && (!filters.powerType || (vehicle.powerType ?? (isElectricVehicle(vehicle.manufacturer,vehicle.model) ? "전기차" : null)) === filters.powerType) && (!filters.bodyType || (vehicle.bodyType ?? vehicleCategory(vehicle.manufacturer,vehicle.model)?.bodyType) === filters.bodyType) && (!filters.manufacturer || manufacturerName(vehicle.manufacturer) === filters.manufacturer) && (!filters.model || name === filters.model) && (!filters.electric || isElectricVehicle(vehicle.manufacturer, vehicle.model)) && (!filters.availableOnly || vehicle.available === true) && (!filters.minPrice || (price !== null && price >= Number(filters.minPrice))) && (!filters.maxPrice || (price !== null && price <= Number(filters.maxPrice)));
+    return `${name} ${address}`.toLowerCase().includes(filters.search.trim().toLowerCase()) && address.toLowerCase().includes(filters.region.trim().toLowerCase()) && (!filters.powerType || (vehicle.powerType ?? (isElectricVehicle(vehicle.manufacturer,vehicle.model) ? "전기차" : null)) === filters.powerType) && (!filters.bodyType || (vehicle.bodyType ?? vehicleCategory(vehicle.manufacturer,vehicle.model)?.bodyType) === filters.bodyType) && (!filters.manufacturer || manufacturerName(vehicle.manufacturer) === filters.manufacturer) && (!filters.model || name === filters.model) && (!filters.electric || isElectricVehicle(vehicle.manufacturer, vehicle.model)) && (!filters.minPrice || (price !== null && price >= Number(filters.minPrice))) && (!filters.maxPrice || (price !== null && price <= Number(filters.maxPrice)));
   }).sort((a, b) => {
     if (effectiveSort === "price-asc" || effectiveSort === "price-desc") { const left = hourlyPrice(a), right = hourlyPrice(b); if (left === null) return right === null ? 0 : 1; if (right === null) return -1; return effectiveSort === "price-asc" ? left - right : right - left; }
     if (effectiveSort === "year") return b.modelYear - a.modelYear;
@@ -43,7 +43,7 @@ export function RenterDashboard() {
   });
   const selected = query.isError ? undefined : vehicles.find(vehicle => vehicle.id === selectedId);
   function apply(id: number) { select(id); requestAnimationFrame(() => document.getElementById("renter-selection")?.scrollIntoView({ behavior: "smooth", block: "start" })); }
-  return <div className="renter-experience"><RentalAttentionBanner /><div className="renter-explore">
+  return <div className="renter-experience"><div className="renter-explore">
     <RenterFilters value={filters} onChange={setFilters} manufacturers={manufacturers} models={models} powerTypes={powerTypes} bodyTypes={bodyTypes} hasPrices={hasPrices} maximumPrice={Math.max(0,...allVehicles.map(v=>hourlyPrice(v) ?? 0))} start={start} end={end} onStart={setStart} onEnd={setEnd} validPeriod={validPeriod} />
     <section className="renter-results" aria-labelledby="available-title"><div className="renter-results-heading"><div><p className="eyebrow">나에게 맞는 차량 찾기</p><h2 id="available-title">대여 가능한 차량</h2><p aria-live="polite">{query.isPending ? "차량을 찾고 있어요" : query.isError ? "목록을 불러오지 못했어요" : `검색 결과 ${vehicles.length}대`}</p></div><LargeSelect label="정렬" value={effectiveSort} options={[{ value: "recommended", label: "대여 가능순" }, { value: "year", label: "최신 연식순" }, ...(hasPrices ? [{ value: "price-asc", label: "낮은 가격순" }, { value: "price-desc", label: "높은 가격순" }] : [])]} onChange={setSort} /></div>
       <div className="market-inventory"><div className="renter-map-panel"><div className="renter-map-heading"><h3>픽업 위치 둘러보기</h3><span>지도와 목록에서 같은 차량을 확인하세요</span></div><PickupMap vehicles={query.isError ? [] : vehicles} selectedId={selected?.id ?? null} onSelect={select} /></div>

@@ -47,7 +47,7 @@ h1 { margin: 0; font-size: 30px; line-height: 1.4; font-weight: 650; letter-spac
 .powertrain-label { display: inline-block; color: var(--primary); font-size: 11px; border: 1px solid #b6cbe8; padding: 3px 8px; border-radius: 3px; margin-bottom: 12px; }
 .status-badge { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; line-height: 1.5; white-space: nowrap; }
 .status-dot { width: 6px; height: 6px; background: currentColor; border-radius: 50%; }
-.status-success { color: #19704e; }
+.status-success { color: #1b60bc; }
 .status-warning { color: #96520a; }
 .status-neutral { color: #5b6a7c; }
 .vehicle-metrics dt { font-size: 12px; color: var(--muted-foreground); margin-bottom: 7px; }
@@ -269,7 +269,7 @@ h1 { margin: 0; font-size: 30px; line-height: 1.4; font-weight: 650; letter-spac
 .flow-success { padding-top: 12px; }
 .flow-success > h2 { font-size: 24px; letter-spacing: -0.7px; margin: 18px 0 12px; }
 .flow-success > p { color: var(--muted-foreground); font-size: 14px; line-height: 1.8; }
-.success-mark { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; color: #19704e; background: #e8f4ee; font-size: 24px; }
+.success-mark { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; color: #1b60bc; background: #eaf2ff; font-size: 24px; }
 .header-logout { border: 0; padding: 10px 0; color: var(--muted-foreground); background: transparent; font-size: 12px; white-space: nowrap; cursor: pointer; }
 .header-inner { gap: 24px; }
 .empty-garage > svg { width: 150px; height: 100px; color: #a8b9ce; margin: 12px auto 32px; display: block; }
@@ -297,7 +297,7 @@ h1 { margin: 0; font-size: 30px; line-height: 1.4; font-weight: 650; letter-spac
 .step-number { flex-shrink: 0; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); color: var(--muted-foreground); font-size: 12px; }
 .step-status { margin-left: auto; font-size: 12px; color: var(--muted-foreground); white-space: nowrap; }
 .connection-progress li[data-status="running"] .step-number { background: var(--accent-soft); border-color: #b5cbea; color: var(--primary); }
-.connection-progress li[data-status="complete"] .step-number, .connection-progress li[data-status="complete"] .step-status { color: #19704e; }
+.connection-progress li[data-status="complete"] .step-number, .connection-progress li[data-status="complete"] .step-status { color: #1b60bc; }
 .connection-progress li[data-status="failed"] .step-number, .connection-progress li[data-status="failed"] .step-status { color: #a62424; }
 .certificate-details { margin-top: 26px; border-top: 1px solid var(--border); padding-top: 22px; text-align: left; }
 .certificate-details h3 { display: flex; align-items: center; gap: 10px; font-size: 15px; margin: 0 0 20px; }
@@ -345,7 +345,7 @@ h1 { margin: 0; font-size: 30px; line-height: 1.4; font-weight: 650; letter-spac
 .request-board .rental-grid { margin-top: 18px; }
 .request-empty { margin: 0; font-size: 14px; }
 .rental-card[data-status="REQUESTED"] .sharing-status, .rental-card[data-status="CONTRACT_PENDING"] .sharing-status { color: #85500c; background: #fff2d9; }
-.rental-card[data-status="ACTIVE"] .sharing-status { color: #156445; background: #e4f4eb; }
+.rental-card[data-status="ACTIVE"] .sharing-status { color: #1b60bc; background: #eaf2ff; }
 .rental-card[data-status="COMPLETED"] .sharing-status { color: #56677c; background: #f0f3f7; }
 .rental-summary { margin: 18px 0; display: grid; gap: 10px; font-size: 13px; }
 .rental-summary div { display: grid; grid-template-columns: 72px 1fr; gap: 12px; }
@@ -364,7 +364,7 @@ h1 { margin: 0; font-size: 30px; line-height: 1.4; font-weight: 650; letter-spac
 .vehicle-card-content strong { font-size: 20px; }
 .available-card span { color: var(--muted-foreground); font-size: 13px; line-height: 1.65; }
 .vehicle-meta { display: flex; flex-wrap: wrap; gap: 10px; }
-.availability-badge { align-self: flex-start; background: #edf6ef; color: #246346 !important; padding: 4px 9px; border-radius: 6px; font-weight: 600; }
+.availability-badge { align-self: flex-start; background: #eaf2ff; color: #1b60bc !important; padding: 4px 9px; border-radius: 6px; font-weight: 600; }
 .availability-badge.unavailable { background: #f5f0eb; color: #825220 !important; }
 .inventory-filters { display: grid; gap: 20px; padding: 22px; }
 .sharing-search { margin: 0; max-width: none; }
