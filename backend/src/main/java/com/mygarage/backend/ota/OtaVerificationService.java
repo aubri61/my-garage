@@ -32,6 +32,7 @@ public class OtaVerificationService {
     @Transactional
     public VerifyResponse simulate(String email, Long vehicleId, VerifyRequest request) {
         Vehicle vehicle = ownedVehicle(email, vehicleId);
+        if (vehicle.isDeleted()) throw new VehicleNotFoundException();
         var state = OtaVehicleState.from(vehicle);
         // The engine has no bypass flag. OFF exists only in this fixture comparison orchestration.
         var result = verify(scenarios.create(request.scenario(), state), state);

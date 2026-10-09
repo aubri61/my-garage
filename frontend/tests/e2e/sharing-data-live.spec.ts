@@ -1,5 +1,8 @@
+import { pickupSdk } from "./pickup-sdk-fixture";
+import { chooseVehicleOption } from "./api-fixture";
+import { test, expect } from "./isolated-test";
 import { writeFileSync } from "node:fs";
-import { expect, test, type BrowserContext, type Page } from "@playwright/test";
+import { type BrowserContext, type Page } from "@playwright/test";
 
 type StreamEvent = { name: string; id: string; data: string };
 declare global { interface Window { liveSharingEvents: StreamEvent[] } }
@@ -8,6 +11,7 @@ test("실제 DB 차량 등록부터 A/B 브라우저 계약·SSE·잠금 해제�
   test.skip(process.env.RUN_LIVE_SHARING !== "1", "실제 Spring Boot/PostgreSQL 백엔드 필요");
   test.setTimeout(120000);
   const aContext = await browser.newContext(), bContext = await browser.newContext(), cContext = await browser.newContext();
+  await aContext.route("https://dapi.kakao.com/v2/maps/sdk.js**", route => route.fulfill({ contentType: "application/javascript", body: pickupSdk }));
   const suffix = `${Date.now()}`;
   const location = `LIVE-PICKUP-${suffix}`, plate = `${suffix.slice(-7, -4)}가${suffix.slice(-4)}`;
   async function post(context: BrowserContext, path: string, data?: unknown) {
@@ -15,7 +19,7 @@ test("실제 DB 차량 등록부터 A/B 브라우저 계약·SSE·잠금 해제�
     return context.request.post(path, { data, headers: { [csrf.headerName]: csrf.token } });
   }
   async function user(context: BrowserContext, name: string) {
-    const email = `${name}-${suffix}@example.com`;
+    const email = `e2e-${process.env.E2E_RUN_ID}-${name}@example.com`;
     expect((await post(context, "/api/users/signup", { name, email, password: "Password123!" })).status()).toBe(201);
     const page = await context.newPage();
     await page.addInitScript(() => {
@@ -50,18 +54,20 @@ test("실제 DB 차량 등록부터 A/B 브라우저 계약·SSE·잠금 해제�
     for (const page of [a,b,c]) await expect(page.getByText("실시간 연결됨", { exact: true })).toBeVisible();
     await b.getByRole("searchbox").fill("픽업 주소 확인 필요");
     await a.getByRole("link", { name: "차량 등록 +", exact: true }).click();
-    await a.getByLabel("제조사", { exact: true }).selectOption("기아");
-    await a.getByLabel("차종", { exact: true }).selectOption("EV6");
-    await a.getByLabel("제조사", { exact: true }).selectOption("현대");
-    await expect(a.getByLabel("차종", { exact: true })).toHaveValue("");
-    await expect(a.getByLabel("차종", { exact: true }).locator('option[value="EV6"]')).toHaveCount(0);
-    await a.getByLabel("차종", { exact: true }).selectOption("IONIQ 5");
-    await a.getByLabel("연식", { exact: true }).selectOption("2026");
+    await chooseVehicleOption(a, "제조사", "기아");
+    await chooseVehicleOption(a, "차종", "EV6");
+    await chooseVehicleOption(a, "제조사", "현대");
+    await expect(a.getByRole("combobox", { name: "차종", exact: true })).toContainText("차종 선택");
+    await a.getByRole("combobox", { name: "차종", exact: true }).click();
+    await expect(a.getByRole("option", { name: "EV6", exact: true })).toHaveCount(0);
+    await a.keyboard.press("Escape");
+    await chooseVehicleOption(a, "차종", "IONIQ 5");
+    await chooseVehicleOption(a, "연식", "2026");
     await a.getByLabel("차량 번호", { exact: true }).fill(plate);
     await a.getByLabel("픽업 주소", { exact: true }).fill(location);
-    await a.getByText("위치를 직접 입력하기", { exact: true }).click();
-    await a.getByLabel("픽업 위도", { exact: true }).fill("37.54");
-    await a.getByLabel("픽업 경도", { exact: true }).fill("127.05");
+    await a.getByRole("list", { name: "픽업 주소 검색 결과" }).getByRole("button").first().click();
+    await a.getByLabel("상세 위치", { exact: true }).fill("지하 2층 B구역");
+    await a.getByLabel("픽업 안내", { exact: true }).fill("3번 출입구 앞에서 인수");
     await a.getByLabel("등록 후 공개 목록에 차량 공유").check();
     await a.getByRole("button", { name: "차량 등록", exact: true }).click();
     await expect(a.getByRole("heading", { name: "차량 등록이 완료되었습니다." })).toBeVisible();
@@ -69,8 +75,18 @@ test("실제 DB 차량 등록부터 A/B 브라우저 계약·SSE·잠금 해제�
     await expect(a.getByRole("article").filter({ hasText: plate })).toContainText("공유 공개");
     const ownVehicles = await (await aContext.request.get("/api/vehicles")).json();
     const vehicle = ownVehicles.find((v: { licensePlate: string }) => v.licensePlate === plate);
+    expect(vehicle.pickupDetail).toBe("지하 2층 B구역");
+    expect(vehicle.pickupInstructions).toBe("3번 출입구 앞에서 인수");
     // Inventory update still must arrive before the 30-second periodic refetch.
     await expect(b.locator(`button[data-vehicle-id="${vehicle.id}"]`)).toBeVisible({ timeout: 6000 });
+    const vehicleCard = a.getByRole("article").filter({ hasText: plate });
+    await vehicleCard.getByRole("button", { name: "공유 중단", exact: true }).click();
+    await expect(b.locator(`button[data-vehicle-id="${vehicle.id}"]`)).toHaveCount(0, { timeout: 6000 });
+    await expect(vehicleCard).toContainText("비공개");
+    await vehicleCard.getByRole("button", { name: "공유 재개", exact: true }).click();
+    await expect(b.locator(`button[data-vehicle-id="${vehicle.id}"]`)).toBeVisible({ timeout: 6000 });
+    const foreignCsrf = await (await bContext.request.get("/api/csrf")).json();
+    expect((await bContext.request.delete(`/api/vehicles/${vehicle.id}`, { headers: { [foreignCsrf.headerName]: foreignCsrf.token } })).status()).toBe(404);
     await b.locator(`button[data-vehicle-id="${vehicle.id}"]`).click();
     await expect(b.locator(`button[data-vehicle-id="${vehicle.id}"]`)).toHaveAttribute("aria-pressed", "true");
     expect(vehicle.sharingEnabled).toBe(true);
@@ -101,6 +117,10 @@ test("실제 DB 차량 등록부터 A/B 브라우저 계약·SSE·잠금 해제�
     expect((await post(bContext, `/api/rentals/${rental.id}/unlock-requests`)).status()).toBe(403);
     await renterCard.getByRole("button", { name: "위 계약 조건에 동의", exact: true }).click();
     for (const card of [ownerCard, renterCard]) { await expect(card.getByText(/디지털 키 발급 완료 · 차량 접근 가능/)).toBeVisible({ timeout: 6000 }); await expect(card.getByText("계약 확정 · 양측 동의 완료", { exact: true })).toBeVisible(); }
+    await vehicleCard.getByRole("button", { name: "차량 삭제", exact: true }).click();
+    await a.getByRole("dialog", { name: "차량 삭제 확인" }).getByRole("button", { name: "삭제 확인", exact: true }).click();
+    await expect(a.getByRole("dialog", { name: "차량 삭제 확인" }).getByRole("alert")).toContainText("삭제할 수 없습니다");
+    await a.getByRole("dialog", { name: "차량 삭제 확인" }).getByRole("button", { name: "취소", exact: true }).click();
     const confirmed = await (await bContext.request.get(`/api/rentals/${rental.id}`)).json();
     expect(confirmed.ownerConsentedAt).toBeTruthy(); expect(confirmed.renterConsentedAt).toBeTruthy(); expect(confirmed.termsVersion).toBe("simulation-v1");
     await renterCard.getByRole("button", { name: "잠금 해제 요청", exact: true }).click(); await event(a, "UNLOCK_REQUESTED", rental.id);
@@ -126,5 +146,12 @@ test("실제 DB 차량 등록부터 A/B 브라우저 계약·SSE·잠금 해제�
     expect((await bContext.request.get(`/api/vehicles/available/${vehicle.id}`)).status()).toBe(404);
     expect((await post(bContext, "/api/rentals", { vehicleId: vehicle.id, startsAt: new Date().toISOString(), endsAt: new Date(Date.now()+3600000).toISOString() })).status()).toBe(409);
     await a.reload(); await expect(a.getByRole("article").filter({ hasText: plate })).toContainText("비공개");
+    await a.getByRole("article").filter({ hasText: plate }).getByRole("button", { name: "차량 삭제", exact: true }).click();
+    await a.getByRole("button", { name: "삭제 확인", exact: true }).click();
+    await expect(a.getByRole("article").filter({ hasText: plate })).toHaveCount(0);
+    expect((await aContext.request.get(`/api/vehicles/${vehicle.id}`)).status()).toBe(404);
+    const preserved = await (await bContext.request.get(`/api/rentals/${rental.id}`)).json();
+    expect(preserved.status).toBe("COMPLETED"); expect(preserved.pickupDetail).toBe("지하 2층 B구역");
+
   } finally { if (test.info().status !== test.info().expectedStatus) { for (const page of pages) console.log("SSE diagnostics", page.url(), await page.evaluate(() => window.liveSharingEvents).catch(() => [])); } await aContext.close(); await bContext.close(); await cContext.close(); }
 });

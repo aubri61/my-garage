@@ -11,6 +11,7 @@ import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabas
 import static org.assertj.core.api.Assertions.assertThat;
 
 // Uses the configured PostgreSQL database. No DDL or cleanup/delete SQL; inserts roll back.
+@org.springframework.context.annotation.Import(com.mygarage.backend.testing.E2eDatabaseGuard.class)
 @DataJpaTest(properties = "spring.jpa.hibernate.ddl-auto=validate")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class VehiclePersistenceTests {

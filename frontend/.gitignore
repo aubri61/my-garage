@@ -44,3 +44,6 @@ next-env.d.ts
 # browser test output
 /test-results/
 /playwright-report/
+
+# Isolated Playwright development build
+.next-e2e/

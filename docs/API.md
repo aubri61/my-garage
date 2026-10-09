@@ -75,3 +75,14 @@ SSE `ready`는 연결/REST 복원 신호다. `change`는 `{action,rentalId}` 힌
 ### 사용자 표시 이름 (UI 개선)
 
 기존 공개 차량 응답에 `ownerName`, 계약 응답에 `ownerName`/`renterName`을 추가했다. 값은 기존 사용자 계정의 표시 이름이며 별도의 닉네임 저장 필드는 아니다. 기존 필드·URL·세션·권한·상태 전이는 유지한다. 공개 차량 DTO에는 번호판이나 이메일을 추가하지 않는다.
+
+
+## Pickup details and vehicle lifecycle (2026-10-09)
+
+`PUT /api/vehicles/{id}/sharing` and registration sharing accept optional `pickupDetail` (200 characters) and `pickupInstructions` (500 characters). Missing/null fields retain existing optional details on legacy sharing updates; empty strings clear them. Rental responses snapshot these fields at application time.
+
+`PATCH /api/vehicles/{id}/sharing` accepts `{ "enabled": false | true }`. Owner-only; paused vehicles stay in owner inventory and preserve existing requests/contracts. Resume requires a valid stored base address and coordinates. New requests on paused vehicles return 409 NOT_SHARED.
+
+`DELETE /api/vehicles/{id}` returns 204 for an owner-authorized soft deletion. Unexpired REQUESTED/CONTRACT_PENDING/CONFIRMED/ACTIVE rentals return 409 VEHICLE_IN_USE; a non-owner returns 404. Deleted vehicles cannot be publicly read, shared again, or newly OTA-verified. Past participant contracts and owner OTA history remain accessible.
+
+Test-only `/api/test-support/environment` and `/cleanup` exist exclusively in the verified e2e profile; see E2E_DATABASE_ISOLATION.md. These endpoints do not exist in normal development/production.

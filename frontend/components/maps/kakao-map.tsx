@@ -60,6 +60,12 @@ export function KakaoMap({ points, selectedId, label, onSelect, onPick }: Props)
     const selected = valid.find(point => point.id === selectedId);
     if (selected && previousSelection.current !== selectedId) map.setCenter(new maps.LatLng(selected.latitude, selected.longitude));
     previousSelection.current = selectedId;
+    if (onPick && selected) {
+      const marker = new maps.Marker({ map, position: new maps.LatLng(selected.latitude, selected.longitude), draggable: true, title: "픽업 위치 · 드래그하여 조정" });
+      const drag = () => { const position = marker.getPosition(); callbacks.current.onPick?.(position.getLat(), position.getLng()); };
+      maps.event.addListener(marker, "dragend", drag);
+      return () => { maps.event.removeListener(marker, "dragend", drag); marker.setMap(null); };
+    }
     const groups = new Map<string, MapPoint[]>();
     valid.forEach(point => {
       const coordinate = `${point.latitude}:${point.longitude}`;
@@ -95,7 +101,7 @@ export function KakaoMap({ points, selectedId, label, onSelect, onPick }: Props)
       return new maps.CustomOverlay({ map, position: new maps.LatLng(group[0].latitude, group[0].longitude), content, clickable: true, yAnchor: 1.2, zIndex: group.some(point => point.id === selectedId) ? 2 : 1 });
     });
     return () => overlays.forEach(overlay => overlay.setMap(null));
-  }, [instance, points, selectedId]);
+  }, [instance, points, selectedId, onPick]);
 
   return <div className="kakao-map-frame">
     <div ref={container} className="pickup-map" role="region" aria-label={label} aria-busy={!!key && !instance && !error} />

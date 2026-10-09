@@ -13,10 +13,11 @@ import { lookupMockVehicle, confirmMockOwnership, createMockVehicleIdentity, iss
 
 import { ServerRegistration } from "./server-registration";
 
+const SHOW_DEVELOPMENT_TOOLS = false; // 데모 구현은 보존하고 일반 화면에서는 숨깁니다.
 export function RegistrationFlow() {
-  return <><ServerRegistration /><details className="demo-codes" onToggle={event => { if (event.currentTarget.open) startMemberSession("체험", true); }}>
+  return <><ServerRegistration />{SHOW_DEVELOPMENT_TOOLS && <details className="demo-codes" onToggle={event => { if (event.currentTarget.open) startMemberSession("체험", true); }}>
     <summary>소유권·인증서 발급 데모 체험</summary><p className="mock-disclosure">별도 데모입니다. 이 흐름의 차량은 서버 차량 목록에 등록되지 않습니다.</p><DemoRegistrationFlow />
-  </details></>;
+  </details>}</>;
 }
 
 function DemoRegistrationFlow() {

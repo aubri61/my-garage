@@ -1,4 +1,5 @@
-import { expect, test, type BrowserContext, type Page } from "@playwright/test";
+import { test, expect } from "./isolated-test";
+import { type BrowserContext, type Page } from "@playwright/test";
 
 // Actual Spring/PostgreSQL service; no intercepted APIs or synthetic successes.
 test("두 계정 공유·계약·SSE·원격 승인·회수·세션 복원", async ({ browser }) => {
@@ -12,7 +13,7 @@ test("두 계정 공유·계약·SSE·원격 승인·회수·세션 복원", asy
     return context.request[method](path, { data, headers: { [token.headerName]: token.token } });
   }
   async function account(context: BrowserContext, name: string) {
-    const email = `${name}-${suffix}@example.com`;
+    const email = `e2e-${process.env.E2E_RUN_ID}-${name}@example.com`;
     expect((await mutate(context, "post", "/api/users/signup", { name, email, password: "Password123!" })).status()).toBe(201);
     expect((await mutate(context, "post", "/api/auth/login", { email, password: "Password123!" })).status()).toBe(200);
   }

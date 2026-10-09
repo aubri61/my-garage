@@ -1,3 +1,4 @@
+import vehicleMedia from "./vehicle-media.json";
 // Display/catalog metadata only: vehicle ownership, availability and location come from the API.
 export type PowerType = "전기차" | "가솔린" | "디젤" | "하이브리드";
 export interface VehicleCategory {
@@ -8,12 +9,14 @@ export interface VehicleCategory {
   bodyType: "SUV" | "세단" | "경차" | "미니밴";
   imageKey: string | null;
   imageUrl: string | null;
+  imageAlt: string;
   yearRange: { min: number; max: number };
   aliases: readonly string[];
 }
 const yearRange = { min: 1986, max: 2027 };
 function category(manufacturer: string, model: string, displayName: string, powerTypes: readonly PowerType[], bodyType: VehicleCategory["bodyType"], imageKey: string | null = null, aliases: readonly string[] = []): VehicleCategory {
-  return { manufacturer, model, displayName, powerTypes, bodyType, imageKey, imageUrl: imageKey ? `/images/vehicles/${imageKey}-cutout.png` : null, yearRange, aliases: [displayName, ...aliases] };
+  const media = vehicleMedia.find(item => item.manufacturer === manufacturer && item.model === model);
+  return { manufacturer, model, displayName: media?.displayName || displayName, powerTypes, bodyType, imageKey, imageUrl: media?.imageReady && media.imageFile ? `/images/vehicles/catalog/${media.imageFile}` : imageKey ? `/images/vehicles/${imageKey}-cutout.png` : null, imageAlt: media?.imageAlt || `${displayName} 차량 참고 이미지`, yearRange, aliases: [displayName, media?.displayName ?? displayName, ...aliases] };
 }
 export const vehicleCategories: readonly VehicleCategory[] = [
   category("현대", "IONIQ 5", "아이오닉 5", ["전기차"], "SUV", "ioniq5"),

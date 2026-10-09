@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { installApiFixture, logIn, addVehicle } from "./api-fixture";
+import { installApiFixture, logIn, addVehicle, chooseVehicleOption } from "./api-fixture";
 
 test("로그인 실패·세션 복원·로그아웃·localStorage 플래그로 접근 불가", async ({ page }) => {
   const api = await installApiFixture(page);
@@ -75,9 +75,9 @@ test("CSRF 403은 자동 재시도하지 않으며 다음 수동 요청으로 �
   const api = await installApiFixture(page);
   await logIn(page);
   await page.goto("/vehicles/register");
-  await page.getByLabel("제조사", { exact: true }).selectOption("기아");
-  await page.getByLabel("차종", { exact: true }).selectOption("EV6");
-  await page.getByLabel("연식", { exact: true }).selectOption("2025");
+  await chooseVehicleOption(page, "제조사", "기아");
+  await chooseVehicleOption(page, "차종", "EV6");
+  await chooseVehicleOption(page, "연식", "2025");
   await page.getByLabel("차량 번호", { exact: true }).fill("123가4567");
   let attempts = 0;
   page.on("request", request => { if (request.url().endsWith("/api/vehicles") && request.method() === "POST") attempts++; });
@@ -105,12 +105,13 @@ test("검증 중 중복 실행 방지 및 차량 전환 후 이전 결과 격리
   await logIn(page);
   await addVehicle(page);
   await page.goto("/vehicles/register");
-  await page.getByLabel("제조사", { exact: true }).selectOption("기아");
-  await page.getByLabel("차종", { exact: true }).selectOption("EV3");
-  await page.getByLabel("연식", { exact: true }).selectOption("2025");
+  await chooseVehicleOption(page, "제조사", "기아");
+  await chooseVehicleOption(page, "차종", "EV3");
+  await chooseVehicleOption(page, "연식", "2025");
   await page.getByLabel("차량 번호", { exact: true }).fill("234나5678");
   await page.getByRole("button", { name: "차량 등록", exact: true }).click();
-  await page.getByRole("link", { name: "기존 차고지·OTA 확인하기", exact: true }).first().click();
+  await expect(page.getByRole("heading", { name: "차량 등록이 완료되었습니다." })).toBeVisible();
+  await page.goto("/garage");
   await page.getByRole("button", { name: "기아 EV6 선택", exact: true }).click();
   await page.locator("button#updates").click();
   await page.getByLabel("검증 시나리오").selectOption("TAMPERED_FILE");

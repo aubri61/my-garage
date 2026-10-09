@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { installApiFixture, logIn } from "./api-fixture";
+import { installApiFixture, logIn, chooseVehicleOption } from "./api-fixture";
 
 test("대여 요청은 상단에 표시되고 테스트 식별자는 카드·지도·검색에 노출되지 않는다", async ({ page }) => {
   await installApiFixture(page);
@@ -32,10 +32,15 @@ test("대여 요청은 상단에 표시되고 테스트 식별자는 카드·지
 test("차량 번호는 직접 입력하고 형식 오류는 저장 전에 안내한다", async ({ page }) => {
   const api = await installApiFixture(page);
   await logIn(page); await page.goto("/vehicles/register");
-  await page.getByLabel("제조사", { exact: true }).selectOption("현대");
-  await expect(page.getByLabel("차종", { exact: true }).locator('option[value="Casper Electric"]')).toHaveCount(1);
-  await page.getByLabel("차종", { exact: true }).selectOption("IONIQ 5");
-  await page.getByLabel("연식", { exact: true }).selectOption("2026");
+  await chooseVehicleOption(page, "제조사", "현대");
+  await page.getByRole("combobox", { name: "차종", exact: true }).click();
+  await expect(page.getByRole("option", { name: "캐스퍼 일렉트릭", exact: true })).toBeVisible();
+  await expect(page.getByRole("option", { name: "아이오닉 5", exact: true })).toHaveCSS("font-size", "16px");
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("combobox", { name: "차종", exact: true })).toContainText("아이오닉 6");
+  await chooseVehicleOption(page, "차종", "IONIQ 5");
+  await chooseVehicleOption(page, "연식", "2026");
   await page.getByLabel("차량 번호", { exact: true }).fill("무작위번호");
   await page.getByRole("button", { name: "차량 등록", exact: true }).click();
   await expect(page.getByRole("alert").filter({ hasText: "차량 번호를 확인" })).toContainText("123가4567");
@@ -44,4 +49,22 @@ test("차량 번호는 직접 입력하고 형식 오류는 저장 전에 안내
   await page.getByRole("button", { name: "차량 등록", exact: true }).click();
   await expect(page.getByRole("heading", { name: "차량 등록이 완료되었습니다.", exact: true })).toBeVisible();
   expect(api.mutations.find(item => item.path === "/api/vehicles")?.body.licensePlate).toBe("123가4567");
+});
+
+test("삭제 확인 모달은 유지되며 서버 차단 사유와 취소를 제공한다", async ({ page }) => {
+  await installApiFixture(page); await logIn(page);
+  await page.route("**/api/vehicles", route => route.fulfill({ json: [{ id: 42, manufacturer: "현대", model: "IONIQ 5", modelYear: 2026, licensePlate: "123가4567", sharingEnabled: true, pickupLocation: "서울 시청", pickupLatitude: 37.5665, pickupLongitude: 126.978, lockState: "LOCKED" }] }));
+  await page.route("**/api/rentals", route => route.fulfill({ json: [] }));
+  await page.route("**/api/vehicles/42", route => route.fulfill({ status: 409, json: { code: "VEHICLE_IN_USE", message: "진행 중인 대여가 있어 삭제할 수 없습니다." } }));
+  await page.goto("/owner");
+  await page.getByRole("button", { name: "차량 삭제", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "차량 삭제 확인" });
+  await expect(dialog).toBeVisible();
+  await page.waitForTimeout(300);
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "삭제 확인", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toContainText("삭제할 수 없습니다");
+  await dialog.getByRole("button", { name: "취소", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "차량 삭제", exact: true })).toBeFocused();
 });

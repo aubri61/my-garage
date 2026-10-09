@@ -9,7 +9,10 @@
     "lint": "eslint",
     "test": "npm run test:unit && npm run build && npm run test:e2e",
     "test:unit": "node --test tests/*.test.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "assets:vehicles": "node scripts/check-vehicle-images.mjs",
+    "predev": "npm run assets:vehicles",
+    "prebuild": "npm run assets:vehicles"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.1",

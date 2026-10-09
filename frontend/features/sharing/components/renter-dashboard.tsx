@@ -1,4 +1,5 @@
 "use client";
+import { LargeSelect } from "@/components/ui/large-select";
 import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "@/features/auth/session";
@@ -36,7 +37,7 @@ export function RenterDashboard() {
     <section className="sharing-section"><div className="section-heading"><h2>픽업 위치 지도</h2><p>가까운 픽업 위치를 확인하고 차량을 선택하세요.</p></div><PickupMap vehicles={vehicles} selectedId={selectedId} onSelect={select} /></section>
     <section className="sharing-section" aria-labelledby="available-title"><div className="section-heading"><h2 id="available-title">대여 가능한 차량 목록</h2><p>차량과 대여 기간을 선택한 뒤 신청할 수 있습니다.</p></div>
       <div className="inventory-filters sharing-panel"><label className="form-field sharing-search">차량·픽업 주소 검색<input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="차량 이름이나 픽업 지역을 검색하세요" /></label>
-        <div className="filter-row"><label className="form-field">제조사<select value={manufacturer} onChange={event => { setManufacturer(event.target.value); setModel(""); }}><option value="">전체 제조사</option>{[...new Set(allVehicles.map(vehicle => manufacturerName(vehicle.manufacturer)))].map(name => <option key={name}>{name}</option>)}</select></label><label className="form-field">차종<select value={model} onChange={event => setModel(event.target.value)}><option value="">전체 차종</option>{models.map(name => <option key={name}>{name}</option>)}</select></label><label className="sharing-toggle"><input type="checkbox" checked={electric} onChange={event => setElectric(event.target.checked)} />전기차만 보기</label></div>
+        <div className="filter-row"><LargeSelect label="제조사" value={manufacturer} placeholder="전체 제조사" options={[{value:"",label:"전체 제조사"}, ...[...new Set(allVehicles.map(vehicle => manufacturerName(vehicle.manufacturer)))].map(value=>({value,label:value}))]} onChange={value => { setManufacturer(value); setModel(""); }} /><LargeSelect label="차종" value={model} placeholder="전체 차종" options={[{value:"",label:"전체 차종"}, ...models.map(value=>({value,label:value}))]} onChange={setModel} /><label className="sharing-toggle"><input type="checkbox" checked={electric} onChange={event => setElectric(event.target.checked)} />전기차만 보기</label></div>
         <RentalPeriodFields start={start} end={end} onStart={setStart} onEnd={setEnd} browsing />
         {!validPeriod && (start || end) && <p role="status" className="field-hint">시작보다 뒤인 종료 시각을 선택해주세요.</p>}
       </div>

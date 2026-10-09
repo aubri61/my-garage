@@ -10,3 +10,6 @@ export type RentalAction = "approve" | "reject" | "consents" | "access-grant/rev
 export async function rentalAction(id: number, action: RentalAction) { return (await api.post<Rental>(`/rentals/${id}/${action}`)).data; }
 export async function unlockAction(id: number, action: "approve" | "reject") { return (await api.post<Rental>(`/unlock-requests/${id}/${action}`)).data; }
 export async function lockVehicle(id: number) { return (await api.post<VehicleResponse>(`/vehicles/${id}/lock`)).data; }
+
+export async function setSharingEnabled(id: number, enabled: boolean) { return (await api.patch<VehicleResponse>(`/vehicles/${id}/sharing`, { enabled })).data; }
+export async function deleteVehicle(id: number) { await api.delete(`/vehicles/${id}`); }

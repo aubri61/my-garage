@@ -25,7 +25,7 @@ export function RentalForm({ vehicle, period }: { vehicle: AvailableVehicle; per
     setValidation(""); mutation.mutate({ vehicleId: vehicle.id, startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString() });
   }
   return <section className="sharing-panel rental-application" aria-labelledby="rental-form-title"><p className="eyebrow">대여 신청</p>
-    <h2 id="rental-form-title">{vehicleName(vehicle.manufacturer, vehicle.model)}</h2><VehiclePlaceholder manufacturer={vehicle.manufacturer} model={vehicle.model} /><p>{vehicle.modelYear}년 · 소유자 {personName(vehicle.ownerName)}</p><p>픽업 주소: {pickupAddress(vehicle.pickupLocation)}</p>
+    <h2 id="rental-form-title">{vehicleName(vehicle.manufacturer, vehicle.model)}</h2><VehiclePlaceholder manufacturer={vehicle.manufacturer} model={vehicle.model} /><p>{vehicle.modelYear}년 · 소유자 {personName(vehicle.ownerName)}</p><p>픽업 주소: {pickupAddress(vehicle.pickupLocation)}</p>{vehicle.pickupDetail && <p>상세 위치: {vehicle.pickupDetail}</p>}{vehicle.pickupInstructions && <p>픽업 안내: {vehicle.pickupInstructions}</p>}
     <form onSubmit={submit}><fieldset disabled={mutation.isPending} className="form-fields"><legend className="sr-only">대여 시간 선택</legend>
       <RentalPeriodFields start={start} end={end} onStart={setStart} onEnd={setEnd} />
     </fieldset><p className="sharing-disclosure">소유자 승인 후 양측이 계약에 동의하면 이용이 확정됩니다. 신청 시 예약 가능 여부를 다시 확인합니다.</p>

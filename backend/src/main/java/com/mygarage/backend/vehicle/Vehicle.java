@@ -32,6 +32,11 @@ public class Vehicle {
     private Boolean sharingEnabled;
     @Column(length = 200)
     private String pickupLocation;
+    @Column(length = 200)
+    private String pickupDetail;
+    @Column(length = 500)
+    private String pickupInstructions;
+    private LocalDateTime deletedAt;
     private Double pickupLatitude;
     private Double pickupLongitude;
     @Enumerated(EnumType.STRING)
@@ -39,6 +44,15 @@ public class Vehicle {
     public enum LockState { LOCKED, UNLOCKED }
 
     public boolean isSharingEnabled() { return Boolean.TRUE.equals(sharingEnabled); }
+    public boolean isDeleted() { return deletedAt != null; }
+    public void softDelete() { deletedAt = LocalDateTime.now(); sharingEnabled = false; }
+    public void setSharingEnabled(boolean enabled) { sharingEnabled = enabled; }
+    public String getPickupDetail() { return pickupDetail; }
+    public String getPickupInstructions() { return pickupInstructions; }
+    public void configurePickupDetails(String detail, String instructions) {
+        if (detail != null) pickupDetail = detail.isBlank() ? null : detail.strip();
+        if (instructions != null) pickupInstructions = instructions.isBlank() ? null : instructions.strip();
+    }
     public String getPickupLocation() { return pickupLocation; }
     public Double getPickupLatitude() { return pickupLatitude; }
     public Double getPickupLongitude() { return pickupLongitude; }

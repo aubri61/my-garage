@@ -8,13 +8,14 @@ export interface KakaoMapInstance {
   setBounds(bounds: KakaoBounds, top?: number, right?: number, bottom?: number, left?: number): void;
   relayout(): void;
 }
+export interface KakaoMarker { setMap(map: KakaoMapInstance | null): void; getPosition(): KakaoLatLng }
 export interface KakaoOverlay { setMap(map: KakaoMapInstance | null): void }
 export interface KakaoMaps {
   services: {
     Status: { OK: string; ZERO_RESULT: string; ERROR: string };
-    Places: new () => { keywordSearch(query: string, callback: (results: KakaoPlace[], status: string) => void, options?: { size: number }): void };
+    Places: new () => { keywordSearch(query: string, callback: (results: KakaoPlace[], status: string) => void, options?: { size: number; page?: number }): void };
     Geocoder: new () => {
-      addressSearch(query: string, callback: (results: KakaoAddress[], status: string) => void): void;
+      addressSearch(query: string, callback: (results: KakaoAddress[], status: string) => void, options?: { size: number; page?: number }): void;
       coord2Address(longitude: number, latitude: number, callback: (results: KakaoAddress[], status: string) => void): void;
     };
   };
@@ -22,9 +23,12 @@ export interface KakaoMaps {
   LatLng: new (lat: number, lng: number) => KakaoLatLng;
   LatLngBounds: new () => KakaoBounds;
   Map: new (container: HTMLElement, options: { center: KakaoLatLng; level: number }) => KakaoMapInstance;
+  Marker: new (options: { map: KakaoMapInstance; position: KakaoLatLng; draggable: boolean; title: string }) => KakaoMarker;
   CustomOverlay: new (options: { map: KakaoMapInstance; position: KakaoLatLng; content: HTMLElement; clickable: boolean; yAnchor: number; zIndex: number }) => KakaoOverlay;
   event: {
     addListener(map: KakaoMapInstance, event: "click", callback: (event: { latLng: KakaoLatLng }) => void): void;
+    addListener(marker: KakaoMarker, event: "dragend", callback: () => void): void;
+    removeListener(marker: KakaoMarker, event: "dragend", callback: () => void): void;
     removeListener(map: KakaoMapInstance, event: "click", callback: (event: { latLng: KakaoLatLng }) => void): void;
   };
 }

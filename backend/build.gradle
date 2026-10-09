@@ -33,4 +33,11 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+    doFirst {
+        def url = System.getenv('E2E_DB_URL') ?: 'jdbc:postgresql://localhost:15432/mygarage_e2e'
+        def user = System.getenv('E2E_DB_USERNAME') ?: 'mygarage_e2e'
+        if (!(url ==~ /jdbc:postgresql:\/\/(localhost|127\.0\.0\.1):[0-9]+\/mygarage_e2e/) || user != 'mygarage_e2e') {
+            throw new GradleException('Tests blocked: dedicated mygarage_e2e database and role are required.')
+        }
+    }
 }

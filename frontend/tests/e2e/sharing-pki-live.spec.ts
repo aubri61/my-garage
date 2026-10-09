@@ -1,4 +1,5 @@
-import { expect, test, type BrowserContext } from "@playwright/test";
+import { test, expect } from "./isolated-test";
+import { type BrowserContext } from "@playwright/test";
 import path from "node:path";
 
 test("브라우저 Web Crypto PKI 요청·사용자 기기 검증·재사용 차단", async ({ browser }) => {
@@ -12,12 +13,13 @@ test("브라우저 Web Crypto PKI 요청·사용자 기기 검증·재사용 차
     const csrf = await (await context.request.get("/api/csrf")).json();
     return context.request.post(url, { data, headers: { [csrf.headerName]: csrf.token } });
   }
+  if (email && !email.startsWith(`e2e-${process.env.E2E_RUN_ID}-`)) throw new Error("PKI certificate email must use this isolated E2E run namespace.");
   async function account(context: BrowserContext, email: string, name: string) {
     expect((await post(context,"/api/users/signup", { email,name,password:"Password123!" })).status()).toBe(201);
     expect((await post(context,"/api/auth/login", { email,password:"Password123!" })).status()).toBe(200);
   }
   try {
-    await account(owner,`owner-${Date.now()}@example.com`,"PKI Owner"); await account(renter,email!,"PKI Renter");
+    await account(owner,`e2e-${process.env.E2E_RUN_ID}-owner@example.com`,"PKI Owner"); await account(renter,email!,"PKI Renter");
     const response = await post(owner,"/api/vehicles",{manufacturer:"Hyundai",model:"PKI Browser",modelYear:2025,licensePlate:"pki-live"});
     expect(response.status()).toBe(201); const vehicle = await response.json();
     const csrf = await (await owner.request.get("/api/csrf")).json();

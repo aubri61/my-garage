@@ -47,21 +47,48 @@ public class SharingService {
     }
     @Transactional(readOnly=true)
     public AvailableVehicle publicDetail(String email, Long id) {
-        var v=vehicles.findById(id).filter(vehicle -> vehicle.isSharingEnabled() && !vehicle.getOwner().getEmail().equals(email))
+        var v=vehicles.findById(id).filter(vehicle -> !vehicle.isDeleted() && vehicle.isSharingEnabled() && !vehicle.getOwner().getEmail().equals(email))
                 .orElseThrow(VehicleNotFoundException::new);
         return AvailableVehicle.from(v);
     }
     public VehicleResponse sharing(String email, Long vehicleId, SharingRequest request) {
         Vehicle v=lockVehicle(vehicleId);
-        owner(v, email);
+        owner(v, email); currentVehicle(v);
         v.configureSharing(request.enabled(), request.pickupLocation(), request.latitude(), request.longitude());
+        v.configurePickupDetails(request.pickupDetail(), request.pickupInstructions());
         audit.save(new SecurityAuditLog(email, "SHARING_CHANGED", null));
         events.publishEvent(new NotificationService.VehicleChange(email));
         events.publishEvent(new NotificationService.InventoryChange());
         return VehicleResponse.from(v);
     }
+    public VehicleResponse sharingState(String email, Long id, boolean enabled) {
+        Vehicle v=lockVehicle(id); owner(v, email); currentVehicle(v);
+        if (enabled && (v.getPickupLocation() == null || v.getPickupLocation().isBlank()
+                || v.getPickupLatitude() == null || v.getPickupLongitude() == null
+                || !Double.isFinite(v.getPickupLatitude()) || !Double.isFinite(v.getPickupLongitude())
+                || Math.abs(v.getPickupLatitude()) > 90 || Math.abs(v.getPickupLongitude()) > 180))
+            throw failure(CONFLICT, "PICKUP_REQUIRED", "픽업 주소와 올바른 좌표를 먼저 설정해주세요.");
+        v.setSharingEnabled(enabled);
+        audit.save(new SecurityAuditLog(email, enabled ? "SHARING_RESUMED" : "SHARING_PAUSED", null));
+        events.publishEvent(new NotificationService.VehicleChange(email));
+        events.publishEvent(new NotificationService.InventoryChange());
+        return VehicleResponse.from(v);
+    }
+    public void deleteVehicle(String email, Long id) {
+        Vehicle v=lockVehicle(id); owner(v, email);
+        if (v.isDeleted()) return;
+        boolean pending=rentals.findAllByVehicleId(id).stream().anyMatch(r -> r.getEndsAt().isAfter(clock.instant())
+                && Set.of(Rental.Status.REQUESTED, Rental.Status.CONTRACT_PENDING, Rental.Status.CONFIRMED, Rental.Status.ACTIVE).contains(r.getStatus()));
+        if (pending) throw failure(CONFLICT, "VEHICLE_IN_USE", "종료 전인 대여 요청 또는 계약이 있어 삭제할 수 없습니다. 요청을 거절하거나 대여를 종료한 뒤 다시 시도해주세요.");
+        v.softDelete();
+        audit.save(new SecurityAuditLog(email, "VEHICLE_DELETED", null));
+        events.publishEvent(new NotificationService.VehicleChange(email));
+        events.publishEvent(new NotificationService.InventoryChange());
+    }
+    private void currentVehicle(Vehicle v) { if (v.isDeleted()) throw new VehicleNotFoundException(); }
     public RentalView request(String email, RentalRequest input) {
         Vehicle v=lockVehicle(input.vehicleId());
+        currentVehicle(v);
         if (!v.isSharingEnabled()) throw failure(CONFLICT, "NOT_SHARED", "공유가 중단된 차량입니다.");
         if (v.getOwner().getEmail().equals(email)) throw failure(BAD_REQUEST, "OWN_VEHICLE", "본인 차량은 대여할 수 없습니다.");
         validatePeriod(input.startsAt(), input.endsAt());
@@ -92,7 +119,7 @@ public class SharingService {
         require(r.getStatus() == Rental.Status.REQUESTED, "대여 신청은 한 번만 처리할 수 있습니다.");
         if (approve) {
             require(r.getEndsAt().isAfter(clock.instant()), "이미 종료된 대여 요청입니다.");
-            require(r.getVehicle().isSharingEnabled(), "공유가 중단된 차량입니다.");
+            currentVehicle(r.getVehicle());
             for (Rental other : rentals.findAllByVehicleId(r.getVehicle().getId())) {
                 // Refresh after the vehicle lock; approvals on this vehicle are serialized.
                 entities.refresh(other);
@@ -177,7 +204,7 @@ public class SharingService {
         changed(r, email, approve ? "UNLOCK_APPROVED" : "UNLOCK_REJECTED"); return view(r);
     }
     public VehicleResponse lock(String email, Long id) {
-        Vehicle v=lockVehicle(id); owner(v, email); v.setLockState(Vehicle.LockState.LOCKED);
+        Vehicle v=lockVehicle(id); owner(v, email); currentVehicle(v); v.setLockState(Vehicle.LockState.LOCKED);
         audit.save(new SecurityAuditLog(email, "VEHICLE_LOCKED", null));
         for (var r : rentals.findAllByVehicleId(id)) if (r.getStatus() == Rental.Status.ACTIVE)
             events.publishEvent(new NotificationService.Change(Set.of(email, r.getRenter().getEmail()), "VEHICLE_LOCKED", r.getId()));
@@ -244,6 +271,6 @@ public class SharingService {
         return new RentalView(r.getId(), r.getVehicle().getId(), r.getVehicle().getManufacturer()+" "+r.getVehicle().getModel(),
                 r.getVehicle().getOwner().getId(), r.getRenter().getId(), r.getPickupLocation(), r.getStartsAt(), r.getEndsAt(), r.getStatus(),
                 r.getTermsVersion(), r.getTerms(), r.getOwnerConsentedAt(), r.getRenterConsentedAt(), grant, r.getVehicle().getLockState(),
-                unlocks.findAllByRentalIdOrderByIdDesc(r.getId()).stream().map(u -> new UnlockView(u.getId(),u.getStatus(),u.getRequestedAt(),u.getChallengeId() != null)).toList(), r.getVehicle().getOwner().getName(), r.getRenter().getName());
+                unlocks.findAllByRentalIdOrderByIdDesc(r.getId()).stream().map(u -> new UnlockView(u.getId(),u.getStatus(),u.getRequestedAt(),u.getChallengeId() != null)).toList(), r.getVehicle().getOwner().getName(), r.getRenter().getName(), r.getPickupDetail(), r.getPickupInstructions());
     }
 }

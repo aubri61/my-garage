@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { installApiFixture, logIn } from "./api-fixture";
 
 async function signUp(page: Page) {
+  test.skip(true, "사용자 요청에 따라 등록 화면의 소유권·인증서 데모 UI를 숨겼습니다. 구현 코드는 보존합니다.");
   await installApiFixture(page);
   await page.goto("/signup");
   await page.getByLabel("이름", { exact: true }).fill("회귀 테스트 회원");

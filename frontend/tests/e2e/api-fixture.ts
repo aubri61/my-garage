@@ -79,12 +79,18 @@ export async function logIn(page: Page) {
 
 export async function addVehicle(page: Page, model = "EV6") {
   await page.goto("/vehicles/register");
-  await page.getByLabel("제조사", { exact: true }).selectOption("기아");
-  await page.getByLabel("차종", { exact: true }).selectOption(model);
-  await page.getByLabel("연식", { exact: true }).selectOption("2025");
+  await chooseVehicleOption(page, "제조사", "기아");
+  await chooseVehicleOption(page, "차종", model);
+  await chooseVehicleOption(page, "연식", "2025");
   await page.getByLabel("차량 번호", { exact: true }).fill("123가4567");
   await page.getByRole("button", { name: "차량 등록", exact: true }).click();
   await expect(page.getByRole("heading", { name: "차량 등록이 완료되었습니다." })).toBeVisible();
-  await page.getByRole("link", { name: "기존 차고지·OTA 확인하기", exact: true }).first().click();
+  await page.goto("/garage");
   await expect(page.getByRole("heading", { name: `기아 ${model}`, exact: true })).toBeVisible();
+}
+
+export async function chooseVehicleOption(page: Page, label: string, value: string) {
+  const labels: Record<string, string> = { "IONIQ 5": "아이오닉 5", "IONIQ 6": "아이오닉 6", "Casper Electric": "캐스퍼 일렉트릭" };
+  await page.getByRole("combobox", { name: label, exact: true }).click();
+  await page.getByRole("option", { name: label === "연식" ? `${value}년` : labels[value] ?? value, exact: true }).click();
 }

@@ -1,0 +1,222 @@
+[
+  {
+    "key": "hyundai-ioniq-5",
+    "manufacturer": "현대",
+    "model": "IONIQ 5",
+    "displayName": "아이오닉 5",
+    "imageFile": "hyundai-ioniq-5.webp",
+    "imageAlt": "현대 아이오닉 5 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "hyundai-ioniq-6",
+    "manufacturer": "현대",
+    "model": "IONIQ 6",
+    "displayName": "아이오닉 6",
+    "imageFile": "hyundai-ioniq-6.webp",
+    "imageAlt": "현대 아이오닉 6 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "hyundai-kona-electric",
+    "manufacturer": "현대",
+    "model": "Kona Electric",
+    "displayName": "코나 일렉트릭",
+    "imageFile": "hyundai-kona-electric.webp",
+    "imageAlt": "현대 코나 일렉트릭 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "hyundai-casper-electric",
+    "manufacturer": "현대",
+    "model": "Casper Electric",
+    "displayName": "캐스퍼 일렉트릭",
+    "imageFile": "hyundai-casper-electric.webp",
+    "imageAlt": "현대 캐스퍼 일렉트릭 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "hyundai-avante",
+    "manufacturer": "현대",
+    "model": "Avante",
+    "displayName": "아반떼",
+    "imageFile": "hyundai-avante.webp",
+    "imageAlt": "현대 아반떼 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "hyundai-sonata",
+    "manufacturer": "현대",
+    "model": "Sonata",
+    "displayName": "쏘나타",
+    "imageFile": "hyundai-sonata.webp",
+    "imageAlt": "현대 쏘나타 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "hyundai-grandeur",
+    "manufacturer": "현대",
+    "model": "Grandeur",
+    "displayName": "그랜저",
+    "imageFile": "hyundai-grandeur.webp",
+    "imageAlt": "현대 그랜저 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "hyundai-tucson",
+    "manufacturer": "현대",
+    "model": "Tucson",
+    "displayName": "투싼",
+    "imageFile": "hyundai-tucson.webp",
+    "imageAlt": "현대 투싼 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "hyundai-santa-fe",
+    "manufacturer": "현대",
+    "model": "Santa Fe",
+    "displayName": "싼타페",
+    "imageFile": "hyundai-santa-fe.webp",
+    "imageAlt": "현대 싼타페 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "hyundai-palisade",
+    "manufacturer": "현대",
+    "model": "Palisade",
+    "displayName": "팰리세이드",
+    "imageFile": "hyundai-palisade.webp",
+    "imageAlt": "현대 팰리세이드 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "kia-ev3",
+    "manufacturer": "기아",
+    "model": "EV3",
+    "displayName": "EV3",
+    "imageFile": "kia-ev3.webp",
+    "imageAlt": "기아 EV3 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "kia-ev6",
+    "manufacturer": "기아",
+    "model": "EV6",
+    "displayName": "EV6",
+    "imageFile": "kia-ev6.webp",
+    "imageAlt": "기아 EV6 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "kia-ev9",
+    "manufacturer": "기아",
+    "model": "EV9",
+    "displayName": "EV9",
+    "imageFile": "kia-ev9.webp",
+    "imageAlt": "기아 EV9 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "kia-niro-ev",
+    "manufacturer": "기아",
+    "model": "Niro EV",
+    "displayName": "니로 EV",
+    "imageFile": "kia-niro-ev.webp",
+    "imageAlt": "기아 니로 EV 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "kia-ray-ev",
+    "manufacturer": "기아",
+    "model": "Ray EV",
+    "displayName": "레이 EV",
+    "imageFile": "kia-ray-ev.webp",
+    "imageAlt": "기아 레이 EV 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "kia-k5",
+    "manufacturer": "기아",
+    "model": "K5",
+    "displayName": "K5",
+    "imageFile": "kia-k5.webp",
+    "imageAlt": "기아 K5 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "kia-k8",
+    "manufacturer": "기아",
+    "model": "K8",
+    "displayName": "K8",
+    "imageFile": "kia-k8.webp",
+    "imageAlt": "기아 K8 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "kia-sportage",
+    "manufacturer": "기아",
+    "model": "Sportage",
+    "displayName": "스포티지",
+    "imageFile": "kia-sportage.webp",
+    "imageAlt": "기아 스포티지 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "kia-sorento",
+    "manufacturer": "기아",
+    "model": "Sorento",
+    "displayName": "쏘렌토",
+    "imageFile": "kia-sorento.webp",
+    "imageAlt": "기아 쏘렌토 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  },
+  {
+    "key": "kia-carnival",
+    "manufacturer": "기아",
+    "model": "Carnival",
+    "displayName": "카니발",
+    "imageFile": "kia-carnival.webp",
+    "imageAlt": "기아 카니발 차량 참고 이미지",
+    "imageSource": "",
+    "imageLicense": "",
+    "imageReady": false
+  }
+]

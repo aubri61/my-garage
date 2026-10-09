@@ -30,6 +30,7 @@ public class VehicleService {
         if (request.sharing() != null) {
             var sharing = request.sharing();
             vehicle.configureSharing(sharing.enabled(), sharing.pickupLocation(), sharing.latitude(), sharing.longitude());
+            vehicle.configurePickupDetails(sharing.pickupDetail(), sharing.pickupInstructions());
         }
         vehicleRepository.save(vehicle);
         events.publishEvent(new com.mygarage.backend.sharing.NotificationService.VehicleChange(email));
@@ -43,7 +44,7 @@ public class VehicleService {
     }
 
     public VehicleResponse detail(String email, Long id) {
-        return VehicleResponse.from(vehicleRepository.findByIdAndOwnerEmail(id, email)
+        return VehicleResponse.from(vehicleRepository.findByIdAndOwnerEmail(id, email).filter(v -> !v.isDeleted())
                 .orElseThrow(VehicleNotFoundException::new));
     }
 }

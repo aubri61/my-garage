@@ -25,6 +25,9 @@ public class SharingController {
     }
     @GetMapping("/api/vehicles/available/{id}") public AvailableVehicle publicDetail(Principal p, @PathVariable Long id) { return service.publicDetail(p.getName(), id); }
     @PutMapping("/api/vehicles/{id}/sharing") public VehicleResponse sharing(Principal p, @PathVariable Long id, @Valid @RequestBody SharingRequest body) { return service.sharing(p.getName(), id, body); }
+    @PatchMapping("/api/vehicles/{id}/sharing") public VehicleResponse sharingState(Principal p, @PathVariable Long id, @Valid @RequestBody SharingStateRequest body) { return service.sharingState(p.getName(), id, body.enabled()); }
+    @DeleteMapping("/api/vehicles/{id}") @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    public void deleteVehicle(Principal p, @PathVariable Long id) { service.deleteVehicle(p.getName(), id); }
     @PostMapping("/api/vehicles/{id}/lock") public VehicleResponse lock(Principal p, @PathVariable Long id) { return service.lock(p.getName(), id); }
     @PostMapping("/api/rentals") @ResponseStatus(org.springframework.http.HttpStatus.CREATED)
     public RentalView request(Principal p, @Valid @RequestBody RentalRequest body) { return service.request(p.getName(), body); }

@@ -6,7 +6,8 @@ test("새 공유 데모는 양측 승인·계약·접근 회수를 체험하며 
   page.on("request", request => { if (new URL(request.url()).pathname.startsWith("/api/")) apiCalls.push(request.url()); });
   page.on("pageerror", error => exceptions.push(error.message));
   await page.goto("/login");
-  await page.getByRole("button", { name: "데모 화면 체험" }).click();
+  await expect(page.getByRole("button", { name: "데모 화면 체험" })).toHaveCount(0);
+  await page.goto("/demo");
   await expect(page).toHaveURL(/\/demo$/);
   await expect(page.getByRole("heading", { name: "차량 공유 서비스 체험" })).toBeVisible();
   await expect(page.getByRole("button", { name: "대여 요청 체험", exact: true })).toBeDisabled();

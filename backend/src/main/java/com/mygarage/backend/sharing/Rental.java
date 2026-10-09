@@ -16,6 +16,8 @@ public class Rental {
     @ManyToOne(fetch=FetchType.LAZY, optional=false) @JoinColumn(name="vehicle_id") Vehicle vehicle;
     @ManyToOne(fetch=FetchType.LAZY, optional=false) @JoinColumn(name="renter_id") User renter;
     @Column(length=200) String pickupLocation;
+    @Column(length=200) String pickupDetail;
+    @Column(length=500) String pickupInstructions;
     @Column(nullable=false) Instant startsAt;
     @Column(nullable=false) Instant endsAt;
     @Enumerated(EnumType.STRING) @Column(nullable=false) Status status = Status.REQUESTED;
@@ -27,6 +29,8 @@ public class Rental {
     public Vehicle getVehicle() { return vehicle; }
     public User getRenter() { return renter; }
     public String getPickupLocation() { return pickupLocation == null ? vehicle.getPickupLocation() : pickupLocation; }
+    public String getPickupDetail() { return pickupDetail; }
+    public String getPickupInstructions() { return pickupInstructions; }
     public Instant getStartsAt() { return startsAt; }
     public Instant getEndsAt() { return endsAt; }
     public Status getStatus() { return status; }
@@ -39,6 +43,6 @@ public class Rental {
     public void consentRenter(Instant value) { renterConsentedAt=value; }
     protected Rental() {}
     public Rental(Vehicle vehicle, User renter, Instant startsAt, Instant endsAt) {
-        this.vehicle=vehicle; this.renter=renter; this.pickupLocation=vehicle.getPickupLocation(); this.startsAt=startsAt; this.endsAt=endsAt;
+        this.vehicle=vehicle; this.renter=renter; this.pickupLocation=vehicle.getPickupLocation(); this.pickupDetail=vehicle.getPickupDetail(); this.pickupInstructions=vehicle.getPickupInstructions(); this.startsAt=startsAt; this.endsAt=endsAt;
     }
 }

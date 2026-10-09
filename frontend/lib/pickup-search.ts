@@ -2,9 +2,9 @@ import { loadKakaoMaps, validCoordinates, type KakaoAddress, type KakaoPlace } f
 export interface PickupResult { label: string; address: string; latitude: number; longitude: number }
 async function services() {
   const key = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;
-  if (!key) throw new Error("주소 검색을 연결하지 못했습니다. 지도에서 선택하거나 위치를 직접 입력해주세요.");
+  if (!key) throw new Error("주소 검색을 연결하지 못했습니다. 지도에서 위치를 선택하거나 잠시 후 다시 검색해주세요.");
   const maps = await loadKakaoMaps(key);
-  if (!maps.services) throw new Error("주소 검색을 연결하지 못했습니다. 지도에서 선택하거나 위치를 직접 입력해주세요.");
+  if (!maps.services) throw new Error("주소 검색을 연결하지 못했습니다. 지도에서 위치를 선택하거나 잠시 후 다시 검색해주세요.");
   return maps.services;
 }
 export async function searchPickup(query: string): Promise<PickupResult[]> {
@@ -19,13 +19,14 @@ export async function searchPickup(query: string): Promise<PickupResult[]> {
     });
   });
   const results = await Promise.allSettled([
-    request<KakaoAddress>(callback => new sdk.Geocoder().addressSearch(query, callback)),
-    request<KakaoPlace>(callback => new sdk.Places().keywordSearch(query, callback, { size: 5 })),
+    request<KakaoAddress>(callback => new sdk.Geocoder().addressSearch(query, callback, { size: 20 })),
+    request<KakaoPlace>(callback => new sdk.Places().keywordSearch(query, callback, { size: 15, page: 1 })),
+    request<KakaoPlace>(callback => new sdk.Places().keywordSearch(query, callback, { size: 15, page: 2 })),
   ]);
-  if (results.every(result => result.status === "rejected")) throw new Error("주소 검색을 잠시 이용할 수 없습니다. 지도에서 선택하거나 위치를 직접 입력해주세요.");
+  if (results.every(result => result.status === "rejected")) throw new Error("주소 검색을 잠시 이용할 수 없습니다. 지도에서 위치를 선택하거나 잠시 후 다시 검색해주세요.");
   const addresses = results[0].status === "fulfilled" ? results[0].value.map(item => ({ label: item.road_address?.address_name ?? item.address_name, address: item.road_address?.address_name ?? item.address_name, latitude: Number(item.y), longitude: Number(item.x) })) : [];
-  const places = results[1].status === "fulfilled" ? results[1].value.map(item => ({ label: item.place_name, address: item.road_address_name || item.address_name, latitude: Number(item.y), longitude: Number(item.x) })) : [];
-  return [...addresses, ...places].filter((item, index, all) => validCoordinates(item.latitude, item.longitude) && all.findIndex(other => other.address === item.address && other.label === item.label) === index).slice(0, 6);
+  const places = [results[1], results[2]].flatMap(result => result.status === "fulfilled" ? result.value : []).map(item => ({ label: item.place_name, address: item.road_address_name || item.address_name, latitude: Number(item.y), longitude: Number(item.x) }));
+  return [...addresses, ...places].filter((item, index, all) => validCoordinates(item.latitude, item.longitude) && all.findIndex(other => other.address === item.address && other.label === item.label) === index).slice(0, 20);
 }
 export async function addressAt(latitude: number, longitude: number): Promise<string | null> {
   const sdk = await services();
