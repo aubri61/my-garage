@@ -7,3 +7,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+
+## Sharing platform
+
+Follow the root AGENTS.md for the P2P simulation boundary. Reuse existing UI and API clients.
+Use TanStack Query for server state and invalidate on SSE hints; modes are URL/UI state.
+The explicit notifications Route Handler streams without compression. Never persist private keys in browser storage.
+Keep `/demo` as an isolated sharing walkthrough without application/backend API calls or persisted credentials. The Kakao Maps SDK may render clearly labeled example pickup locations.
+Legacy garage preview remains at `/demo/garage`; test previews separately from live sharing.

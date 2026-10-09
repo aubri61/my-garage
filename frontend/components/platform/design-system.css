@@ -1,0 +1,199 @@
+/* Tokens ported from reference/design-reference/src/styles.css. */
+:root {
+  --radius: 1rem;
+  --background: oklch(0.975 0.006 255);
+  --foreground: oklch(0.22 0.06 262);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.06 262);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.06 262);
+  --primary: oklch(0.58 0.2 258);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.955 0.012 255);
+  --secondary-foreground: oklch(0.22 0.06 262);
+  --muted: oklch(0.955 0.01 255);
+  --muted-foreground: oklch(0.55 0.03 258);
+  --accent: oklch(0.94 0.035 255);
+  --accent-foreground: oklch(0.45 0.2 258);
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.58 0.19 259);
+  --success-soft: oklch(0.95 0.035 259);
+  --warning: oklch(0.72 0.16 65);
+  --warning-soft: oklch(0.96 0.05 259);
+  --navy: oklch(0.22 0.06 262);
+  --navy-foreground: oklch(0.98 0 0);
+  --map: oklch(0.95 0.015 240);
+  --map-road: oklch(1 0 0);
+  --map-park: oklch(0.92 0.04 259);
+  --map-water: oklch(0.88 0.05 235);
+  --border: oklch(0.92 0.01 255);
+  --input: oklch(0.92 0.01 255);
+  --ring: oklch(0.58 0.2 258);
+  --shadow-card: 0 1px 2px oklch(0.22 0.06 262 / 4%), 0 8px 24px -12px oklch(0.22 0.06 262 / 12%);
+  --shadow-lift: 0 20px 40px -16px oklch(0.58 0.2 258 / 30%);
+  --gradient-navy: linear-gradient(135deg, oklch(0.24 0.07 262), oklch(0.32 0.12 258));
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 259);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 259);
+  --chart-5: oklch(0.769 0.188 259);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.22 0.06 262);
+  --sidebar-primary: oklch(0.58 0.2 258);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.955 0.012 255);
+  --sidebar-accent-foreground: oklch(0.22 0.06 262);
+  --sidebar-border: oklch(0.92 0.01 255);
+  --sidebar-ring: oklch(0.58 0.2 258);
+  --surface: var(--card);
+  --font-sans: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+}
+body { font-family: var(--font-sans); background: var(--background); color: var(--foreground); }
+.platform-header { position: sticky; top: 0; z-index: 40; border-bottom: 1px solid var(--border); background: var(--card); }
+.platform-header-inner { display: flex; align-items: center; gap: 24px; min-height: 72px; max-width: 1440px; padding: 12px 32px; margin: auto; }
+.platform-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--foreground); font-size: 19px; font-weight: 800; letter-spacing: -.04em; white-space: nowrap; }
+.platform-brand-icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--gradient-navy); color: var(--navy-foreground); }
+.platform-brand-icon svg { width: 24px; height: 24px; }
+.platform-mode { display: flex; gap: 4px; padding: 5px; border-radius: 999px; background: var(--secondary); }
+.platform-mode a { padding: 9px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--muted-foreground); white-space: nowrap; }
+.platform-mode a[aria-current=page] { background: var(--card); color: var(--foreground); box-shadow: var(--shadow-card); }
+.platform-header-actions { display: flex; gap: 10px; align-items: center; margin-left: auto; }
+.platform-header-actions a, .platform-header-actions button { font-size: 13px; }
+.platform-user { display: flex; align-items: center; gap: 8px; font-size: 14px; white-space: nowrap; }
+.platform-avatar { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--accent-foreground); font-weight: 700; }
+.platform-pill { display: inline-flex; gap: 8px; align-items: center; padding: 9px 13px; border: 1px solid var(--border); border-radius: 999px; background: var(--card); font: inherit; cursor: pointer; }
+.platform-pill:hover { background: var(--secondary); }
+.platform-badge { display: inline-flex; align-items: center; border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 600; background: var(--accent); color: var(--accent-foreground); }
+.platform-skeleton { min-height: 100px; border-radius: 16px; background: var(--secondary); animation: platform-pulse 1.5s ease-in-out infinite; }
+@keyframes platform-pulse { 50% { opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .platform-skeleton { animation: none; } }
+.platform-empty { padding: 40px 24px; border: 1px solid var(--border); border-radius: 24px; background: var(--card); text-align: center; }
+.platform-empty p { color: var(--muted-foreground); line-height: 1.8; }
+.platform-dialog { width: min(640px,calc(100vw - 32px)); padding: 28px; margin: auto; max-height: 85vh; overflow-y: auto; background: var(--card); color: var(--foreground); border: 1px solid var(--border); border-radius: 24px; box-shadow: var(--shadow-card); }
+.platform-dialog::backdrop { background: oklch(0.22 0.06 262 / 40%); }
+.platform-dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.platform-dialog-heading h2 { font-size: 22px; margin: 0; }
+.platform-notifications { display: grid; gap: 12px; padding: 20px 0; }
+.platform-notifications a { border: 1px solid var(--border); border-radius: 16px; padding: 14px; display: grid; gap: 6px; }
+.platform-notifications span { color: var(--muted-foreground); font-size: 13px; }
+.platform-button { min-height: 44px; padding: 10px 18px; border: 1px solid var(--primary); border-radius: 12px; background: var(--primary); color: var(--primary-foreground); font: inherit; font-weight: 600; cursor: pointer; }
+.platform-button.secondary { background: var(--card); color: var(--foreground); border-color: var(--border); }
+.platform-button:disabled { opacity: .5; cursor: not-allowed; }
+.platform-input { width: 100%; padding: 12px; border: 1px solid var(--input); border-radius: 12px; background: var(--card); color: var(--foreground); min-height: 46px; font: inherit; }
+.platform-input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+.sharing-app, .account-app { background: var(--background); }
+.sharing-main { max-width: 1440px; padding: 28px 32px 48px; }
+.sharing-panel, .request-board, .registration-step, .flow-success { border-radius: 24px; background: var(--card); border-color: var(--border); box-shadow: var(--shadow-card); }
+.form-submit, .sharing-app .form-submit { border-radius: 12px; background: var(--primary); color: var(--primary-foreground); }
+.form-secondary, .sharing-app .form-secondary { border-radius: 12px; color: var(--foreground); border-color: var(--border); }
+.sharing-status { background: var(--accent); color: var(--accent-foreground); }
+.account-header { max-width: 1440px; margin: auto; padding: 20px 32px; border: 0; }
+.account-header .demo-label { display: none; }
+.auth-layout { max-width: 1080px; margin: 40px auto 72px; padding: 0 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.auth-intro { padding: 48px; background: var(--gradient-navy); color: var(--navy-foreground); border-radius: 32px; min-height: 460px; display: flex; flex-direction: column; justify-content: center; }
+.auth-intro h2 { font-size: 36px; line-height: 1.35; letter-spacing: -.05em; margin: 24px 0 16px; }
+.auth-intro p { font-size: 15px; line-height: 1.9; opacity: .8; }
+.auth-intro svg { width: 90px; height: 70px; }
+.auth-layout .account-main { width: 100%; padding: 32px; margin: 0; border: 1px solid var(--border); border-radius: 24px; background: var(--card); box-shadow: var(--shadow-card); }
+.account-main.account-wide { max-width: 900px; border: 0; background: none; box-shadow: none; }
+.signature-pad { width: 100%; height: 180px; border: 1px dashed var(--input); border-radius: 16px; touch-action: none; background: var(--secondary); }
+.contract-signature { margin: 20px 0; padding: 20px; border: 1px solid var(--border); border-radius: 16px; }
+.contract-signature label { display: flex; gap: 10px; font-size: 14px; line-height: 1.7; margin-bottom: 14px; }
+.owner-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin: 28px 0; }
+.owner-stat { padding: 24px; background: var(--card); border-radius: 20px; border: 1px solid var(--border); }
+.owner-stat strong { display: block; font-size: 28px; margin-top: 10px; }
+@media (max-width: 900px) { .platform-header-inner { gap: 12px; flex-wrap: wrap; padding: 12px 20px; } .platform-mode { order: 3; width: 100%; justify-content: center; } .platform-user > span:last-child { display: none; } .auth-layout { gap: 24px; } .auth-intro { padding: 28px; } }
+@media (max-width: 640px) { .auth-layout { grid-template-columns: 1fr; margin-top: 16px; } .auth-intro { display: none; } .auth-layout .account-main { padding: 24px; } .platform-header-inner { padding-inline: 16px; } .platform-header-actions { gap: 6px; } .platform-header-actions .platform-user { display: none; } .sharing-main { padding: 24px 16px; } .owner-stats { grid-template-columns: 1fr; gap: 12px; } }
+.vehicle-editor { max-width: 900px; margin: 24px auto; }
+.vehicle-editor .form-fields { gap: 24px; }
+.vehicle-editor textarea { width: 100%; min-height: 100px; padding: 12px; border: 1px solid var(--input); border-radius: 12px; font: inherit; }
+.vehicle-editor .sharing-vehicle-placeholder { height: 160px; }
+
+.rental-card-image .sharing-vehicle-placeholder { height: 150px; margin: 18px 0; border-radius: 16px; }
+
+/* Stitch page composition; Lovable remains the shared visual language. */
+.sharing-app h2, .account-app h2 { letter-spacing: -.025em; }
+.sharing-app .form-field input, .account-app .form-field input,
+.sharing-app .large-select-trigger, .account-app .large-select-trigger {
+  border-color: var(--input); border-radius: 12px; color: var(--foreground); background: var(--card);
+}
+.sharing-app .form-field input:focus, .account-app .form-field input:focus { border-color: var(--primary); }
+.sharing-app .sharing-actions button, .sharing-app .sharing-actions a {
+  min-height: 44px; border-radius: 12px; border-color: var(--border); background: var(--card); color: var(--foreground);
+}
+.sharing-app .sharing-actions button:hover:not(:disabled), .sharing-app .sharing-actions a:hover { background: var(--secondary); border-color: var(--ring); }
+.sharing-app .sharing-actions button:disabled { opacity: .5; }
+.sharing-app .rental-card[data-status=REQUESTED] > .sharing-actions button:first-child {
+  background: var(--primary); color: var(--primary-foreground); border-color: var(--primary);
+}
+.sharing-app .request-board { border-color: var(--border); background: var(--card); }
+.request-board > .section-heading { padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+.request-board > .section-heading p { color: var(--muted-foreground); font-size: 13px; }
+.sharing-app .rental-summary > div { padding: 14px; border-radius: 12px; background: var(--secondary); }
+.sharing-app .rental-summary dd { overflow-wrap: anywhere; }
+.sharing-app .rental-card details { padding: 16px; border: 1px solid var(--border); border-radius: 16px; margin-top: 16px; }
+.sharing-app .rental-card summary { cursor: pointer; font-size: 14px; font-weight: 600; }
+.contract-signature { background: var(--secondary); }
+.contract-signature input[type=checkbox] { accent-color: var(--primary); width: 18px; height: 18px; flex-shrink: 0; }
+.owner-overview { display: flex; gap: 24px; align-items: center; justify-content: space-between; margin-top: 28px; }
+.owner-overview h2 { margin: 0 0 8px; font-size: 24px; }
+.owner-overview p { margin: 0; color: var(--muted-foreground); font-size: 14px; }
+.owner-overview > a { white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; }
+.owner-stats { grid-template-columns: repeat(4,minmax(0,1fr)); }
+.owner-stat { min-width: 0; padding: 24px; border-radius: 24px; box-shadow: var(--shadow-card); }
+.owner-stat dt { color: var(--muted-foreground); font-size: 13px; }
+.owner-stat dd { display: flex; gap: 8px; align-items: baseline; margin: 14px 0 10px; }
+.owner-stat dd strong { margin: 0; font-size: 32px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.owner-stat dd span { font-size: 13px; color: var(--muted-foreground); }
+.owner-stat p { color: var(--muted-foreground); font-size: 12px; margin: 0; line-height: 1.6; }
+.owner-stat:nth-child(3) dd { color: var(--primary); }
+.owner-vehicle-card .sharing-vehicle-placeholder { height: 200px; margin-block: 18px; border-radius: 16px; background: var(--secondary); }
+.owner-vehicle-card .sharing-status.is-public { background: var(--success-soft); color: #1b60bc; }
+.owner-vehicle-card .sharing-status.is-private { background: var(--secondary); color: var(--muted-foreground); }
+.owner-vehicle-card .rental-price-summary { color: var(--primary); font-size: 20px; font-weight: 700; }
+.owner-vehicle-card .vehicle-settings { border-top: 1px solid var(--border); padding-top: 16px; margin-top: 20px; }
+.owner-tools { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.owner-tools h2 { font-size: 18px; margin-top: 10px; }
+.owner-tools p { font-size: 14px; margin-bottom: 0; }
+.owner-tools > a:hover { border-color: var(--ring); }
+.vehicle-editor { max-width: 1120px; }
+.registration-intro h2 { font-size: 24px; margin-bottom: 10px; }
+.registration-intro p { color: var(--muted-foreground); font-size: 14px; line-height: 1.8; }
+.registration-outline { margin: 28px 0 24px; }
+.registration-outline ol { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); list-style: none; margin: 0; padding: 0; gap: 12px; }
+.registration-outline a { display: flex; align-items: center; gap: 10px; padding: 14px; border-radius: 12px; background: var(--accent); color: var(--accent-foreground); font-size: 13px; font-weight: 600; }
+.registration-outline span { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--card); flex-shrink: 0; }
+.registration-layout { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 24px; align-items: start; }
+.registration-layout > div { min-width: 0; }
+.registration-layout .registration-disclosure { padding: 0; background: none; border: 0; margin: 0 0 20px; }
+.registration-layout .registration-step { padding: 28px; gap: 20px; }
+.registration-layout .registration-step h2 > span { background: var(--primary); color: var(--primary-foreground); }
+.registration-layout .registration-review { background: var(--secondary); box-shadow: none; }
+.registration-review p { margin: 0; font-size: 14px; line-height: 1.8; overflow-wrap: anywhere; }
+.registration-preview { position: sticky; top: 104px; min-width: 0; padding: 24px; border: 1px solid var(--border); border-radius: 24px; background: var(--card); box-shadow: var(--shadow-card); }
+.registration-preview h2 { font-size: 18px; margin: 8px 0 12px; }
+.registration-preview h3 { font-size: 21px; margin: 8px 0; }
+.registration-preview .sharing-vehicle-placeholder { border-radius: 16px; background: var(--secondary); }
+.registration-preview .preview-price { color: var(--primary); font-size: 20px; font-weight: 700; }
+.preview-price span { color: var(--muted-foreground); font-size: 12px; font-weight: 400; }
+.registration-preview hr { margin: 20px 0; border: 0; border-top: 1px solid var(--border); }
+.registration-preview .field-hint { overflow-wrap: anywhere; }
+section[id^=registration-section] { scroll-margin-top: 110px; }
+@media (max-width: 1000px) {
+  .owner-stats { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .registration-layout { grid-template-columns: minmax(0,1fr) 260px; gap: 20px; }
+}
+@media (max-width: 760px) {
+  .owner-overview { align-items: flex-start; flex-direction: column; gap: 16px; }
+  .owner-overview h2 { font-size: 21px; }
+  .owner-tools, .registration-layout { grid-template-columns: 1fr; }
+  .registration-preview { position: static; }
+  .registration-outline ol { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .registration-outline a { padding: 12px; }
+  .registration-layout .registration-step { padding: 20px; }
+  .owner-stat { padding: 20px; }
+  .owner-stat dd strong { font-size: 28px; }
+  .request-board > .section-heading { align-items: flex-start; flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) { .renter-vehicle-card { transition: none; } }

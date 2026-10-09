@@ -1,0 +1,46 @@
+import { test, expect } from "@playwright/test";
+import { installApiFixture, logIn } from "./api-fixture";
+
+test("일반 디지털 키에는 파일 입력이 없고 PKI 필수 정책을 우회하지 않는다", async ({ page }) => {
+  const fixture = await installApiFixture(page);
+  const now = Date.now();
+  const rental = { id: 701, vehicleId: 70, vehicleModel: "기아 EV9", ownerId: 2, renterId: 1, ownerName: "소유자", renterName: "대여자", pickupLocation: "서울 성수", startsAt: new Date(now - 3600000).toISOString(), endsAt: new Date(now + 3600000).toISOString(), status: "ACTIVE", terms: "모의 계약", termsVersion: "v1", ownerConsentedAt: new Date(now - 3600000).toISOString(), renterConsentedAt: new Date(now - 3600000).toISOString(), accessGrant: { active: true, startsAt: new Date(now - 3600000).toISOString(), endsAt: new Date(now + 3600000).toISOString(), revokedAt: null as string | null, allowedOperation: "REQUEST_UNLOCK" }, lockState: "LOCKED", unlockRequests: [] as { id: number; status: string; requestedAt: string; pkiVerified: boolean }[] };
+  let required = false;
+  await page.route("**/api/sharing/security", route => route.fulfill({ json: { pkiRequired: required } }));
+  await page.route("**/api/rentals", route => route.fulfill({ json: [rental, { ...rental, id: 702, renterId: 3, ownerId: 1 }] }));
+  await page.route("**/api/rentals/701", route => route.fulfill({ json: rental }));
+  await page.route("**/api/rentals/701/unlock-requests", route => {
+    expect(route.request().postData()).toBeNull();
+    rental.unlockRequests = [{ id: 71, status: "PENDING", requestedAt: new Date().toISOString(), pkiVerified: false }];
+    return route.fulfill({ json: rental });
+  });
+  await logIn(page); await page.goto("/contracts/701");
+  const access = page.getByRole("region", { name: "디지털 키 상태", exact: true });
+  await expect(page.locator('input[type="file"]:visible')).toHaveCount(0);
+  await expect(access.getByText("접근 권한 활성", { exact: true })).toBeVisible();
+  await expect(access.getByRole("button", { name: "문 열기 요청", exact: true })).toBeEnabled();
+  await access.getByRole("button", { name: "문 열기 요청", exact: true }).click();
+  await expect(access.getByText(/소유자의 승인을 기다리고/)).toBeVisible();
+  await expect(access.getByRole("button", { name: "문 열기 요청", exact: true })).toBeDisabled();
+  rental.unlockRequests = []; required = true; await page.reload();
+  await expect(access.getByRole("button", { name: "문 열기 요청", exact: true })).toBeDisabled();
+  await expect(access.getByText(/일반 사용자용 기기 등록·자동 서명은 아직/)).toBeVisible();
+  await page.screenshot({ path: "/private/tmp/my-garage-digital-key-policy.png", fullPage: true });
+  await access.getByRole("link", { name: "보안 실험실에서 테스트" }).click();
+  await expect(page).toHaveURL(/security-lab\?rentalId=701/);
+  await expect(page.getByRole("combobox", { name: "검증할 대여 계약" }).locator("option")).toHaveCount(1);
+  await page.getByText("테스트 인증서로 서명된 잠금 해제 요청", { exact: true }).click();
+  await expect(page.getByLabel("로컬 테스트 개인키 (PKCS#8 PEM)", { exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: "/private/tmp/my-garage-security-lab-mobile.png", fullPage: true });
+  await page.getByRole("link", { name: "내 디지털 키로 돌아가기" }).click();
+  await expect(page).toHaveURL(/digital-key\?mode=renter/, { timeout: 15000 });
+  await expect(page.getByRole("heading", { name: "디지털 키", exact: true })).toBeVisible();
+  await expect(page.locator('input[type="file"]:visible')).toHaveCount(0);
+  required = false; rental.accessGrant.active = false; rental.accessGrant.revokedAt = new Date().toISOString(); await page.reload();
+  await expect(access.getByText("접근 권한 종료", { exact: true })).toBeVisible();
+  await expect(access.getByRole("button", { name: "문 열기 요청", exact: true })).toBeDisabled();
+  expect(fixture.mutations.some(m => m.path.includes("devices"))).toBe(false);
+});

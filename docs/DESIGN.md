@@ -1,121 +1,21 @@
-# My Garage Design Direction
+# 차량 공유 UI 방향
 
-## Overall Mood
+화이트와 연한 회색 배경, 블루 포인트, 흰색 카드와 얕은 보더로 신뢰할 수 있는 차량 원격 공유 경험을 제공한다. 기존 인증·API·계약·SSE·PKI·OTA 로직을 보존하고 사용자에게 필요한 상태와 다음 행동을 먼저 보여준다.
 
-My Garage should feel like a premium connected vehicle service.
+## 주요 화면
 
-Keywords:
+- 대여자: 내 요청/계약 알림판 → 픽업 지도 → 차량 목록과 필터 → 신청 패널.
+- 소유자: 새 요청 → 등록 차량 → 차량 등록 → 별도 보안 기능.
+- 등록: 차량 기본 정보 → 주소 검색/지도 선택 → 공유 공개 여부.
+- 계약: 필요한 동의 CTA를 강조하고 종료 내역은 접는다. 내부 대여 번호와 사용자 ID는 화면에 출력하지 않는다.
+- 보안: 이용 가능한 기간에만 차량 접근 상태를 안내한다. OTA 검증과 인증서 입력은 일반 차량 등록에서 분리한다.
 
-- premium
-- automotive
-- technical
-- trustworthy
-- calm
-- dark
-- precise
+참고 이미지는 실제 등록 차량 사진으로 표시하지 않으며, 연료/주소/차종 등 미제공 값은 임의로 생성하지 않는다. 테스트 DB 레코드는 알려진 생성 문자열을 사람이 읽을 수 있는 확인 필요 안내로 표시한다. 실제 번호판은 소유자 화면에서만 표시한다.
 
-The UI should be inspired by modern automotive companion services,
-not generic SaaS dashboards.
+## 상호작용
 
-## Color Direction
+검색·조회·저장의 로딩/빈 목록/오류/성공/비활성 상태를 제공한다. 주소 검색 실패 시 지도나 직접 입력을 사용할 수 있다. 폼 label, details/summary, status/alert, 키보드 focus와 skip link를 유지한다. 지도 차량 선택은 동일한 목록에서도 수행할 수 있다.
 
-- Background: near-black
-- Surface: dark neutral gray
-- Border: subtle neutral gray
-- Primary accent: cyan / electric blue
-- Success: restrained green
-- Warning: amber
-- Critical: red
+모바일은 목록과 신청 패널을 한 열로 배치한다. 불필요한 애니메이션/글래스/그라데이션을 사용하지 않는다. 실제 제공하지 않는 차량 제어·보험·결제를 제공하는 것처럼 표현하지 않는다.
 
-Avoid excessive gradients.
-
-## Typography
-
-Use strong visual hierarchy.
-
-Greeting and primary page title should be prominent.
-
-Body text should remain concise and muted.
-
-## Main Dashboard
-
-The first screen should communicate:
-
-1. greeting
-2. service purpose
-3. all owned vehicles
-4. key vehicle status
-5. software update entry point
-6. charging reservation entry point
-
-Hero copy example:
-
-"안녕하세요, 세라 님"
-
-"내 차들을 한 곳에서 안전하게 관리하세요."
-
-"차량 상태 확인부터 소프트웨어 업데이트,
-전기차 충전 예약까지 My Garage에서 관리할 수 있습니다."
-
-## Primary Actions
-
-Two actions should receive the strongest visual emphasis:
-
-### 차량 소프트웨어 업데이트
-
-Explain that My Garage verifies:
-
-- publisher authenticity
-- file integrity
-- digital signature
-
-before allowing installation.
-
-### 전기차 충전 예약
-
-Explain that users can:
-
-- search charging stations
-- select chargers
-- select time slots
-- pass authorization checks
-- make reservations
-
-## Vehicle Cards
-
-Each vehicle card should show:
-
-- vehicle image
-- vehicle name
-- trim/model
-- battery
-- estimated range
-- software version
-- connection status
-
-## Product Introduction
-
-Include a short section explaining My Garage as:
-
-"a digital vehicle management platform for vehicle status,
-secure software updates, and EV charging reservations."
-
-## Visual Rules
-
-Avoid:
-
-- huge marketing gradients
-- glassmorphism
-- excessive shadows
-- rounded-everything
-- playful illustrations
-- generic admin dashboard visuals
-
-Prefer:
-
-- large vehicle imagery
-- subtle borders
-- restrained radius
-- spacious layout
-- data-rich presentation
-- status-based UI
+구체적인 데이터 출처·수정 파일·검증 및 남은 범위는 [FRONTEND_UX_REDESIGN.md](FRONTEND_UX_REDESIGN.md)를 참고한다.

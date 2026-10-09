@@ -24,6 +24,9 @@ public class VehicleController {
         return ResponseEntity.created(URI.create("/api/vehicles/" + vehicle.id())).body(vehicle);
     }
 
+    @PutMapping("/{id}")
+    public VehicleResponse update(Principal principal, @PathVariable Long id, @Valid @RequestBody VehicleRequest request) { return vehicleService.update(principal.getName(),id,request); }
+
     @GetMapping
     public List<VehicleResponse> list(Principal principal) {
         return vehicleService.list(principal.getName());

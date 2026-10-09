@@ -19,3 +19,5 @@ export async function registerVehicle(request: VehicleRequest) { return (await a
 export async function listScenarios(signal?: AbortSignal) { return (await api.get<ScenarioResponse[]>("/ota/scenarios", { signal })).data; }
 export async function verifyOta(id: number, request: OtaRequest) { return (await api.post<OtaResponse>(`/vehicles/${id}/ota/verify`, request)).data; }
 export async function listHistory(id: number, signal?: AbortSignal) { return (await api.get<OtaHistory[]>(`/vehicles/${id}/ota/history`, { signal })).data; }
+
+export async function updateVehicle(id: number, input: VehicleRequest) { return (await api.put<VehicleResponse>(`/vehicles/${id}`, input)).data; }

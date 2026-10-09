@@ -1,0 +1,61 @@
+import { test, expect } from "./isolated-test";
+import { installApiFixture, logIn, chooseVehicleOption } from "./api-fixture";
+
+test("회원가입은 실제 세션으로 자동 로그인하고 새로고침 후에도 유지된다", async ({ page }) => {
+  const email = `e2e-${process.env.E2E_RUN_ID}-signup@example.com`;
+  await page.goto("/signup");
+  await page.getByLabel("이름", { exact: true }).fill("자동 로그인 검증");
+  await page.getByLabel("이메일", { exact: true }).fill(email);
+  await page.getByLabel("비밀번호", { exact: true }).fill("Password123!");
+  await page.getByLabel("비밀번호 확인", { exact: true }).fill("Password123!");
+  await page.getByRole("button", { name: "회원가입", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "가입이 완료되었습니다." })).toBeVisible();
+  expect((await (await page.request.get("/api/users/me")).json()).email).toBe(email);
+  const icon = page.locator(".success-mark");
+  expect(await icon.evaluate(element => {
+    const probe = document.createElement("span");
+    probe.style.color = "var(--primary)"; element.append(probe);
+    const matches = getComputedStyle(probe).color === getComputedStyle(element).color;
+    probe.remove(); return matches;
+  })).toBe(true);
+  await page.screenshot({ path: "/private/tmp/my-garage-polish-signup.png", fullPage: true });
+  await page.getByRole("link", { name: "차량 서비스 시작하기" }).click();
+  await expect(page).toHaveURL(/\/mode$/);
+  await page.reload();
+  expect((await page.request.get("/api/users/me")).status()).toBe(200);
+});
+
+test("차량 번호와 100원 단위 가격은 입력 바로 아래에서 검증하고 금액을 포맷한다", async ({ page }) => {
+  const api = await installApiFixture(page);
+  await logIn(page); await page.goto("/vehicles/register");
+  await expect(page.getByRole("link", { name: "보유 차량", exact: true })).toHaveCount(0);
+  await chooseVehicleOption(page, "제조사", "현대");
+  await chooseVehicleOption(page, "차종", "아이오닉 5");
+  await expect(page.locator(".registration-model-options")).toHaveCount(0);
+  await expect(page.locator("#registration-section-1 img")).toHaveCount(0);
+  await chooseVehicleOption(page, "연식", "2026");
+  const plate = page.getByLabel("차량 번호", { exact: true });
+  const rate = page.getByLabel("시간당 대여 가격 (원)", { exact: true });
+  await plate.fill("잘못된번호"); await rate.focus();
+  await expect(plate).toHaveAttribute("aria-invalid", "true");
+  await expect(page.locator("#licensePlate-error")).toContainText("123가4567");
+  expect(api.mutations.filter(item => item.path === "/api/vehicles")).toHaveLength(0);
+  await plate.fill("123가4557"); await rate.focus();
+  await expect(page.locator("#licensePlate-error")).toHaveCount(0);
+  await rate.fill("99"); await plate.focus();
+  await expect(page.locator("#hourlyRate-error")).toBeVisible();
+  await rate.fill("12345"); await plate.focus();
+  await expect(rate).toHaveValue("12,345");
+  await expect(page.locator("#hourlyRate-error")).toContainText("100원 단위");
+  await rate.fill("12000"); await plate.focus();
+  await expect(rate).toHaveValue("12,000");
+  await expect(page.locator("#hourlyRate-error")).toHaveCount(0);
+  await page.getByRole("button", { name: "차량 등록", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "차량 등록이 완료되었습니다." })).toBeVisible();
+  expect(api.mutations.find(item => item.path === "/api/vehicles")?.body).toMatchObject({ hourlyRate: 12000, licensePlate: "123가4557" });
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
+  await page.screenshot({ path: "/private/tmp/my-garage-polish-register-success.png", fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: "/private/tmp/my-garage-polish-register-success-mobile.png", fullPage: true });
+});

@@ -20,6 +20,7 @@ function AuthFields({ mode }: { mode: "login" | "signup" }) {
   const client = useQueryClient();
   const signup = mode === "signup";
   const [values, setValues] = useState<SignupValues>({ name: "", email: "", password: "", passwordConfirmation: "" });
+  const [accountCreated, setAccountCreated] = useState(false);
   const [errors, setErrors] = useState<AuthErrors>({});
   const [status, setStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -46,19 +47,20 @@ function AuthFields({ mode }: { mode: "login" | "signup" }) {
     request.current = controller;
     setStatus("pending");
     try {
-      if (signup) {
+      if (signup && !accountCreated) {
         await createAccount({ name: values.name.trim(), email: values.email.trim(), password: values.password }, controller.signal);
-      } else {
-        const user = await login({ email: values.email.trim(), password: values.password }, controller.signal);
         controller.signal.throwIfAborted();
-        await client.cancelQueries();
-        client.clear();
-        client.setQueryData(["session"], user);
+        setAccountCreated(true);
       }
+      const user = await login({ email: values.email.trim(), password: values.password }, controller.signal);
+      controller.signal.throwIfAborted();
+      await client.cancelQueries();
+      client.clear();
+      client.setQueryData(["session"], user);
       controller.signal.throwIfAborted();
       setValues({ name: "", email: "", password: "", passwordConfirmation: "" });
       setStatus("success");
-      if (!signup) router.replace("/garage");
+      if (!signup) router.replace("/mode");
     } catch (error) {
       if (controller.signal.aborted) return;
       setStatus("error"); setMessage(errorMessage(error));
@@ -69,8 +71,8 @@ function AuthFields({ mode }: { mode: "login" | "signup" }) {
 
   if (status === "success" && signup) return <section className="flow-success" aria-labelledby="signup-success-title">
     <span className="success-mark" aria-hidden="true">✓</span><h2 id="signup-success-title" tabIndex={-1} ref={element => element?.focus()}>가입이 완료되었습니다.</h2>
-    <p>계정이 생성되었습니다. 로그인 후 내 차량을 등록하세요.</p>
-    <Link href="/login" className="form-submit">로그인하기</Link>
+    <p>계정이 생성되고 자동으로 로그인되었습니다. 이용 모드를 선택해 시작하세요.</p>
+    <Link href="/mode" className="form-submit">차량 서비스 시작하기</Link>
   </section>;
 
   return <>
@@ -82,12 +84,12 @@ function AuthFields({ mode }: { mode: "login" | "signup" }) {
         <FormField name="password" label="비밀번호" type="password" value={values.password} onChange={value => change("password", value)} error={errors.password} autoComplete={signup ? "new-password" : "current-password"} hint="8자 이상 입력해주세요." maxLength={128} />
         {signup && <FormField name="passwordConfirmation" label="비밀번호 확인" type="password" value={values.passwordConfirmation} onChange={value => change("passwordConfirmation", value)} error={errors.passwordConfirmation} autoComplete="new-password" maxLength={128} />}
       </fieldset>
-      {status === "error" && <p className="form-error" role="alert">{message}</p>}
-      <button type="submit" className="form-submit" disabled={status === "pending"}>{status === "pending" ? signup ? "가입 처리 중…" : "로그인 중…" : signup ? "회원가입" : "로그인"}</button>
+      {status === "error" && <p className="form-error" role="alert">{accountCreated ? `계정은 생성되었습니다. 자동 로그인에 실패했습니다. ${message}` : message}</p>}
+      <button type="submit" className="form-submit" disabled={status === "pending"}>{status === "pending" ? signup ? "가입 처리 중…" : "로그인 중…" : signup ? accountCreated ? "자동 로그인 다시 시도" : "회원가입" : "로그인"}</button>
       <p role="status" className="sr-only">{status === "pending" ? "요청을 처리하고 있습니다." : ""}</p>
     </form>
-    {!signup && <button type="button" className="form-secondary" disabled={status === "pending"} onClick={() => router.push("/demo")}>데모 화면 체험</button>}
+    {/* 데모 화면 진입은 일반 서비스 UI에서 숨깁니다. */}
     <p className="auth-alternate">{signup ? "이미 시작하셨나요?" : "처음 방문하셨나요?"} <Link href={signup ? "/login" : "/signup"}>{signup ? "로그인" : "회원가입"}</Link></p>
-    <p className="mock-disclosure">{signup ? "서버에 계정을 생성합니다. 비밀번호는 브라우저에 저장하지 않습니다." : "서버 세션으로 로그인합니다. 데모 화면은 실제 계정 및 차량 데이터와 분리되어 있습니다."}</p>
+    <p className="mock-disclosure">{signup ? "서버에 계정을 생성합니다. 비밀번호는 브라우저에 저장하지 않습니다." : "로그인 후 차량을 등록하거나 대여할 수 있습니다."}</p>
   </>;
 }

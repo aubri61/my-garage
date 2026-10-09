@@ -1,0 +1,9 @@
+export const pickupSdk = `(() => {
+const events = new WeakMap();
+class LatLng { constructor(lat,lng) { this.lat=lat; this.lng=lng; } getLat(){return this.lat} getLng(){return this.lng} }
+class Map { constructor(el,options){ this.el=el; this.center=options.center; el.onclick=()=>emit(this,'click',{latLng:new LatLng(37.57,126.99)}); } setCenter(p){this.center=p} getCenter(){return this.center} setBounds(){} relayout(){} }
+function emit(target,event,value){(events.get(target)?.[event]??[]).forEach(fn=>fn(value));}
+class Marker { constructor(o){this.position=o.position;this.button=document.createElement('button');this.button.textContent='SDK 테스트 마커 드래그';this.button.onpointerup=e=>{e.stopPropagation();this.position=new LatLng(37.58,127.01);emit(this,'dragend');};o.map.el.appendChild(this.button);}getPosition(){return this.position}setMap(map){if(!map)this.button.remove();} }
+class Geocoder { addressSearch(q,cb){setTimeout(()=>cb(q==='없는주소'?[]:[{address_name:q+' 기본 주소',road_address:{address_name:q+' 도로명 주소'},x:'126.978',y:'37.5665'}],q==='없는주소'?'ZERO':'OK'),q==='이전검색'?1200:10);}coord2Address(x,y,cb){setTimeout(()=>cb(window.failReverse?[]:[{road_address:{address_name:'조정된 도로명 주소'}}],window.failReverse?'ZERO':'OK'),200);}}
+window.kakao={maps:{load:cb=>cb(),Map,Marker,LatLng,LatLngBounds:class{extend(){}},CustomOverlay:class{setMap(){}},event:{addListener(t,e,cb){const v=events.get(t)??{};(v[e]??=[]).push(cb);events.set(t,v);},removeListener(t,e,cb){const v=events.get(t);if(v)v[e]=(v[e]??[]).filter(f=>f!==cb);}},services:{Status:{OK:'OK',ZERO_RESULT:'ZERO',ERROR:'ERROR'},Geocoder,Places:class{keywordSearch(q,cb,options){cb(q==='없는주소'?[]:Array.from({length:15},(_,i)=>({place_name:q+' 장소 '+((options?.page??1)*15+i),address_name:q+' 지번 '+((options?.page??1)*15+i),road_address_name:q+' 도로 '+((options?.page??1)*15+i),x:'126.978',y:'37.5665'})),q==='없는주소'?'ZERO':'OK');}}}}};
+})();`;

@@ -34,9 +34,17 @@ export async function installApiFixture(page: Page) {
     if (path === "/api/auth/logout") { session = false; return route.fulfill({ status: 204, headers: { "Set-Cookie": "JSESSIONID=; Max-Age=0; Path=/" } }); }
     if (!session || expire) return json(401, { code: "UNAUTHORIZED", message: "로그인이 필요합니다." });
     if (path === "/api/users/me") return json(200, { id: 1, name: "회귀 테스트 회원", email: "garage-test@example.com" });
+    if (path === "/api/rentals") return json(200, []);
+    if (path === "/api/sharing/security") return json(200, { pkiRequired: false });
+    if (path === "/api/rentals/quote") {
+      const body = request.postDataJSON();
+      const billedHours = Math.ceil((Date.parse(body.endsAt)-Date.parse(body.startsAt))/3600000);
+      return json(200, { vehicleId: body.vehicleId, hourlyRate: 12000, billedHours, estimatedTotal: billedHours*12000, calculation: "시간 단위 올림" });
+    }
     if (path === "/api/vehicles" && request.method() === "POST") {
       const body = request.postDataJSON();
-      expect(Object.keys(body).sort()).toEqual(["licensePlate", "manufacturer", "model", "modelYear"]);
+      expect(body).toMatchObject({ hourlyRate: 12000, minimumRentalHours: 1 });
+      expect(body.licensePlate).toMatch(/\d{2,3}[가-힣]\d{4}$/);
       const vehicle = { ...body, id: vehicles.length + 1, createdAt: "2026-10-09T10:00:00", updatedAt: "2026-10-09T10:00:00" };
       vehicles.push(vehicle); return json(201, vehicle);
     }
@@ -71,18 +79,27 @@ export async function logIn(page: Page) {
   await page.getByLabel("이메일", { exact: true }).fill("garage-test@example.com");
   await page.getByLabel("비밀번호", { exact: true }).fill("DemoPass123!");
   await page.getByRole("button", { name: "로그인", exact: true }).click();
-  await expect(page).toHaveURL(/\/garage$/);
+  await expect(page).toHaveURL(/\/mode$/);
+  await expect(page.getByRole("heading", { name: "어떤 서비스를 이용하시겠어요?" })).toBeVisible();
+  await page.goto("/garage");
   await expect(page.getByRole("heading", { name: "등록된 차량이 없습니다." })).toBeVisible();
 }
 
 export async function addVehicle(page: Page, model = "EV6") {
   await page.goto("/vehicles/register");
-  await page.getByLabel("제조사", { exact: true }).fill("Kia");
-  await page.getByLabel("차종", { exact: true }).fill(model);
-  await page.getByLabel("연식", { exact: true }).fill("2025");
+  await chooseVehicleOption(page, "제조사", "기아");
+  await chooseVehicleOption(page, "차종", model);
+  await chooseVehicleOption(page, "연식", "2025");
+  await page.getByLabel("시간당 대여 가격 (원)", { exact: true }).fill("12000");
   await page.getByLabel("차량 번호", { exact: true }).fill("123가4567");
   await page.getByRole("button", { name: "차량 등록", exact: true }).click();
   await expect(page.getByRole("heading", { name: "차량 등록이 완료되었습니다." })).toBeVisible();
-  await page.getByRole("link", { name: "내 차량 확인하기", exact: true }).first().click();
-  await expect(page.getByRole("heading", { name: `Kia ${model}`, exact: true })).toBeVisible();
+  await page.goto("/garage");
+  await expect(page.getByRole("heading", { name: `기아 ${model}`, exact: true })).toBeVisible();
+}
+
+export async function chooseVehicleOption(page: Page, label: string, value: string) {
+  const labels: Record<string, string> = { "IONIQ 5": "아이오닉 5", "IONIQ 6": "아이오닉 6", "Casper Electric": "캐스퍼 일렉트릭" };
+  await page.getByRole("combobox", { name: label, exact: true }).click();
+  await page.getByRole("option", { name: label === "연식" ? `${value}년` : labels[value] ?? value, exact: true }).click();
 }
