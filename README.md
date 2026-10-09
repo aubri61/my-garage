@@ -73,5 +73,6 @@ RUN_LIVE_SHARING=1 npm run test:e2e -- sharing-live.spec.ts
 - [구조](docs/ARCHITECTURE.md), [API](docs/API.md), [데이터 모델](docs/DATA_MODEL.md)
 - [보안](docs/SECURITY.md), [디자인](docs/DESIGN.md)
 - [구현 상태와 한계](docs/IMPLEMENTATION_PLAN.md), [검증 기록](docs/VALIDATION.md)
+- [실제 DB·차량·계약·SSE 연동 보고서와 직접 확인 절차](docs/LIVE_DATA_INTEGRATION.md)
 
 `/garage`는 기존 소유 차량/OTA 화면을 보존한 경로입니다. `/demo`는 새 차량 공유 흐름을 로그인 없이 체험하는 분리된 화면입니다. 이전 차고지 목업은 `/demo/garage`에 보존합니다. 데모와 기존 연결 체험은 실제 서버 상태를 변경하지 않습니다. 충전 기능은 이전 체험 코드만 보존하고 현재 서비스 범위에서 제외합니다. Git commit/push/배포는 하지 않았습니다.

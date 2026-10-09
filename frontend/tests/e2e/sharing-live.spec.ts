@@ -37,7 +37,7 @@ test("두 계정 공유·계약·SSE·원격 승인·회수·세션 복원", asy
     await expect(a.getByText("실시간 연결됨", { exact: true })).toBeVisible(); await expect(b.getByText("실시간 연결됨", { exact: true })).toBeVisible();
     await c.goto("/renter"); await connect(a); await connect(b); await connect(c);
     await b.getByRole("searchbox").fill(`LIVE-${suffix}`);
-    await b.getByRole("button", { name: new RegExp(`Hyundai LIVE-${suffix}`) }).click();
+    await b.getByRole("button", { name: new RegExp(`Hyundai LIVE-${suffix} 2025`) }).click();
     const local = (date: Date) => new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     await b.getByLabel("시작 시각 (기기 현지 시간)").fill(local(new Date(Date.now() + 60000)));
     await b.getByLabel("종료 시각 (기기 현지 시간)").fill(local(new Date(Date.now() + 3600000)));
@@ -53,8 +53,8 @@ test("두 계정 공유·계약·SSE·원격 승인·회수·세션 복원", asy
     const ownerCard = a.getByRole("article").filter({ hasText: `대여 #${rental.id} ·` });
     const renterCard = b.getByRole("article").filter({ hasText: `대여 #${rental.id} ·` });
     await ownerCard.getByRole("button", { name: "대여 승인", exact: true }).click(); await event(b, "RENTAL_APPROVED");
-    await ownerCard.getByText("계약 조건 · simulation-v1").click(); await ownerCard.getByRole("button", { name: "위 계약 조건에 동의" }).click();
-    await renterCard.getByText("계약 조건 · simulation-v1").click(); await renterCard.getByRole("button", { name: "위 계약 조건에 동의" }).click();
+    await ownerCard.getByRole("button", { name: "위 계약 조건에 동의" }).click();
+    await renterCard.getByRole("button", { name: "위 계약 조건에 동의" }).click();
     await expect(renterCard.getByText("활성 · REQUEST_UNLOCK", { exact: true })).toBeVisible();
     await renterCard.getByRole("button", { name: "잠금 해제 요청", exact: true }).click(); await event(a, "UNLOCK_REQUESTED");
     await ownerCard.getByRole("button", { name: "잠금 해제 승인", exact: true }).click(); await event(b, "UNLOCK_APPROVED");

@@ -394,3 +394,30 @@ h1 { margin: 0; font-size: 30px; line-height: 1.4; font-weight: 650; letter-spac
 .account-app .demo-reset { width: auto; margin: 0; }
 .demo-boundary { font-size: 13px; line-height: 1.8; color: var(--muted); margin-bottom: 24px; }
 .account-app .sharing-actions button:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Real sharing inventory, pickup overview and responsive registration inputs. */
+.pickup-overview { position: relative; min-height: 220px; background: #111923; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.pickup-point { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 3px; border: 1px solid #425367; border-radius: 5px; background: #1b2632; color: #edf3fa; padding: 4px 8px; font-size: 11px; width: 96px; max-width: 96px; cursor: pointer; }
+.pickup-point[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); z-index: 1; }
+.pickup-point span:last-child { width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.sharing-notification { margin-top: 20px; border-color: #425367; font-size: 14px; }
+.sharing-vehicle-placeholder { display: flex; align-items: center; gap: 10px; padding: 12px; background: #111923; border-radius: 6px; color: #91a4b8; font-size: 11px; }
+.sharing-panel { min-width: 0; overflow-wrap: anywhere; }
+.coordinate-grid > .form-field { min-width: 0; }
+.sharing-app .form-field input { min-width: 0; }
+@media (max-width: 760px) { .coordinate-grid { grid-template-columns: 1fr; } }
+
+/* Kakao maps use registered pickup coordinates, never simulated GPS. */
+.kakao-map-frame { position: relative; width: 100%; min-width: 0; }
+.map-message { position: absolute; inset: 16px 16px auto; z-index: 3; padding: 16px; border-radius: 8px; background: #151a22; color: #e8edf4; border: 1px solid #39404b; }
+.map-message p { margin: 0 0 12px; }
+.kakao-pickup-marker { display: block; padding: 9px 12px; border: 1px solid #667180; border-radius: 8px; background: #1b222d; color: #f1f5fa; font-size: 12px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px #0004; cursor: pointer; }
+.kakao-pickup-marker[aria-pressed="true"] { background: #bfd5ef; border-color: #234568; color: #10243a; }
+.kakao-pickup-marker:focus-visible { outline: 3px solid #2685f4; outline-offset: 3px; }
+.pickup-location-picker { min-width: 0; width: 100%; }
+.pickup-location-picker .pickup-map { height: 260px; }
+.kakao-marker-group { position: relative; }
+.kakao-marker-group summary { list-style: none; }
+.kakao-marker-group summary::after { content: " ▾"; }
+.kakao-marker-list { position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); width: 240px; max-height: 180px; overflow-y: auto; padding: 6px; border: 1px solid #667180; border-radius: 8px; background: #1b222d; }
+.kakao-marker-list .kakao-pickup-marker { width: 100%; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; text-align: left; }

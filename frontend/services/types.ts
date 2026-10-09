@@ -1,7 +1,7 @@
 export type UserResponse = { id: number; name: string; email: string };
 export type LoginRequest = { email: string; password: string };
 export type SignupRequest = LoginRequest & { name: string };
-export type VehicleRequest = { manufacturer: string; model: string; modelYear: number; licensePlate: string };
+export type VehicleRequest = { manufacturer: string; model: string; modelYear: number; licensePlate: string; sharing?: { enabled: boolean; pickupLocation: string; latitude: number; longitude: number } };
 export type VehicleResponse = VehicleRequest & { id: number; createdAt: string; updatedAt: string; sharingEnabled: boolean; pickupLocation: string | null; pickupLatitude: number | null; pickupLongitude: number | null; lockState: "LOCKED" | "UNLOCKED" };
 export type OtaScenario = "VALID" | "TAMPERED_FILE" | "FAKE_PUBLISHER" | "ROLLBACK" | "INCOMPATIBLE_VEHICLE" | "TAMPERED_METADATA" | "INVALID_PACKAGE";
 export type OtaStatus = "APPROVED" | "BLOCKED" | "SIMULATED_APPROVAL";

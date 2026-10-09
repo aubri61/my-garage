@@ -1,7 +1,8 @@
 import { api } from "@/lib/api-client";
 import type { VehicleResponse } from "@/services/types";
 import type { AvailableVehicle, Rental, SharingSettings } from "./types";
-export async function availableVehicles(signal?: AbortSignal) { return (await api.get<AvailableVehicle[]>("/vehicles/available", { signal })).data; }
+export type RentalPeriod = { startsAt: string; endsAt: string };
+export async function availableVehicles(signal?: AbortSignal, period?: RentalPeriod) { return (await api.get<AvailableVehicle[]>("/vehicles/available", { signal, params: period })).data; }
 export async function listRentals(signal?: AbortSignal) { return (await api.get<Rental[]>("/rentals", { signal })).data; }
 export async function configureSharing(id: number, settings: SharingSettings) { return (await api.put<VehicleResponse>(`/vehicles/${id}/sharing`, settings)).data; }
 export async function createRental(input: { vehicleId: number; startsAt: string; endsAt: string }) { return (await api.post<Rental>("/rentals", input)).data; }

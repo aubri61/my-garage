@@ -22,6 +22,7 @@ class SharingIntegrationTests {
     @Autowired SharingService sharing;
     @Autowired UserRepository users;
     @Autowired VehicleRepository vehicles;
+    @Autowired VehicleService vehicleService;
     @Autowired RemoteUnlockRepository unlocks;
     @Autowired SecurityAuditRepository audits;
     @MockitoBean Clock clock;
@@ -128,4 +129,28 @@ class SharingIntegrationTests {
         assertThatThrownBy(() -> requested(now.minusSeconds(61),now.plusSeconds(60))).isInstanceOf(SharingException.class);
         assertThatThrownBy(() -> requested(now,now.plusSeconds(31L*86400))).isInstanceOf(SharingException.class);
     }
+    @Test void registeredPublicAndPrivateVehiclesUseRealRepositoriesAndOwnerFilters() {
+        var shared=vehicleService.register(owner.getEmail(), new com.mygarage.backend.vehicle.dto.VehicleRequest(
+                "기아", "EV6", 2026, "db-test-public", new SharingRequest(true,"성수 픽업",37.54,127.05)));
+        var hidden=vehicleService.register(owner.getEmail(), new com.mygarage.backend.vehicle.dto.VehicleRequest("현대","IONIQ 5",2025,"db-test-private"));
+        assertThat(vehicles.findById(shared.id()).orElseThrow().getPickupLocation()).isEqualTo("성수 픽업");
+        assertThat(vehicleService.list(owner.getEmail())).extracting(com.mygarage.backend.vehicle.dto.VehicleResponse::id).contains(shared.id(),hidden.id());
+        assertThat(vehicleService.list(renter.getEmail())).extracting(com.mygarage.backend.vehicle.dto.VehicleResponse::id).doesNotContain(shared.id(),hidden.id());
+        assertThat(sharing.available(renter.getEmail())).extracting(AvailableVehicle::id).contains(shared.id()).doesNotContain(hidden.id());
+        assertThat(sharing.available(owner.getEmail())).extracting(AvailableVehicle::id).doesNotContain(shared.id());
+        assertThatThrownBy(() -> sharing.publicDetail(renter.getEmail(),hidden.id())).isInstanceOf(VehicleNotFoundException.class);
+        assertThatThrownBy(() -> sharing.publicDetail(owner.getEmail(),shared.id())).isInstanceOf(VehicleNotFoundException.class);
+        assertThat(sharing.publicDetail(renter.getEmail(),shared.id()).pickupLocation()).isEqualTo("성수 픽업");
+    }
+    @Test void availabilityReflectsReservationsAndOwnPendingRequestsWithoutDisclosingParticipants() {
+        var r=requested(now,now.plusSeconds(3600));
+        assertThat(sharing.available(renter.getEmail(),now,now.plusSeconds(600))).filteredOn(v -> v.id().equals(vehicle.getId())).extracting(AvailableVehicle::available).containsExactly(false);
+        assertThat(sharing.available(stranger.getEmail(),now,now.plusSeconds(600))).filteredOn(v -> v.id().equals(vehicle.getId())).extracting(AvailableVehicle::available).containsExactly(true);
+        sharing.decide(owner.getEmail(),r.id(),true);
+        assertThat(sharing.available(stranger.getEmail(),now,now.plusSeconds(600))).filteredOn(v -> v.id().equals(vehicle.getId())).extracting(AvailableVehicle::available).containsExactly(false);
+        assertThat(sharing.available(stranger.getEmail(),now.plusSeconds(3600),now.plusSeconds(7200))).filteredOn(v -> v.id().equals(vehicle.getId())).extracting(AvailableVehicle::available).containsExactly(true);
+        assertThatThrownBy(() -> sharing.available(renter.getEmail(),now,null)).isInstanceOf(SharingException.class);
+        assertThatThrownBy(() -> sharing.available(renter.getEmail(),now,now)).isInstanceOf(SharingException.class);
+    }
+
 }

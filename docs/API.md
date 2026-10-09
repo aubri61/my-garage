@@ -55,3 +55,19 @@ unlock-requests proof:
 주요 오류: 400 INVALID_PERIOD/OWN_VEHICLE/INVALID_REQUEST, 401 UNAUTHORIZED, 403 FORBIDDEN/ACCESS_DENIED/PKI_REQUIRED/CHALLENGE_INVALID/인증서 검증 코드, 404 VEHICLE_NOT_FOUND/NOT_FOUND, 409 RENTAL_CONFLICT/NOT_SHARED/INVALID_STATE/UNLOCK_PENDING.
 
 SSE `ready`는 연결/REST 복원 신호다. `change`는 `{action,rentalId}` 힌트이며 이벤트 UUID는 중복 처리용이다. Last-Event-ID 재생은 제공하지 않는다.
+
+## 실제 차량 등록과 공개 기간 조회 (2026-10-09)
+
+`POST /api/vehicles`의 기존 네 필드에 선택적 `sharing` 객체를 추가했습니다. 생략하면 기존과 동일하게 비공개 등록됩니다. 제공한 경우 차량과 픽업/공유 설정을 한 트랜잭션에서 저장합니다.
+
+```json
+{"manufacturer":"현대","model":"IONIQ 5","modelYear":2026,"licensePlate":"123가4567","sharing":{"enabled":true,"pickupLocation":"서울 성수 공유 주차장","latitude":37.5445,"longitude":127.0557}}
+```
+
+- `GET /api/vehicles`: 로그인 사용자 소유 차량만, 공개 여부와 무관하게 반환.
+- `GET /api/vehicles/available?startsAt=ISO8601&endsAt=ISO8601`: 타인 소유 공개 차량만 반환. 두 기간 파라미터를 함께 제공하면 `available`을 반환하며 승인된 겹치는 예약 및 본인의 겹치는 대기 요청을 반영합니다. 기간을 생략하면 `available: null`입니다. 이 조회는 최종 예약 보장이 아닙니다. 신청·승인은 기존 차량 행 잠금으로 재검증합니다.
+- `GET /api/vehicles/available/{id}`: 타인 소유 공개 차량의 제한된 DTO만 반환. 본인 소유/비공개 차량은 404. 차량 번호, 소유자 이메일 및 사용자 엔티티는 반환하지 않습니다.
+- SSE `change`: 대여 당사자에게만 action/rentalId 전달.
+- SSE `vehicles`: 소유자의 다른 활성 화면에 내 차량 조회 갱신 안내.
+- SSE `inventory`: 인증된 사용자에게 공개 목록 갱신 안내만 전달. 대여 ID, 소유자, 차량 번호 및 계약 내용이 없습니다.
+- 모든 SSE 상태 이벤트는 트랜잭션 커밋 이후 전송합니다. 같은 이벤트는 모든 수신자에게 같은 ID를 사용합니다. 클라이언트는 ID 중복을 제거하고 갱신을 묶으며, 초기 조회까지 취소 후 재조회해 이전 응답이 남지 않게 합니다. 재연결의 `ready` 시 REST 전체 상태를 다시 조회합니다.

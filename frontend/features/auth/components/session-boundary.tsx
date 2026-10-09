@@ -8,7 +8,7 @@ import { errorMessage } from "@/lib/api-client";
 
 export function SessionBoundary({ children }: { children: ReactNode }) {
   const session = useSession();
-  if (session.isPending) return <main className="account-main"><p role="status">차고지를 준비하고 있습니다…</p></main>;
+  if (session.isPending) return <AccountShell title="로그인 상태 확인 중" description=""><p role="status">차고지를 준비하고 있습니다…</p></AccountShell>;
   if (session.isError) return <AccountShell title="로그인 상태를 확인하지 못했습니다." description={errorMessage(session.error)}>
     <button className="form-submit" onClick={() => void session.refetch()}>다시 확인</button><Link href="/login" className="form-secondary">로그인</Link>
   </AccountShell>;

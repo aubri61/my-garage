@@ -13,7 +13,7 @@ test("새 공유 데모는 양측 승인·계약·접근 회수를 체험하며 
   await page.getByRole("searchbox").fill("없는 위치");
   await expect(page.getByText("조건에 맞는 예시 차량이 없습니다.")).toBeVisible();
   await page.getByRole("searchbox").fill("성수");
-  await page.getByRole("button", { name: /Hyundai IONIQ 5/ }).click();
+  await page.locator(".available-list").getByRole("button", { name: /Hyundai IONIQ 5/ }).click();
   await page.getByRole("button", { name: "대여 요청 체험", exact: true }).click();
   await expect(page.getByRole("status", { name: "" }).filter({ hasText: /^승인 대기$/ })).toBeVisible();
   await page.getByRole("button", { name: "소유자 모드", exact: true }).click();
@@ -44,7 +44,7 @@ test("새 공유 데모는 양측 승인·계약·접근 회수를 체험하며 
 test("모바일 체험은 거절과 초기화를 제공하며 이전 데모도 별도 경로에 남아 있다", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/demo");
-  await page.getByRole("button", { name: /Kia EV6/ }).click();
+  await page.locator(".available-list").getByRole("button", { name: /Kia EV6/ }).click();
   await page.getByRole("button", { name: "대여 요청 체험", exact: true }).click();
   await page.getByRole("button", { name: "소유자 모드", exact: true }).click();
   await page.getByRole("button", { name: "대여 거절 체험", exact: true }).click();

@@ -36,29 +36,35 @@ public class SharingService {
         this.unlocks=unlocks; this.audit=audit; this.events=events; this.entities=entities; this.clock=clock; this.pki=pki; this.challenges=challenges;
     }
     @Transactional(readOnly=true)
-    public List<AvailableVehicle> available(String email) {
-        return vehicles.findAllBySharingEnabledTrueOrderByIdDesc().stream()
-                .filter(v -> !v.getOwner().getEmail().equals(email)).map(AvailableVehicle::from).toList();
+    public List<AvailableVehicle> available(String email) { return available(email, null, null); }
+    @Transactional(readOnly=true)
+    public List<AvailableVehicle> available(String email, Instant start, Instant end) {
+        if ((start == null) != (end == null)) throw failure(BAD_REQUEST, "INVALID_PERIOD", "시작과 종료 시각을 함께 입력해주세요.");
+        if (start != null) validatePeriod(start, end);
+        var blocked = start == null ? Set.<Long>of() : Set.copyOf(rentals.unavailableVehicles(email, start, end,
+                Set.of(Rental.Status.CONTRACT_PENDING, Rental.Status.CONFIRMED, Rental.Status.ACTIVE), Rental.Status.REQUESTED));
+        return vehicles.findPublicForRenter(email).stream().map(v -> AvailableVehicle.from(v, start == null ? null : !blocked.contains(v.getId()))).toList();
+    }
+    @Transactional(readOnly=true)
+    public AvailableVehicle publicDetail(String email, Long id) {
+        var v=vehicles.findById(id).filter(vehicle -> vehicle.isSharingEnabled() && !vehicle.getOwner().getEmail().equals(email))
+                .orElseThrow(VehicleNotFoundException::new);
+        return AvailableVehicle.from(v);
     }
     public VehicleResponse sharing(String email, Long vehicleId, SharingRequest request) {
         Vehicle v=lockVehicle(vehicleId);
         owner(v, email);
         v.configureSharing(request.enabled(), request.pickupLocation(), request.latitude(), request.longitude());
         audit.save(new SecurityAuditLog(email, "SHARING_CHANGED", null));
+        events.publishEvent(new NotificationService.VehicleChange(email));
+        events.publishEvent(new NotificationService.InventoryChange());
         return VehicleResponse.from(v);
     }
     public RentalView request(String email, RentalRequest input) {
         Vehicle v=lockVehicle(input.vehicleId());
         if (!v.isSharingEnabled()) throw failure(CONFLICT, "NOT_SHARED", "공유가 중단된 차량입니다.");
         if (v.getOwner().getEmail().equals(email)) throw failure(BAD_REQUEST, "OWN_VEHICLE", "본인 차량은 대여할 수 없습니다.");
-        Instant now=clock.instant();
-        if (!input.startsAt().isBefore(input.endsAt()) || !input.endsAt().isAfter(now))
-            throw failure(BAD_REQUEST, "INVALID_PERIOD", "종료는 시작 이후이면서 현재보다 미래여야 합니다.");
-        // Starting now is supported so two-user demos don't require a scheduler or a past-time bypass.
-        if (input.startsAt().isBefore(now.minusSeconds(60)))
-            throw failure(BAD_REQUEST, "INVALID_PERIOD", "시작 시각은 현재 또는 미래여야 합니다.");
-        if (input.endsAt().isAfter(input.startsAt().plusSeconds(30L*24*3600)))
-            throw failure(BAD_REQUEST, "INVALID_PERIOD", "대여 기간은 30일 이내여야 합니다.");
+        validatePeriod(input.startsAt(), input.endsAt());
         for (Rental other : rentals.findAllByVehicleId(v.getId())) {
             if (!overlaps(other, input.startsAt(), input.endsAt())) continue;
             if (reserved(other.getStatus()) || (other.getStatus() == Rental.Status.REQUESTED && other.getRenter().getEmail().equals(email)))
@@ -217,6 +223,12 @@ public class SharingService {
     }
     private void owner(Vehicle v, String email) { if (!v.getOwner().getEmail().equals(email)) throw new VehicleNotFoundException(); }
     private void renter(Rental r, String email) { if (!r.getRenter().getEmail().equals(email)) throw failure(NOT_FOUND, "NOT_FOUND", "대여를 찾을 수 없습니다."); }
+    private void validatePeriod(Instant start, Instant end) {
+        Instant now=clock.instant();
+        if (!start.isBefore(end) || !end.isAfter(now) || start.isBefore(now.minusSeconds(60))
+                || end.isAfter(start.plusSeconds(30L*24*3600)))
+            throw failure(BAD_REQUEST, "INVALID_PERIOD", "현재 또는 미래의 시작과 30일 이내의 종료 시각을 선택해주세요.");
+    }
     private boolean reserved(Rental.Status status) { return Set.of(Rental.Status.CONTRACT_PENDING, Rental.Status.CONFIRMED, Rental.Status.ACTIVE).contains(status); }
     private boolean overlaps(Rental r, Instant start, Instant end) { return r.getStartsAt().isBefore(end) && start.isBefore(r.getEndsAt()); }
     private void require(boolean condition, String message) { if (!condition) throw failure(CONFLICT, "INVALID_STATE", message); }
@@ -224,6 +236,8 @@ public class SharingService {
     private void changed(Rental r, String actor, String action) {
         audit.save(new SecurityAuditLog(actor, action, r.getId()));
         events.publishEvent(new NotificationService.Change(Set.of(r.getVehicle().getOwner().getEmail(), r.getRenter().getEmail()), action, r.getId()));
+        if (Set.of("RENTAL_REQUESTED", "RENTAL_APPROVED", "RENTAL_REJECTED", "RENTAL_COMPLETED").contains(action))
+            events.publishEvent(new NotificationService.InventoryChange());
     }
     private RentalView view(Rental r) {
         var grant=grants.findByRentalId(r.getId()).map(g -> new GrantView(g.active(clock.instant()), g.getStartsAt(), g.getEndsAt(), g.getRevokedAt(), g.getAllowedOperation())).orElse(null);

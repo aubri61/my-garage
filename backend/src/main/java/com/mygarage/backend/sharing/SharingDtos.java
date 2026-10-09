@@ -12,10 +12,11 @@ public final class SharingDtos {
             @NotNull @DecimalMin("-180") @DecimalMax("180") Double longitude) {}
     // Public listing never exposes a plate, email, or owner entity.
     public record AvailableVehicle(Long id, String manufacturer, String model, Integer modelYear,
-            String pickupLocation, Double latitude, Double longitude) {
-        public static AvailableVehicle from(Vehicle v) {
+            String pickupLocation, Double latitude, Double longitude, Boolean available) {
+        public static AvailableVehicle from(Vehicle v) { return from(v, null); }
+        public static AvailableVehicle from(Vehicle v, Boolean available) {
             return new AvailableVehicle(v.getId(), v.getManufacturer(), v.getModel(), v.getModelYear(),
-                    v.getPickupLocation(), v.getPickupLatitude(), v.getPickupLongitude());
+                    v.getPickupLocation(), v.getPickupLatitude(), v.getPickupLongitude(), available);
         }
     }
     public record RentalRequest(@NotNull Long vehicleId, @NotNull Instant startsAt, @NotNull Instant endsAt) {}

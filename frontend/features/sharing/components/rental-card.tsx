@@ -12,15 +12,16 @@ export function RentalCard({ rental, mode }: { rental: Rental; mode: "owner" | "
   const security = useQuery({ queryKey: ["sharing-security"], queryFn: async ({ signal }) => (await api.get<{ pkiRequired: boolean }>("/sharing/security", { signal })).data });
   const mutation = useMutation({ mutationFn: (input: { action: RentalAction } | { unlockId: number; decision: "approve" | "reject" }) =>
     "action" in input ? rentalAction(rental.id, input.action) : unlockAction(input.unlockId, input.decision),
-    onSuccess: async () => { await Promise.all([client.invalidateQueries({ queryKey: ["rentals"] }), client.invalidateQueries({ queryKey: ["vehicles"] })]); } });
+    onSuccess: async () => { await Promise.all([client.invalidateQueries({ queryKey: ["rentals"] }), client.invalidateQueries({ queryKey: ["vehicles"] }), client.invalidateQueries({ queryKey: ["available-vehicles"] })]); } });
   function action(action: RentalAction) { if (!mutation.isPending) mutation.mutate({ action }); }
   const consent = owner ? rental.ownerConsentedAt : rental.renterConsentedAt;
   const grant = rental.accessGrant;
   return <article className="sharing-panel rental-card"><div className="sharing-title"><h3>{rental.vehicleModel}</h3><span className="sharing-status">{rentalLabels[rental.status]}</span></div>
     <p>대여 #{rental.id} · 픽업 {rental.pickupLocation}</p><p>{new Date(rental.startsAt).toLocaleString("ko-KR")} ~ {new Date(rental.endsAt).toLocaleString("ko-KR")}</p>
     {owner && rental.status === "REQUESTED" && <div className="sharing-actions"><button disabled={mutation.isPending} onClick={() => action("approve")}>대여 승인</button><button disabled={mutation.isPending} onClick={() => action("reject")}>대여 거절</button></div>}
-    {!["REQUESTED", "REJECTED", "CANCELLED"].includes(rental.status) && <details><summary>계약 조건 · {rental.termsVersion}</summary><p>{rental.terms}</p>
-      <p>소유자: {rental.ownerConsentedAt ? "동의 완료" : "동의 대기"} · 대여자: {rental.renterConsentedAt ? "동의 완료" : "동의 대기"}</p>
+    {rental.ownerConsentedAt && rental.renterConsentedAt && <p>계약 확정 · 양측 동의 완료</p>}
+    {!["REQUESTED", "REJECTED", "CANCELLED"].includes(rental.status) && <details open={rental.status === "CONTRACT_PENDING"}><summary>계약 조건 · {rental.termsVersion}</summary><p>{rental.terms}</p><p className="sharing-disclosure">모의 계약 · 법적 전자서명 서비스가 아닙니다.</p><p>계약 확정: {rental.ownerConsentedAt && rental.renterConsentedAt ? "양측 동의 완료" : "동의 대기"}</p>
+      <p>소유자: {rental.ownerConsentedAt ? `#${rental.ownerId} · ${new Date(rental.ownerConsentedAt).toLocaleString("ko-KR")}` : "동의 대기"} · 대여자: {rental.renterConsentedAt ? `#${rental.renterId} · ${new Date(rental.renterConsentedAt).toLocaleString("ko-KR")}` : "동의 대기"}</p>
       {rental.status === "CONTRACT_PENDING" && !consent && <button disabled={mutation.isPending} onClick={() => action("consents")}>위 계약 조건에 동의</button>}</details>}
     <dl className="sharing-data"><div><dt>가상 차량 상태</dt><dd>{rental.lockState === "LOCKED" ? "잠김 · LOCKED" : "해제됨 · UNLOCKED"}</dd></div>
       <div><dt>디지털 접근 권한</dt><dd>{!grant ? "미발급" : grant.revokedAt ? "회수됨" : grant.active ? "활성 · REQUEST_UNLOCK" : "기간 외 · 비활성"}</dd></div></dl>

@@ -79,12 +79,12 @@ export async function logIn(page: Page) {
 
 export async function addVehicle(page: Page, model = "EV6") {
   await page.goto("/vehicles/register");
-  await page.getByLabel("제조사", { exact: true }).fill("Kia");
-  await page.getByLabel("차종", { exact: true }).fill(model);
-  await page.getByLabel("연식", { exact: true }).fill("2025");
+  await page.getByLabel("제조사", { exact: true }).selectOption("기아");
+  await page.getByLabel("차종", { exact: true }).selectOption(model);
+  await page.getByLabel("연식", { exact: true }).selectOption("2025");
   await page.getByLabel("차량 번호", { exact: true }).fill("123가4567");
   await page.getByRole("button", { name: "차량 등록", exact: true }).click();
   await expect(page.getByRole("heading", { name: "차량 등록이 완료되었습니다." })).toBeVisible();
-  await page.getByRole("link", { name: "내 차량 확인하기", exact: true }).first().click();
-  await expect(page.getByRole("heading", { name: `Kia ${model}`, exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "기존 차고지·OTA 확인하기", exact: true }).first().click();
+  await expect(page.getByRole("heading", { name: `기아 ${model}`, exact: true })).toBeVisible();
 }

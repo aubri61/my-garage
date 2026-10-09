@@ -13,10 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final UserRepository userRepository;
+    private final org.springframework.context.ApplicationEventPublisher events;
 
-    public VehicleService(VehicleRepository vehicleRepository, UserRepository userRepository) {
+    public VehicleService(VehicleRepository vehicleRepository, UserRepository userRepository, org.springframework.context.ApplicationEventPublisher events) {
         this.vehicleRepository = vehicleRepository;
         this.userRepository = userRepository;
+        this.events = events;
     }
 
     @Transactional
@@ -25,7 +27,14 @@ public class VehicleService {
                 .orElseThrow(() -> new BadCredentialsException("사용자를 찾을 수 없습니다."));
         var vehicle = new Vehicle(owner, request.manufacturer(), request.model(),
                 request.modelYear(), request.licensePlate());
-        return VehicleResponse.from(vehicleRepository.save(vehicle));
+        if (request.sharing() != null) {
+            var sharing = request.sharing();
+            vehicle.configureSharing(sharing.enabled(), sharing.pickupLocation(), sharing.latitude(), sharing.longitude());
+        }
+        vehicleRepository.save(vehicle);
+        events.publishEvent(new com.mygarage.backend.sharing.NotificationService.VehicleChange(email));
+        if (vehicle.isSharingEnabled()) events.publishEvent(new com.mygarage.backend.sharing.NotificationService.InventoryChange());
+        return VehicleResponse.from(vehicle);
     }
 
     public List<VehicleResponse> list(String email) {

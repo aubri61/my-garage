@@ -1,4 +1,4 @@
-export type AvailableVehicle = { id: number; manufacturer: string; model: string; modelYear: number; pickupLocation: string; latitude: number; longitude: number };
+export type AvailableVehicle = { id: number; manufacturer: string; model: string; modelYear: number; pickupLocation: string; latitude: number; longitude: number; available?: boolean | null };
 export type RentalStatus = "REQUESTED" | "REJECTED" | "CONTRACT_PENDING" | "CONFIRMED" | "ACTIVE" | "COMPLETED" | "CANCELLED";
 export type AccessGrant = { active: boolean; startsAt: string; endsAt: string; revokedAt: string | null; allowedOperation: "REQUEST_UNLOCK" };
 export type UnlockRequest = { id: number; status: "PENDING" | "APPROVED" | "REJECTED" | "EXPIRED" | "CANCELLED"; requestedAt: string; pkiVerified: boolean };

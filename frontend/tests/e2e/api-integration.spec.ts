@@ -44,7 +44,7 @@ test("차량 등록·상세·새로고침·OTA 승인/차단/OFF·이력 갱신"
   await logIn(page);
   await addVehicle(page);
   await page.reload();
-  await expect(page.getByRole("heading", { name: "Kia EV6", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "기아 EV6", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "차량 정보 자세히 보기" }).click();
   await expect(page.getByRole("dialog")).toContainText("2025 · 123가4567");
   await expect(page.getByRole("dialog")).not.toContainText("디지털 차량 인증서");
@@ -75,9 +75,9 @@ test("CSRF 403은 자동 재시도하지 않으며 다음 수동 요청으로 �
   const api = await installApiFixture(page);
   await logIn(page);
   await page.goto("/vehicles/register");
-  await page.getByLabel("제조사", { exact: true }).fill("Kia");
-  await page.getByLabel("차종", { exact: true }).fill("EV6");
-  await page.getByLabel("연식", { exact: true }).fill("2025");
+  await page.getByLabel("제조사", { exact: true }).selectOption("기아");
+  await page.getByLabel("차종", { exact: true }).selectOption("EV6");
+  await page.getByLabel("연식", { exact: true }).selectOption("2025");
   await page.getByLabel("차량 번호", { exact: true }).fill("123가4567");
   let attempts = 0;
   page.on("request", request => { if (request.url().endsWith("/api/vehicles") && request.method() === "POST") attempts++; });
@@ -97,7 +97,7 @@ test("보호 API의 세션 만료는 차량 화면을 숨긴다", async ({ page 
   api.expireSession();
   await page.getByRole("button", { name: "차량 정보 자세히 보기" }).click();
   await expect(page.getByText("로그인이 필요하거나 세션이 만료되었습니다.", { exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Kia EV6", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "기아 EV6", exact: true })).toHaveCount(0);
 });
 
 test("검증 중 중복 실행 방지 및 차량 전환 후 이전 결과 격리", async ({ page }) => {
@@ -105,13 +105,13 @@ test("검증 중 중복 실행 방지 및 차량 전환 후 이전 결과 격리
   await logIn(page);
   await addVehicle(page);
   await page.goto("/vehicles/register");
-  await page.getByLabel("제조사", { exact: true }).fill("Kia");
-  await page.getByLabel("차종", { exact: true }).fill("OTHER");
-  await page.getByLabel("연식", { exact: true }).fill("2025");
+  await page.getByLabel("제조사", { exact: true }).selectOption("기아");
+  await page.getByLabel("차종", { exact: true }).selectOption("EV3");
+  await page.getByLabel("연식", { exact: true }).selectOption("2025");
   await page.getByLabel("차량 번호", { exact: true }).fill("234나5678");
   await page.getByRole("button", { name: "차량 등록", exact: true }).click();
-  await page.getByRole("link", { name: "내 차량 확인하기", exact: true }).first().click();
-  await page.getByRole("button", { name: "Kia EV6 선택", exact: true }).click();
+  await page.getByRole("link", { name: "기존 차고지·OTA 확인하기", exact: true }).first().click();
+  await page.getByRole("button", { name: "기아 EV6 선택", exact: true }).click();
   await page.locator("button#updates").click();
   await page.getByLabel("검증 시나리오").selectOption("TAMPERED_FILE");
   let release = () => {};
@@ -124,9 +124,9 @@ test("검증 중 중복 실행 방지 및 차량 전환 후 이전 결과 격리
   await started;
   await expect(page.getByRole("button", { name: "검증 실행 중…", exact: true })).toBeDisabled();
   await page.getByRole("button", { name: "팝업 닫기" }).click();
-  await page.getByRole("button", { name: "Kia OTHER 선택", exact: true }).click();
+  await page.getByRole("button", { name: "기아 EV3 선택", exact: true }).click();
   await page.locator("button#updates").click();
-  await expect(page.getByRole("dialog")).toContainText("Kia OTHER");
+  await expect(page.getByRole("dialog")).toContainText("기아 EV3");
   const finished = page.waitForResponse("**/api/vehicles/1/ota/verify");
   release();
   await finished;

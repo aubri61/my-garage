@@ -21,3 +21,6 @@ production 서버는 127.0.0.1:3100에 별도로 실행한다. Chrome 설치가 
 REST rewrite에 사용하는 BACKEND_URL로 build한 뒤 같은 BACKEND_URL로 test:e2e를 실행합니다.
 테스트는 Web Crypto 실제 서명, 잘못된 기기 ID, replay 차단 및 모바일 overflow를 검사합니다.
 검증을 위해 잠시 다른 backend 포트로 build했다면 최종 일반 실행용으로 기본 BACKEND_URL로 다시 build하세요.
+
+
+`sharing-data-live.spec.ts`도 `RUN_LIVE_SHARING=1`로 실행합니다. 세 실제 계정을 가입시키고 실제 로그인 UI를 사용합니다. A의 등록 폼, 제조사별 차종 선택, 공개 등록, B 목록/좌표 마커 자동 반영, 자기 차량 제외, 공개 상세의 개인정보 제외, 양측 동의/접근 차단, SSE 개인 알림 및 제3자 격리, 승인 후 가상 상태, 오프라인 복구, 비공개 전환을 검사합니다. API 성공을 가로채지 않습니다. 기본 지도 키가 비어 있는 로컬 환경에서는 도로 지도 대신 실제 DB 좌표 개요의 마커를 검사합니다. 증거는 `/private/tmp/my-garage-data-live-evidence.json` 및 같은 디렉터리의 `my-garage-data-owner.png`, `my-garage-data-renter.png`에 기록합니다.

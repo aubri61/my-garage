@@ -18,6 +18,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Service
 public class NotificationService {
     public record Change(Set<String> recipients, String action, Long rentalId) {}
+    public record InventoryChange() {}
+    public record VehicleChange(String email) {}
     private record Subscription(String email, String sessionId, SseEmitter emitter) {}
     private final Set<Subscription> subscriptions=ConcurrentHashMap.newKeySet();
 
@@ -37,10 +39,22 @@ public class NotificationService {
     // Events are hints, emitted only after the DB transaction commits. REST is authoritative.
     @TransactionalEventListener
     public void publish(Change event) {
+        send("change", new Payload(event.action(), event.rentalId()), event.recipients());
+    }
+    @TransactionalEventListener
+    public void publishInventory(InventoryChange event) {
+        // Public inventory invalidation only: never include a rental, owner or plate.
+        send("inventory", java.util.Map.of("action", "AVAILABLE_VEHICLES_CHANGED"), null);
+    }
+    @TransactionalEventListener
+    public void publishVehicle(VehicleChange event) {
+        send("vehicles", java.util.Map.of("action", "VEHICLES_CHANGED"), Set.of(event.email()));
+    }
+    private void send(String name, Object payload, Set<String> recipients) {
+        String eventId=UUID.randomUUID().toString();
         for (var subscription : subscriptions) {
-            if (!event.recipients().contains(subscription.email())) continue;
-            try { subscription.emitter().send(SseEmitter.event().id(UUID.randomUUID().toString())
-                    .name("change").data(new Payload(event.action(), event.rentalId()))); }
+            if (recipients != null && !recipients.contains(subscription.email())) continue;
+            try { subscription.emitter().send(SseEmitter.event().id(eventId).name(name).data(payload)); }
             catch (IOException | IllegalStateException error) {
                 subscriptions.remove(subscription); subscription.emitter().complete();
             }

@@ -19,7 +19,11 @@ public class SharingController {
     private final NotificationService notifications;
     private final com.mygarage.backend.sharing.pki.PkiVerifier pki;
     public SharingController(SharingService service, NotificationService notifications, com.mygarage.backend.sharing.pki.PkiVerifier pki) { this.service=service; this.notifications=notifications; this.pki=pki; }
-    @GetMapping("/api/vehicles/available") public List<AvailableVehicle> available(Principal p) { return service.available(p.getName()); }
+    @GetMapping("/api/vehicles/available") public List<AvailableVehicle> available(Principal p,
+            @RequestParam(required=false) java.time.Instant startsAt, @RequestParam(required=false) java.time.Instant endsAt) {
+        return service.available(p.getName(), startsAt, endsAt);
+    }
+    @GetMapping("/api/vehicles/available/{id}") public AvailableVehicle publicDetail(Principal p, @PathVariable Long id) { return service.publicDetail(p.getName(), id); }
     @PutMapping("/api/vehicles/{id}/sharing") public VehicleResponse sharing(Principal p, @PathVariable Long id, @Valid @RequestBody SharingRequest body) { return service.sharing(p.getName(), id, body); }
     @PostMapping("/api/vehicles/{id}/lock") public VehicleResponse lock(Principal p, @PathVariable Long id) { return service.lock(p.getName(), id); }
     @PostMapping("/api/rentals") @ResponseStatus(org.springframework.http.HttpStatus.CREATED)

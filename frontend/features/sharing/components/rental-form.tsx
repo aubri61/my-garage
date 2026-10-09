@@ -1,16 +1,16 @@
 "use client";
 import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createRental } from "../api";
+import { createRental, type RentalPeriod } from "../api";
 import type { AvailableVehicle } from "../types";
 import { errorMessage } from "@/lib/api-client";
-export function RentalForm({ vehicle }: { vehicle: AvailableVehicle }) {
+export function RentalForm({ vehicle, period }: { vehicle: AvailableVehicle; period?: RentalPeriod }) {
   const client = useQueryClient();
-  const [start, setStart] = useState("");
-  const [end, setEnd] = useState("");
+  const [start, setStart] = useState(period ? localTime(period.startsAt) : "");
+  const [end, setEnd] = useState(period ? localTime(period.endsAt) : "");
   const [validation, setValidation] = useState("");
   const mutation = useMutation({ mutationFn: createRental, onSuccess: async () => {
-    await client.invalidateQueries({ queryKey: ["rentals"] });
+    await Promise.all([client.invalidateQueries({ queryKey: ["rentals"] }), client.invalidateQueries({ queryKey: ["available-vehicles"] })]);
   } });
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,6 +29,8 @@ export function RentalForm({ vehicle }: { vehicle: AvailableVehicle }) {
     </fieldset><p className="sharing-disclosure">공유 공개는 시간별 예약 가능 보장이 아닙니다. 최종 충돌 검사는 서버에서 수행합니다.</p>
       {(validation || mutation.isError) && <p className="form-error" role="alert">{validation || errorMessage(mutation.error)}</p>}
       {mutation.isSuccess && <p role="status">대여 요청 #{mutation.data.id}을 전송했습니다. 아래 내 대여에서 진행 상황을 확인하세요.</p>}
-      <button className="form-submit" disabled={mutation.isPending}>{mutation.isPending ? "요청 중…" : "대여 신청"}</button>
+      <button className="form-submit" disabled={mutation.isPending || (vehicle.available === false && !!period && start === localTime(period.startsAt) && end === localTime(period.endsAt))}>{mutation.isPending ? "요청 중…" : "대여 신청"}</button>
     </form></section>;
 }
+
+function localTime(value: string) { const date = new Date(value); return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16); }
