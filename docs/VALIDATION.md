@@ -178,3 +178,12 @@ PKI Chrome 시연은 별도 backend 8082에서 `sharing.pki.required=true`와 �
 
 - 최종 실제 대여자 브라우저: DB API 차량 6대와 최초 전체 지도 마커 6개 일치. 동일 픽업 위치의 5대는 펼침 그룹으로 선택하며 목록 선택/마커 선택 표시가 연동된다. 성공 타일 응답 26개, page exception 0. 최초 검증에서 겹친 마커 클릭 실패를 발견하여 그룹 UI를 추가했다. 이후 펼침 선택 후 닫힌 항목 접근/화면 밖 마커 개수를 가정했던 검증은 실패했으며, 실제 UI 동작과 전체 뷰 기준으로 수정한 검증이 통과했다.
 - 최종 lint 및 프로덕션 build(TypeScript 포함) 성공. 전체 기본 E2E **16 passed, 3 skipped**(live sharing/data/PKI 옵션 미설정). 실제 지도 성공은 허용된 localhost:3000 Chrome에서 별도로 검증했다. 백엔드 코드는 지도 변경에서 수정하지 않았으며 Gradle/live SSE 전체 시나리오는 이번 후속 변경에서 다시 실행하지 않았다.
+
+## Frontend UX redesign — 2026-10-09
+
+- White/blue shared theme, request-first renter/owner sections, collapsed history/settings, isolated owner OTA security section, Korean copy and redaction of known DB test labels. Existing IDs and API authorization remain intact.
+- Additive public ownerName and rental ownerName/renterName only; backend Gradle tests **46 passed** (0 failures/errors). No schema reset.
+- Final lint/production build including TypeScript passed; unit tests **8 passed**. Full E2E with RUN_LIVE_SHARING=1: **20 passed, 1 skipped** (dedicated browser PKI fixture not enabled). Session/CSRF/OTA regression and real A/B/C sharing/SSE flows passed. Earlier ambiguous alert and collapsed-history locator failures were corrected and the complete suite rerun.
+- Real localhost:3000 Chrome confirmed Kakao address/keyword results, selection with automatic coordinates/marker, reverse address lookup after map click, owner security selector and preserved OTA UI, live API owner names, internal-label redaction, light theme and mobile layout. Test server 127.0.0.1:3100 is not Kakao-authorized and is not treated as successful map evidence.
+- Latest real UI vehicle **180**, rental **142** evidence: `/private/tmp/my-garage-data-live-evidence.json`. UX screenshots: `/private/tmp/my-garage-ux-demo.png`, `my-garage-ux-registration.png`, `my-garage-ux-owner.png`, `my-garage-ux-owner-mobile.png`, `my-garage-ux-renter.png`, `my-garage-ux-renter-mobile.png`.
+- See FRONTEND_UX_REDESIGN.md for source audit, manual paths, category/fuel/image/plate limitations. No commit, push, deploy or DB reset.

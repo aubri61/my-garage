@@ -3,11 +3,14 @@ import { useState, type FormEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createRental, type RentalPeriod } from "../api";
 import type { AvailableVehicle } from "../types";
+import { vehicleName, pickupAddress, personName, initialRentalPeriod } from "../presentation";
+import { VehiclePlaceholder } from "./vehicle-placeholder";
+import { RentalPeriodFields } from "./rental-period-fields";
 import { errorMessage } from "@/lib/api-client";
 export function RentalForm({ vehicle, period }: { vehicle: AvailableVehicle; period?: RentalPeriod }) {
   const client = useQueryClient();
-  const [start, setStart] = useState(period ? localTime(period.startsAt) : "");
-  const [end, setEnd] = useState(period ? localTime(period.endsAt) : "");
+  const [start, setStart] = useState(period ? localTime(period.startsAt) : initialRentalPeriod().start);
+  const [end, setEnd] = useState(period ? localTime(period.endsAt) : initialRentalPeriod().end);
   const [validation, setValidation] = useState("");
   const mutation = useMutation({ mutationFn: createRental, onSuccess: async () => {
     await Promise.all([client.invalidateQueries({ queryKey: ["rentals"] }), client.invalidateQueries({ queryKey: ["available-vehicles"] })]);
@@ -21,15 +24,14 @@ export function RentalForm({ vehicle, period }: { vehicle: AvailableVehicle; per
     }
     setValidation(""); mutation.mutate({ vehicleId: vehicle.id, startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString() });
   }
-  return <section className="sharing-panel" aria-labelledby="rental-form-title"><p className="eyebrow">RENTAL REQUEST</p>
-    <h2 id="rental-form-title">{vehicle.manufacturer} {vehicle.model}</h2><p>{vehicle.modelYear} · 공유 가능</p><p>픽업: {vehicle.pickupLocation}</p>
+  return <section className="sharing-panel rental-application" aria-labelledby="rental-form-title"><p className="eyebrow">대여 신청</p>
+    <h2 id="rental-form-title">{vehicleName(vehicle.manufacturer, vehicle.model)}</h2><VehiclePlaceholder manufacturer={vehicle.manufacturer} model={vehicle.model} /><p>{vehicle.modelYear}년 · 소유자 {personName(vehicle.ownerName)}</p><p>픽업 주소: {pickupAddress(vehicle.pickupLocation)}</p>
     <form onSubmit={submit}><fieldset disabled={mutation.isPending} className="form-fields"><legend className="sr-only">대여 시간 선택</legend>
-      <label className="form-field">시작 시각 (기기 현지 시간)<input type="datetime-local" required value={start} onChange={e => setStart(e.target.value)} /></label>
-      <label className="form-field">종료 시각 (기기 현지 시간)<input type="datetime-local" required value={end} onChange={e => setEnd(e.target.value)} /></label>
-    </fieldset><p className="sharing-disclosure">공유 공개는 시간별 예약 가능 보장이 아닙니다. 최종 충돌 검사는 서버에서 수행합니다.</p>
+      <RentalPeriodFields start={start} end={end} onStart={setStart} onEnd={setEnd} />
+    </fieldset><p className="sharing-disclosure">소유자 승인 후 양측이 계약에 동의하면 이용이 확정됩니다. 신청 시 예약 가능 여부를 다시 확인합니다.</p>
       {(validation || mutation.isError) && <p className="form-error" role="alert">{validation || errorMessage(mutation.error)}</p>}
-      {mutation.isSuccess && <p role="status">대여 요청 #{mutation.data.id}을 전송했습니다. 아래 내 대여에서 진행 상황을 확인하세요.</p>}
-      <button className="form-submit" disabled={mutation.isPending || (vehicle.available === false && !!period && start === localTime(period.startsAt) && end === localTime(period.endsAt))}>{mutation.isPending ? "요청 중…" : "대여 신청"}</button>
+      {mutation.isSuccess && <p role="status">대여 신청이 완료되었습니다. 상단 내 대여 요청에서 진행 상황을 확인하세요.</p>}
+      <button className="form-submit" disabled={mutation.isPending || (vehicle.available === false && !!period && start === localTime(period.startsAt) && end === localTime(period.endsAt))}>{mutation.isPending ? "요청 중…" : "대여 신청하기"}</button>
     </form></section>;
 }
 

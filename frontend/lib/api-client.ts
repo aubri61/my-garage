@@ -32,6 +32,6 @@ api.interceptors.response.use(response => response, error => {
 });
 
 export function errorMessage(error: unknown) {
-  return error instanceof ApiError ? `${error.message} (${error.code})`
+  return error instanceof ApiError ? error.message
     : error instanceof Error ? error.message : "다시 시도해주세요.";
 }

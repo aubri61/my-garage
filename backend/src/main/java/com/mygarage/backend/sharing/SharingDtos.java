@@ -12,11 +12,11 @@ public final class SharingDtos {
             @NotNull @DecimalMin("-180") @DecimalMax("180") Double longitude) {}
     // Public listing never exposes a plate, email, or owner entity.
     public record AvailableVehicle(Long id, String manufacturer, String model, Integer modelYear,
-            String pickupLocation, Double latitude, Double longitude, Boolean available) {
+            String pickupLocation, Double latitude, Double longitude, Boolean available, String ownerName) {
         public static AvailableVehicle from(Vehicle v) { return from(v, null); }
         public static AvailableVehicle from(Vehicle v, Boolean available) {
             return new AvailableVehicle(v.getId(), v.getManufacturer(), v.getModel(), v.getModelYear(),
-                    v.getPickupLocation(), v.getPickupLatitude(), v.getPickupLongitude(), available);
+                    v.getPickupLocation(), v.getPickupLatitude(), v.getPickupLongitude(), available, v.getOwner().getName());
         }
     }
     public record RentalRequest(@NotNull Long vehicleId, @NotNull Instant startsAt, @NotNull Instant endsAt) {}
@@ -25,5 +25,5 @@ public final class SharingDtos {
     public record RentalView(Long id, Long vehicleId, String vehicleModel, Long ownerId, Long renterId,
             String pickupLocation, Instant startsAt, Instant endsAt, Rental.Status status,
             String termsVersion, String terms, Instant ownerConsentedAt, Instant renterConsentedAt,
-            GrantView accessGrant, Vehicle.LockState lockState, List<UnlockView> unlockRequests) {}
+            GrantView accessGrant, Vehicle.LockState lockState, List<UnlockView> unlockRequests, String ownerName, String renterName) {}
 }

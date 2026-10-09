@@ -29,8 +29,8 @@ test("브라우저 Web Crypto PKI 요청·사용자 기기 검증·재사용 차
     expect((await post(renter,`/api/rentals/${rental.id}/consents`)).status()).toBe(200);
     const a=await owner.newPage(), b=await renter.newPage();
     await a.goto("/owner"); await b.goto("/renter");
-    const ownerCard=a.getByRole("article").filter({hasText:`대여 #${rental.id} ·`});
-    const renterCard=b.getByRole("article").filter({hasText:`대여 #${rental.id} ·`});
+    const ownerCard=a.locator(`article[data-rental-id="${rental.id}"]`);
+    const renterCard=b.locator(`article[data-rental-id="${rental.id}"]`);
     await expect(renterCard.getByRole("button",{name:"잠금 해제 요청",exact:true})).toBeDisabled();
     await renterCard.getByText("테스트 인증서로 서명된 잠금 해제 요청",{exact:true}).click();
     await renterCard.getByLabel("기기 ID",{exact:true}).fill("wrong-device");
@@ -46,7 +46,7 @@ test("브라우저 Web Crypto PKI 요청·사용자 기기 검증·재사용 차
     expect(request.postData()).not.toContain("PRIVATE KEY");
     await expect(renterCard.getByText("PKI 검증을 통과해 소유자에게 승인 요청을 전송했습니다.")).toBeVisible();
     await ownerCard.getByRole("button",{name:"잠금 해제 승인",exact:true}).click();
-    await expect(renterCard.getByText("해제됨 · UNLOCKED",{exact:true})).toBeVisible();
+    await expect(renterCard.getByText(/차량 잠금 해제됨/)).toBeVisible();
     expect((await post(renter,`/api/rentals/${rental.id}/unlock-requests`,proof)).status()).toBe(403);
     await b.screenshot({path:"/private/tmp/my-garage-renter-desktop.png",fullPage:true});
     await a.screenshot({path:"/private/tmp/my-garage-owner-desktop.png",fullPage:true});

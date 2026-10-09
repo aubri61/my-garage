@@ -1,3 +1,5 @@
+export interface KakaoPlace { id: string; place_name: string; address_name: string; road_address_name: string; x: string; y: string }
+export interface KakaoAddress { address_name: string; x: string; y: string; address?: { address_name: string }; road_address?: { address_name: string } }
 export interface KakaoLatLng { getLat(): number; getLng(): number }
 export interface KakaoBounds { extend(position: KakaoLatLng): void }
 export interface KakaoMapInstance {
@@ -8,6 +10,14 @@ export interface KakaoMapInstance {
 }
 export interface KakaoOverlay { setMap(map: KakaoMapInstance | null): void }
 export interface KakaoMaps {
+  services: {
+    Status: { OK: string; ZERO_RESULT: string; ERROR: string };
+    Places: new () => { keywordSearch(query: string, callback: (results: KakaoPlace[], status: string) => void, options?: { size: number }): void };
+    Geocoder: new () => {
+      addressSearch(query: string, callback: (results: KakaoAddress[], status: string) => void): void;
+      coord2Address(longitude: number, latitude: number, callback: (results: KakaoAddress[], status: string) => void): void;
+    };
+  };
   load(callback: () => void): void;
   LatLng: new (lat: number, lng: number) => KakaoLatLng;
   LatLngBounds: new () => KakaoBounds;
@@ -36,7 +46,7 @@ export function loadKakaoMaps(key: string): Promise<KakaoMaps> {
       reject(new Error(message));
     };
     const timer = window.setTimeout(() => fail("카카오맵 로딩 시간이 초과되었습니다."), 15000);
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}&autoload=false`;
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}&autoload=false&libraries=services`;
     script.async = true;
     script.onload = () => {
       const maps = window.kakao?.maps;

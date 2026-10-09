@@ -11,6 +11,7 @@ import type { OtaScenario, OtaStatus, OtaCheckName } from "@/services/types";
 
 const statusLabels: Record<OtaStatus, string> = { APPROVED: "검증 승인", BLOCKED: "검증 차단", SIMULATED_APPROVAL: "교육용 가상 승인" };
 const checkLabels: Record<OtaCheckName, string> = { PACKAGE_FORMAT: "패키지 형식", TRUSTED_SIGNER: "신뢰된 서명자", SIGNATURE: "전자서명", FILE_INTEGRITY: "파일 무결성", COMPATIBILITY: "차량 호환성", VERSION_POLICY: "구성 요소·버전 정책", ROLLBACK: "롤백 방지" };
+const scenarioLabels: Record<OtaScenario, string> = { VALID: "정상 업데이트", TAMPERED_FILE: "파일 변조", FAKE_PUBLISHER: "미인증 배포자", ROLLBACK: "이전 버전 복원", INCOMPATIBLE_VEHICLE: "차량 호환성 불일치", TAMPERED_METADATA: "업데이트 정보 변조", INVALID_PACKAGE: "잘못된 패키지" };
 const checkStatuses = { PASSED: "통과", FAILED: "실패", NOT_RUN: "미실행" };
 
 export function OtaSecurityLab({ vehicleId, vehicleName }: { vehicleId: number; vehicleName: string }) {
@@ -37,7 +38,7 @@ export function OtaSecurityLab({ vehicleId, vehicleName }: { vehicleId: number; 
   }
   const result = verification.data;
   return <section className="primary-service update-service" aria-labelledby={`${id}-ota-title`}>
-    <div className="service-heading"><span className="service-icon"><ServiceIcon name="shield" /></span><div><p className="service-kicker">{vehicleName}</p><h2 id={`${id}-ota-title`}>OTA Security Lab</h2></div></div>
+    <div className="service-heading"><span className="service-icon"><ServiceIcon name="shield" /></span><div><p className="service-kicker">{vehicleName}</p><h2 id={`${id}-ota-title`}>소프트웨어 보안 검증</h2></div></div>
     <p className="service-description">배포 주체·서명·파일 무결성·호환성·롤백 방지를 서버에서 검증합니다. 실제 설치는 수행하지 않습니다.</p>
     {scenarios.isPending && <p role="status">시나리오를 불러오고 있습니다…</p>}
     {scenarios.isError && <><p className="form-error" role="alert">{errorMessage(scenarios.error)}</p><button className="form-secondary" onClick={() => void scenarios.refetch()}>시나리오 다시 조회</button></>}
@@ -45,10 +46,10 @@ export function OtaSecurityLab({ vehicleId, vehicleName }: { vehicleId: number; 
       <fieldset className="form-fields" disabled={verification.isPending}>
         <legend className="sr-only">OTA 검증 설정</legend>
         <label className="scenario-label" htmlFor={`${id}-ota-scenario`}>검증 시나리오</label>
-        <select id={`${id}-ota-scenario`} value={scenario} onChange={event => { setScenario(event.target.value as OtaScenario); verification.reset(); }}>{scenarios.data.map(item => <option key={item.scenario} value={item.scenario}>{item.scenario} · {item.description}</option>)}</select>
-        <label className="scenario-label" htmlFor={`${id}-ota-protection`}><input id={`${id}-ota-protection`} type="checkbox" checked={protection} onChange={event => { setProtection(event.target.checked); verification.reset(); }} /> 보안 검증 ON</label>
+        <select id={`${id}-ota-scenario`} value={scenario} onChange={event => { setScenario(event.target.value as OtaScenario); verification.reset(); }}>{scenarios.data.map(item => <option key={item.scenario} value={item.scenario}>{scenarioLabels[item.scenario] ?? item.description}</option>)}</select>
+        <label className="scenario-label" htmlFor={`${id}-ota-protection`}><input id={`${id}-ota-protection`} type="checkbox" checked={protection} onChange={event => { setProtection(event.target.checked); verification.reset(); }} /> 보안 검증 사용</label>
       </fieldset>
-      {!protection && <p className="action-note">보호 OFF는 검증 생략 시의 교육용 가상 승인 비교입니다. 실제 설치·침해·차량 제어는 수행하지 않습니다.</p>}
+      {!protection && <p className="action-note">보안 검증을 끄면 검증 생략 시의 검증 생략 결과를 비교할 수 있습니다. 실제 설치·침해·차량 제어는 수행하지 않습니다.</p>}
       <button className="form-submit" disabled={verification.isPending}>{verification.isPending ? "검증 실행 중…" : "검증 실행"}</button>
     </form>)}
     {verification.isError && <p className="form-error" role="alert">{errorMessage(verification.error)}</p>}
@@ -63,7 +64,7 @@ export function OtaSecurityLab({ vehicleId, vehicleName }: { vehicleId: number; 
       {history.isPending && <p role="status">이력을 불러오고 있습니다…</p>}
       {history.isError && <><p className="form-error" role="alert">{errorMessage(history.error)}</p><button className="form-secondary" onClick={() => void history.refetch()}>이력 다시 조회</button></>}
       {history.isSuccess && (history.data.length === 0 ? <p className="service-empty">아직 검증 이력이 없습니다.</p> : <ul>{history.data.map(item => <li key={item.id}>
-        <p>{item.scenario} · {item.protectionEnabled ? "ON" : "OFF"} · {statusLabels[item.status]}</p>
+        <p>{scenarioLabels[item.scenario]} · {item.protectionEnabled ? "보안 검증 사용" : "보안 검증 미사용"} · {statusLabels[item.status]}</p>
         <time dateTime={item.executedAt}>{new Date(item.executedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</time>{item.failureCode && <p>{item.failureCode}</p>}
       </li>)}</ul>)}
     </section>

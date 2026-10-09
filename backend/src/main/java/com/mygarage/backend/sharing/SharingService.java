@@ -244,6 +244,6 @@ public class SharingService {
         return new RentalView(r.getId(), r.getVehicle().getId(), r.getVehicle().getManufacturer()+" "+r.getVehicle().getModel(),
                 r.getVehicle().getOwner().getId(), r.getRenter().getId(), r.getPickupLocation(), r.getStartsAt(), r.getEndsAt(), r.getStatus(),
                 r.getTermsVersion(), r.getTerms(), r.getOwnerConsentedAt(), r.getRenterConsentedAt(), grant, r.getVehicle().getLockState(),
-                unlocks.findAllByRentalIdOrderByIdDesc(r.getId()).stream().map(u -> new UnlockView(u.getId(),u.getStatus(),u.getRequestedAt(),u.getChallengeId() != null)).toList());
+                unlocks.findAllByRentalIdOrderByIdDesc(r.getId()).stream().map(u -> new UnlockView(u.getId(),u.getStatus(),u.getRequestedAt(),u.getChallengeId() != null)).toList(), r.getVehicle().getOwner().getName(), r.getRenter().getName());
     }
 }

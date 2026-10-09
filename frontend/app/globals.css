@@ -317,107 +317,143 @@ h1 { margin: 0; font-size: 30px; line-height: 1.4; font-weight: 650; letter-spac
   .connection-progress li { gap: 10px; font-size: 13px; }
 }
 
-/* P2P sharing uses the existing dark automotive tokens and forms. */
-.sharing-main { max-width: 1240px; margin: 0 auto; padding: 48px 28px 80px; }
-.sharing-title { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
-.sharing-title h1 { font-size: clamp(26px, 4vw, 38px); }
+/* Shared vehicle service: light surfaces, blue actions and clear section hierarchy. */
+.sharing-app { min-height: 100vh; color-scheme: light; background: #f6f8fc; color: #17283e; --background: #f6f8fc; --foreground: #17283e; --surface: #fff; --border: #dce4ee; --muted: #5c6c80; --accent: #2463d4; }
+.sharing-app .brand { color: #173f79; }
+.sharing-main { max-width: 1240px; margin: 0 auto; padding: 42px 32px 64px; }
+.sharing-title { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.sharing-title h1 { font-size: clamp(26px, 4vw, 34px); }
+.sharing-main h2 { font-size: 22px; font-weight: 700; letter-spacing: -.5px; margin: 0 0 12px; }
+.sharing-main h3 { font-size: 18px; font-weight: 700; letter-spacing: -.3px; }
 .sharing-title h2, .sharing-title h3 { margin: 0; }
-.sharing-disclosure, .connection-status { color: #9ba8b5; font-size: 13px; line-height: 1.7; }
-.sharing-panel { padding: 24px; border: 1px solid #303843; background: #171d24; border-radius: 12px; }
-.sharing-panel p { color: #a9b6c5; line-height: 1.7; }
-.mode-grid, .rental-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.page-description { font-size: 15px; color: var(--muted); line-height: 1.8; margin: 12px 0 28px; }
+.sharing-disclosure, .connection-status { color: var(--muted); font-size: 12px; line-height: 1.7; }
+.connection-status { padding: 6px 10px; background: #edf3fc; border-radius: 20px; }
+.sharing-panel { padding: 24px; border: 1px solid var(--border); background: #fff; border-radius: 14px; min-width: 0; overflow-wrap: anywhere; box-shadow: 0 3px 12px #15325e05; }
+.sharing-panel p { color: var(--muted); line-height: 1.75; }
+.sharing-section { margin: 40px 0; }
+.section-heading { margin-bottom: 18px; }
+.section-heading h2 { margin: 0 0 8px; }
+.section-heading p, .section-description { color: var(--muted); font-size: 14px; line-height: 1.7; margin: 0 0 18px; }
+.mode-grid, .rental-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 .mode-grid { margin: 32px 0; }
-.mode-card { text-decoration: none; transition: border-color .15s; }
-.mode-card:hover, .mode-card:focus-visible { border-color: #52cee5; }
-.mode-card strong { color: #52cee5; }
-.sharing-status { padding: 6px 10px; color: #73d9ec; background: #24333e; border-radius: 5px; font-size: 12px; }
-.sharing-search { margin: 30px 0 20px; max-width: 540px; }
-.pickup-map, .map-fallback { height: 360px; width: 100%; border: 1px solid #303843; border-radius: 12px; overflow: hidden; }
-.map-fallback { display: flex; flex-direction: column; justify-content: center; padding: 32px; background: #1a222b; }
-.map-fallback p { max-width: 600px; color: #a9b6c5; line-height: 1.7; }
-.sharing-search-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; align-items: start; }
-.available-list { display: grid; gap: 12px; max-height: 540px; overflow: auto; }
-.available-card { display: flex; flex-direction: column; gap: 10px; text-align: left; cursor: pointer; color: inherit; }
-.available-card[aria-pressed="true"] { border-color: #52cee5; background: #1c303c; }
-.available-card span { color: #9ba8b5; font-size: 14px; }
-.sharing-section { margin-top: 46px; }
+.mode-card { transition: border-color .15s; }
+.mode-card:hover, .mode-card:focus-visible { border-color: var(--accent); }
+.mode-card strong { color: var(--accent); }
+.sharing-status { display: inline-flex; align-items: center; padding: 8px 12px; color: #1a51a8; background: #eaf2ff; border-radius: 8px; font-size: 13px; font-weight: 700; }
+.request-board { padding: 24px; background: #edf3fc; border: 1px solid #dae6f8; border-radius: 18px; margin-top: 24px; }
+.request-board .rental-grid { margin-top: 18px; }
+.request-empty { margin: 0; font-size: 14px; }
+.rental-card[data-status="REQUESTED"] .sharing-status, .rental-card[data-status="CONTRACT_PENDING"] .sharing-status { color: #85500c; background: #fff2d9; }
+.rental-card[data-status="ACTIVE"] .sharing-status { color: #156445; background: #e4f4eb; }
+.rental-card[data-status="COMPLETED"] .sharing-status { color: #56677c; background: #f0f3f7; }
+.rental-summary { margin: 18px 0; display: grid; gap: 10px; font-size: 13px; }
+.rental-summary div { display: grid; grid-template-columns: 72px 1fr; gap: 12px; }
+.rental-summary dt { color: var(--muted); }
+.rental-summary dd { margin: 0; line-height: 1.7; }
+.rental-history { margin-top: 20px; font-size: 14px; }
+.rental-card details { margin: 16px 0; font-size: 13px; }
+.rental-card summary, details > summary { cursor: pointer; color: #2455a0; line-height: 1.7; }
+.key-status { padding: 12px; border-radius: 8px; background: #eef5ff; color: #214f91 !important; font-size: 13px; }
+.sharing-search-layout { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; margin-top: 24px; align-items: start; }
+.available-list { display: grid; gap: 16px; }
+.available-card { display: flex; flex-direction: column; gap: 0; text-align: left; cursor: pointer; color: inherit; padding: 0; overflow: hidden; }
+.available-card:hover { border-color: #aac3e9; }
+.available-card[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px #2463d41c; }
+.vehicle-card-content { display: flex; flex-direction: column; gap: 10px; padding: 20px; }
+.vehicle-card-content strong { font-size: 20px; }
+.available-card span { color: var(--muted); font-size: 13px; line-height: 1.65; }
+.vehicle-meta { display: flex; flex-wrap: wrap; gap: 10px; }
+.availability-badge { align-self: flex-start; background: #edf6ef; color: #246346 !important; padding: 4px 9px; border-radius: 6px; font-weight: 600; }
+.availability-badge.unavailable { background: #f5f0eb; color: #825220 !important; }
+.inventory-filters { display: grid; gap: 20px; padding: 22px; }
+.sharing-search { margin: 0; max-width: none; }
+.filter-row { display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: end; gap: 16px; }
+.sharing-app .form-field { display: block; margin: 0; font-size: 13px; font-weight: 600; line-height: 1.7; min-width: 0; }
+.sharing-app .form-field input, .sharing-app select { display: block; width: 100%; min-width: 0; margin-top: 8px; min-height: 46px; padding: 10px 12px; border: 1px solid #c7d3e3; background: #fff; color: var(--foreground); border-radius: 8px; font: inherit; font-size: 14px; }
+.sharing-app .form-field input:focus, .sharing-app select:focus { border-color: var(--accent); }
+.sharing-app .form-field input:autofill { -webkit-text-fill-color: #17283e; box-shadow: 0 0 0 1000px #fff inset; }
+.sharing-app .form-fields { display: grid; gap: 18px; margin: 18px 0; }
+.sharing-app .form-fields legend { color: var(--muted); font-size: 13px; padding-bottom: 8px; }
+.sharing-app .form-fields:disabled input { background: #f0f3f8; }
+.coordinate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.sharing-toggle { display: flex; gap: 10px; align-items: center; min-height: 46px; font-size: 14px; color: var(--foreground); }
+.sharing-toggle input { accent-color: var(--accent); width: 18px; height: 18px; }
 .sharing-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
-.sharing-actions button, .rental-card details button { padding: 10px 14px; background: #26323d; color: #e9f2f9; border: 1px solid #3b4c5a; border-radius: 5px; cursor: pointer; }
-.sharing-main button:disabled { opacity: .45; cursor: not-allowed; }
-.sharing-main button:focus-visible, .sharing-main summary:focus-visible { outline: 2px solid #52cee5; outline-offset: 3px; }
-.sharing-data { display: grid; gap: 14px; padding: 18px 0; border-block: 1px solid #303843; }
+.sharing-actions button, .rental-card details button { padding: 10px 14px; min-height: 44px; background: #fff; color: #214f91; border: 1px solid #bcd0ed; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.sharing-app .form-submit { background: var(--accent); color: #fff; border-radius: 8px; }
+.sharing-app .form-submit:hover:not(:disabled) { background: #174eaf; }
+.sharing-app .form-secondary { background: #fff; border-radius: 8px; color: var(--accent); }
+.sharing-title > .form-secondary { width: auto; }
+.sharing-app button:disabled { opacity: .5; cursor: not-allowed; }
+.sharing-app .form-error { border-radius: 8px; }
+.sharing-data { display: grid; gap: 14px; padding: 18px 0; border-block: 1px solid var(--border); }
 .sharing-data div { display: flex; justify-content: space-between; gap: 12px; }
-.sharing-data dt { color: #9ba8b5; }
+.sharing-data dt { color: var(--muted); }
 .sharing-data dd { margin: 0; }
-.rental-card details { margin: 16px 0; }
-.rental-card summary { cursor: pointer; color: #73d9ec; }
 .unlock-history { padding-left: 20px; font-size: 13px; line-height: 1.8; }
 .unlock-history li { margin: 12px 0; }
-.coordinate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.sharing-toggle { display: flex; gap: 12px; align-items: center; }
-@media (max-width: 760px) { .mode-grid, .rental-grid, .sharing-search-layout { grid-template-columns: 1fr; } .sharing-main { padding: 28px 18px; } .sharing-data div { flex-direction: column; gap: 4px; } .pickup-map, .map-fallback { height: 300px; } }
-.sharing-app { min-height: 100vh; color-scheme: dark; background: #0e141b; color: #edf3fa; --background: #0e141b; --foreground: #edf3fa; --surface: #121a23; --border: #303c4a; --muted: #a4b2c2; --accent: #6ad6e9; }
-.sharing-app .brand { color: #edf3fa; }
-.sharing-app .header-nav { color: #a4b2c2; }
-.sharing-app .header-nav [aria-current="page"] { color: #6ad6e9; border-bottom: 2px solid currentColor; }
-.sharing-app .form-field input, .sharing-app .form-fields select { background: #111923; border-color: #425367; color: #edf3fa; }
-.sharing-app .form-fields:disabled input { background: #1d2733; }
-.sharing-app .form-submit { color: #0d1b24; }
-.sharing-app .form-submit:hover:not(:disabled) { background: #8be4f3; }
-.sharing-app .form-secondary { background: transparent; }
-.sharing-app .sharing-title > .form-secondary { width: auto; }
-.sharing-app .form-error { color: #ffb2b2; background: #321f29; border-color: #734253; }
-.sharing-app .field-error { color: #ffb2b2; }
-.sharing-app .form-field input[aria-invalid="true"] { border-color: #ee8e9d; }
-.sharing-app .form-submit:disabled, .sharing-app .form-secondary:disabled { background: #24303d; border-color: #425367; color: #a4b2c2; }
-.sharing-app .success-mark { color: #89e0b4; background: #18382b; }
-.sharing-app .registration-disclosure, .sharing-app .demo-codes, .sharing-app .registration-vehicle { background: #171f29; border-color: var(--border); }
-.sharing-app .demo-codes button { background: #111923; color: var(--accent); }
-.sharing-app .form-field input:autofill { -webkit-text-fill-color: #edf3fa; box-shadow: 0 0 0 1000px #111923 inset; }
+.sharing-notification { border-left: 4px solid var(--accent); margin: 20px 0; font-size: 14px; }
+.sharing-vehicle-placeholder { display: flex; align-items: center; justify-content: center; gap: 12px; height: 180px; background: #f1f5fa; color: #687f9a; border-radius: 10px; margin: 16px 0; overflow: hidden; }
+.sharing-vehicle-placeholder img { width: 100%; height: 100%; object-fit: contain; }
+.sharing-vehicle-placeholder > svg { width: 90px; height: 70px; }
+.sharing-vehicle-placeholder > span { font-size: 12px; }
+.available-card .sharing-vehicle-placeholder { margin: 0; border-radius: 0; }
+.rental-application { position: sticky; top: 24px; }
+.rental-application h2 { font-size: 24px; }
+.selection-empty { border-style: dashed; box-shadow: none; }
+.service-boundary { margin-top: 50px; border-top: 1px solid var(--border); padding-top: 20px; font-size: 12px; color: var(--muted); line-height: 1.7; }
+.vehicle-settings { padding-top: 10px; border-top: 1px solid var(--border); }
+.registration-callout { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.registration-callout .form-submit { width: auto; min-width: 180px; }
+.security-section { padding-top: 20px; border-top: 1px solid var(--border); }
+.security-section details > .form-field { margin: 20px 0; }
+.registration-step { padding: 24px; background: #fff; border: 1px solid var(--border); border-radius: 14px; display: grid; gap: 18px; }
+.registration-step h2 { display: flex; gap: 10px; align-items: center; margin: 0; font-size: 18px; }
+.registration-step h2 > span { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #e9f1ff; color: var(--accent); font-size: 13px; }
+.pickup-address-field { display: grid; gap: 12px; min-width: 0; }
+.address-results { list-style: none; padding: 0; margin: 0; border: 1px solid var(--border); border-radius: 8px; background: #fff; overflow: hidden; }
+.address-results button { width: 100%; border: 0; border-bottom: 1px solid var(--border); padding: 12px 14px; background: #fff; color: var(--foreground); display: grid; gap: 4px; text-align: left; cursor: pointer; }
+.address-results button:hover, .address-results button:focus-visible { background: #edf3fc; }
+.address-results span { color: var(--muted); font-size: 12px; }
+.coordinate-details { font-size: 13px; }
+.coordinate-details .coordinate-grid { margin-top: 12px; }
 .account-app { display: flow-root; }
-.sharing-app .status-success { color: #89e0b4; }
-.sharing-app .status-warning { color: #efc481; }
-.sharing-app .primary-service { background: #1b2632; border-color: #425367; }
-.sharing-main h2 { font-size: 22px; font-weight: 650; letter-spacing: -.5px; margin: 24px 0 18px; }
-.sharing-main h3 { font-size: 18px; font-weight: 650; letter-spacing: -.3px; }
-.sharing-title h2, .sharing-title h3 { margin: 0; }
-.sharing-app .form-field { display: block; }
-.sharing-app .form-fields { display: grid; gap: 16px; margin: 18px 0; }
-.sharing-app .form-fields legend { color: #a4b2c2; font-size: 13px; padding-bottom: 8px; }
-.sharing-app .mode-card h2 { font-size: 25px; font-weight: 650; margin: 18px 0; }
-.sharing-app .mode-card p { margin-top: 14px; }
-.sharing-app .map-fallback { height: auto; min-height: 190px; gap: 10px; }
-.sharing-app .rental-grid { margin-top: 20px; }
-
-.account-app .sharing-actions button { color: var(--foreground); }
-.account-app .sharing-actions button[aria-pressed="true"] { border-color: var(--accent); background: #1c303c; }
+.account-app .sharing-actions button[aria-pressed="true"] { border-color: var(--accent); background: #eaf2ff; }
 .account-app .demo-reset { width: auto; margin: 0; }
 .demo-boundary { font-size: 13px; line-height: 1.8; color: var(--muted); margin-bottom: 24px; }
-.account-app .sharing-actions button:disabled { opacity: .45; cursor: not-allowed; }
-
-/* Real sharing inventory, pickup overview and responsive registration inputs. */
-.pickup-overview { position: relative; min-height: 220px; background: #111923; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-.pickup-point { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 3px; border: 1px solid #425367; border-radius: 5px; background: #1b2632; color: #edf3fa; padding: 4px 8px; font-size: 11px; width: 96px; max-width: 96px; cursor: pointer; }
-.pickup-point[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); z-index: 1; }
-.pickup-point span:last-child { width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.sharing-notification { margin-top: 20px; border-color: #425367; font-size: 14px; }
-.sharing-vehicle-placeholder { display: flex; align-items: center; gap: 10px; padding: 12px; background: #111923; border-radius: 6px; color: #91a4b8; font-size: 11px; }
-.sharing-panel { min-width: 0; overflow-wrap: anywhere; }
-.coordinate-grid > .form-field { min-width: 0; }
-.sharing-app .form-field input { min-width: 0; }
-@media (max-width: 760px) { .coordinate-grid { grid-template-columns: 1fr; } }
+.sharing-app .header-nav [aria-current="page"] { color: var(--accent); border-bottom: 2px solid currentColor; }
+.mode-card h2 { font-size: 24px; }
+@media (max-width: 760px) {
+  .mode-grid, .rental-grid, .sharing-search-layout, .coordinate-grid { grid-template-columns: 1fr; }
+  .sharing-main { padding: 28px 18px 48px; }
+  .sharing-panel, .request-board, .registration-step { padding: 20px; }
+  .available-card { padding: 0; }
+  .filter-row { grid-template-columns: 1fr 1fr; }
+  .filter-row .sharing-toggle { grid-column: 1 / -1; }
+  .rental-application { position: static; }
+  .registration-callout { align-items: stretch; flex-direction: column; }
+  .registration-callout .form-submit { width: 100%; }
+  .rental-summary div { grid-template-columns: 1fr; gap: 2px; }
+}
 
 /* Kakao maps use registered pickup coordinates, never simulated GPS. */
 .kakao-map-frame { position: relative; width: 100%; min-width: 0; }
-.map-message { position: absolute; inset: 16px 16px auto; z-index: 3; padding: 16px; border-radius: 8px; background: #151a22; color: #e8edf4; border: 1px solid #39404b; }
+.map-message { position: absolute; inset: 16px 16px auto; z-index: 3; padding: 16px; border-radius: 8px; background: #fff; color: #17283e; border: 1px solid var(--border); }
 .map-message p { margin: 0 0 12px; }
-.kakao-pickup-marker { display: block; padding: 9px 12px; border: 1px solid #667180; border-radius: 8px; background: #1b222d; color: #f1f5fa; font-size: 12px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px #0004; cursor: pointer; }
-.kakao-pickup-marker[aria-pressed="true"] { background: #bfd5ef; border-color: #234568; color: #10243a; }
+.kakao-pickup-marker { display: block; padding: 9px 12px; border: 1px solid #667180; border-radius: 8px; background: #fff; color: #173f79; font-size: 12px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px #0004; cursor: pointer; }
+.kakao-pickup-marker[aria-pressed="true"] { background: #2463d4; border-color: #2463d4; color: #fff; }
 .kakao-pickup-marker:focus-visible { outline: 3px solid #2685f4; outline-offset: 3px; }
 .pickup-location-picker { min-width: 0; width: 100%; }
 .pickup-location-picker .pickup-map { height: 260px; }
 .kakao-marker-group { position: relative; }
 .kakao-marker-group summary { list-style: none; }
 .kakao-marker-group summary::after { content: " ▾"; }
-.kakao-marker-list { position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); width: 240px; max-height: 180px; overflow-y: auto; padding: 6px; border: 1px solid #667180; border-radius: 8px; background: #1b222d; }
+.kakao-marker-list { position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); width: 240px; max-height: 180px; overflow-y: auto; padding: 6px; border: 1px solid #667180; border-radius: 8px; background: #fff; }
 .kakao-marker-list .kakao-pickup-marker { width: 100%; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+
+.pickup-map { height: 360px; width: 100%; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+@media (max-width: 760px) { .pickup-map { height: 300px; } }
+
+.sharing-vehicle-placeholder { position: relative; }
+.sharing-vehicle-placeholder .vehicle-image-note { position: absolute; right: 10px; bottom: 8px; padding: 2px 7px; border-radius: 4px; background: #ffffffdf; color: #53657b; font-size: 10px; }
